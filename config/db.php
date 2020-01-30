@@ -2,7 +2,7 @@
 
 return [
     'class' => 'yii\db\Connection',
-    'dsn' => 'mysql:host=database;dbname=collabmediae',
+    'dsn' => 'mysql:host=database;dbname=collabmedia',
     'username' => 'root',
     'password' => 'root',
     'charset' => 'utf8',

@@ -6,6 +6,7 @@ namespace app\controllers\mainController;
 
 use app\components\Util;
 use app\models\User;
+use yii\base\Action;
 use yii\web\Controller;
 
 class MainController extends Controller
@@ -50,9 +51,46 @@ class MainController extends Controller
 
     public function beforeAction($action)
     {
-        // TODO gestion des rôles en fonction de l'action appelée
+        $this->handleActionAuthorization($action);
 
         return parent::beforeAction($action);
+    }
+
+    private function handleActionAuthorization(Action $action)
+    {
+        if(\Yii::$app->user->isGuest) {
+            $this->handleGuestActionAuthorization($action);
+            return;
+        }
+
+        $this->handleLoggedInActionAuthorization($action);
+    }
+
+    private function handleGuestActionAuthorization(Action $action)
+    {
+        $actionName = $action->id;
+        $controllerName = $action->controller->id;
+
+        $redirect = true;
+
+        if(array_key_exists($controllerName, self::GUEST_ACTIONS)) {
+            if(in_array($actionName, self::GUEST_ACTIONS[$controllerName])) {
+                $redirect = false;
+            }
+        }
+
+        if($redirect) {
+            header('location: /site/login');
+            die();
+        }
+    }
+
+    private function handleLoggedInActionAuthorization(Action $action)
+    {
+        $actionName = $action->id;
+        $controllerName = $action->controller->id;
+
+        // TODO
     }
 
     /**

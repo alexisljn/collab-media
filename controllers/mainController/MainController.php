@@ -18,7 +18,7 @@ class MainController extends Controller
      *     'allowed-action-name',
      * ],
      */
-    private const guestActions = [
+    private const GUEST_ACTIONS = [
         'site' => [
             'login'
         ]
@@ -35,7 +35,7 @@ class MainController extends Controller
      *     '*' => 'role', // All actions of this controller need this role
      * ]
      */
-    private const actionsRequiredRoles = [
+    private const ACTIONS_REQUIRED_ROLES = [
         'site' => [
             'index' => Util::USER_ROLE_MEMBER,
             'logout' => Util::USER_ROLE_MEMBER,

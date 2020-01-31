@@ -4,11 +4,44 @@
 namespace app\controllers\mainController;
 
 
+use app\components\Util;
 use app\models\User;
 use yii\web\Controller;
 
 class MainController extends Controller
 {
+    /**
+     * Defines the actions that are accessible to guest users
+     *
+     * Format :
+     * 'controller-name' => [
+     *     'allowed-action-name',
+     * ],
+     */
+    private const guestActions = [
+        'site' => [
+            'login'
+        ]
+    ];
+
+    /**
+     * Defines the role needed for each action
+     *
+     * Format :
+     * 'controller-name' => [
+     *     'action-name' => 'role',
+     * ],
+     * 'controller-name' => [
+     *     '*' => 'role', // All actions of this controller need this role
+     * ]
+     */
+    private const actionsRequiredRoles = [
+        'site' => [
+            'index' => Util::USER_ROLE_MEMBER,
+            'logout' => Util::USER_ROLE_MEMBER,
+        ],
+    ];
+
     public function init()
     {
         parent::init();

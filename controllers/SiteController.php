@@ -68,6 +68,7 @@ class SiteController extends MainController
      * Login action.
      *
      * @return Response|string
+     * @throws \Exception
      */
     public function actionLogin()
     {
@@ -77,6 +78,7 @@ class SiteController extends MainController
 
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
+            MainController::afterLogin();
             return $this->goBack();
         }
 

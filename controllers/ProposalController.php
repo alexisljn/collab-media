@@ -26,20 +26,6 @@ class ProposalController extends MainController
 
         */
         $proposalsDataProvider = $this->getNoReviewedAndNoPublishedProposalsForAReviewer();
-        //dd($proposalsDataProvider);
-
-        /*$OproposalsDataProvider = new ActiveDataProvider([
-            'query' => Proposal::find()
-                ->andWhere(['in','id',(new Query())->select('proposal_id')->from('review')->column() ]),
-            'pagination' => [
-                'pageSize' => 20,
-                'defaultPageSize' => 20
-            ],
-            'sort' => [
-                'attributes' => ['title'],
-                'defaultOrder' => ['title' => SORT_ASC]
-            ]
-        ]);*/
 
         return $this->render('reviewer-pending-proposals', [
             'proposalsDataProvider' => $proposalsDataProvider
@@ -50,7 +36,12 @@ class ProposalController extends MainController
     {
         $noReviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
-                ->where([
+               ->select('proposal.*,
+                                  CASE
+                                    WHEN (SELECT count(*) FROM review WHERE review.proposal_id = proposal.id) > 0 THEN 1
+                                    ELSE 0
+                                  END as has_review')
+               ->where([
                     'not in',
                     'id',
                     (new Query())
@@ -64,11 +55,10 @@ class ProposalController extends MainController
                 'defaultPageSize' => 20
             ],
             'sort' => [
-                'attributes' => ['title', 'date', 'id'],
+                'attributes' => ['has_review','date', 'title', 'id'],
                 'defaultOrder' => [
-                    'id' => SORT_ASC,
-                    'title' => SORT_ASC,
-                    'date' => SORT_DESC
+                    'has_review' => SORT_ASC,
+                    'date' => SORT_DESC,
                 ]
             ]
         ]);

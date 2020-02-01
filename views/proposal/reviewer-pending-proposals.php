@@ -4,7 +4,8 @@
 
 ?>
 
-<?= \yii\grid\GridView::widget([
+<?=
+\yii\grid\GridView::widget([
     'dataProvider' => $proposalsDataProvider,
     'columns' => [
         [
@@ -31,6 +32,21 @@
         [
             'attribute' => 'id',
             'label' => 'id'
+        ],
+        [
+            'attribute' => 'has_review',
+            'label' => 'Reviewed ?',
+            'value' => function($proposal) {
+                /** @var \app\models\databaseModels\Proposal $proposal */
+                if ($proposal->getReviews()->count()) {
+                    return 'yes it is';
+                }
+                return 'no it is not';
+            }
+        ],
+        [
+            'attribute' => 'date',
+            'label' => 'Date'
         ]
     ]
-    ]) ?>
+]) ?>

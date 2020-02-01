@@ -20,13 +20,17 @@
             }
         ],
         [
-            'attribute' => 'published',
-            'label' => 'PUBLI',
-            'value' => function($proposal) {
+            'label' => 'Nombre Review',
+            'value' => function($proposal)
+            {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
                 return $proposal->getReviews()->count();
             }
+        ],
+        [
+            'attribute' => 'id',
+            'label' => 'id'
         ]
     ]
     ]) ?>

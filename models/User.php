@@ -6,6 +6,11 @@ use yii\base\NotSupportedException;
 
 class User extends databaseModels\User implements \yii\web\IdentityInterface
 {
+    public const USER_ROLE_MEMBER = 'member';
+    public const USER_ROLE_REVIEWER = 'reviewer';
+    public const USER_ROLE_PUBLISHER = 'publisher';
+    public const USER_ROLE_ADMIN = 'admin';
+
     /**
      * {@inheritdoc}
      */

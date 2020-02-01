@@ -38,8 +38,8 @@ class MainController extends Controller
      */
     private const ACTIONS_REQUIRED_ROLES = [
         'site' => [
-            'index' => Util::USER_ROLE_MEMBER,
-            'logout' => Util::USER_ROLE_MEMBER,
+            'index' => User::USER_ROLE_MEMBER,
+            'logout' => User::USER_ROLE_MEMBER,
         ],
     ];
 

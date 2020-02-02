@@ -19,7 +19,6 @@
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
                 return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
-                // return '<a data-pjax=0 href="/account/user/' . $user->id . '">' . Html::encode($user->first_name . ' ' . $user->last_name) . '</a>';
             }
         ],
         [
@@ -82,7 +81,6 @@
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
                 return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
-                // return '<a data-pjax=0 href="/account/user/' . $user->id . '">' . Html::encode($user->first_name . ' ' . $user->last_name) . '</a>';
             }
         ],
         [

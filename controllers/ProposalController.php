@@ -58,7 +58,7 @@ class ProposalController extends MainController
                         ->from('review')
                         ->where(['reviewer_id' => self::getCurrentUser()->id])
                 ])
-                ->andWhere(['published' => false]),
+                ->andWhere(['status' => 'pending']),
             'pagination' => [
                 'pageSize' => 20,
                 'defaultPageSize' => 20
@@ -93,7 +93,7 @@ class ProposalController extends MainController
                     ->where(['reviewer_id' => self::getCurrentUser()->id])
                     ->column()
             ])
-            ->andWhere(['published' => false]),
+            ->andWhere(['status' => 'pending']),
             'pagination' => [
                 'pageSize' => 20,
                 'defaultPageSize' => 20

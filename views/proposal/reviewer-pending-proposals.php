@@ -86,10 +86,6 @@
             }
         ],
         [
-            'attribute' => 'id',
-            'label' => 'id'
-        ],
-        [
             'attribute' => 'date',
             'label' => 'Date'
         ],

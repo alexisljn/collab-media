@@ -8,14 +8,12 @@ use app\controllers\mainController\MainController;
 use app\models\databaseModels\Proposal;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
-use yii\web\View;
 
 class ProposalController extends MainController
 {
     public function actionMyPendingProposals()
     {
-       // Yii::app()->user
-
+       // TODO
     }
 
     /**

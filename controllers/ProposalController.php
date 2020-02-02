@@ -8,6 +8,7 @@ use app\controllers\mainController\MainController;
 use app\models\databaseModels\Proposal;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
+use yii\web\View;
 
 class ProposalController extends MainController
 {
@@ -17,28 +18,38 @@ class ProposalController extends MainController
 
     }
 
-
-    public function actionReviewerPendingProposals()
+    /**
+     * Returns proposals that can be access by a rewiewer depending his activity
+     *
+     * @return string
+     */
+    public function actionReviewerPendingProposals(): string
     {
-        /*
-        1 liste qui affiche les propositions non reviewées et qui n'ont pas été publiées
-        1 liste qui affiche les propositions qu'il a reviewées et qui n'ont pas été publiées
-
-        */
-        $proposalsDataProvider = $this->getNoReviewedAndNoPublishedProposalsForAReviewer();
+        $noReviewedProposalsByAReviewerDataProvider = $this->getNoReviewedAndNoPublishedProposalsForAReviewer();
+        $reviewedProposalsByAReviewerDataProvider = $this->getReviewedAndNoPublishedProposalsForAReviewer();
 
         return $this->render('reviewer-pending-proposals', [
-            'proposalsDataProvider' => $proposalsDataProvider
+            'noReviewedProposalsByAReviewerDataProvider' => $noReviewedProposalsByAReviewerDataProvider,
+            'reviewedProposalsByAReviewerDataProvider' => $reviewedProposalsByAReviewerDataProvider
         ]);
     }
 
-    private function getNoReviewedAndNoPublishedProposalsForAReviewer(): ?ActiveDataProvider
+    /**
+     * Returns proposals not reviewed and not published for a reviewer
+     *
+     * @return ActiveDataProvider
+     */
+    private function getNoReviewedAndNoPublishedProposalsForAReviewer(): ActiveDataProvider
     {
         $noReviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
                ->select('proposal.*,
                                   CASE
-                                    WHEN (SELECT count(*) FROM review WHERE review.proposal_id = proposal.id) > 0 THEN 1
+                                    WHEN 
+                                        (SELECT count(*) 
+                                        FROM review 
+                                        WHERE review.proposal_id = proposal.id) > 0 
+                                        THEN 1
                                     ELSE 0
                                   END as has_review')
                ->where([
@@ -55,31 +66,50 @@ class ProposalController extends MainController
                 'defaultPageSize' => 20
             ],
             'sort' => [
-                'attributes' => ['has_review','date', 'title', 'id'],
+                'attributes' => ['has_review','date', 'title'],
                 'defaultOrder' => [
                     'has_review' => SORT_ASC,
-                    'date' => SORT_DESC,
+                    'date' => SORT_DESC
                 ]
             ]
         ]);
+
         return $noReviewedAndNoPublishedProposalsForAReviewer;
     }
 
-    private function getReviewedAndNoPublishedProposalsForAReviewer()
+    /**
+     * Returns proposals already reviewed but not published for a reviewer
+     *
+     * @return ActiveDataProvider
+     */
+    private function getReviewedAndNoPublishedProposalsForAReviewer(): ActiveDataProvider
     {
         $reviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
-            /*>where([
+            ->where([
                 'in',
                 'id',
                 (new Query())
                     ->select('proposal_id')
                     ->from('review')
-                    ->where(['reviewer_id' => //CURRENT_USER_ID])
+                    ->where(['reviewer_id' => 13/*currentUser->id*/])
                     ->column()
-            ])*/
-            ->andWhere(['published' => false])
+            ])
+            ->andWhere(['published' => false]),
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
         ]);
+
+        return $reviewedAndNoPublishedProposalsForAReviewer;
     }
 
 }

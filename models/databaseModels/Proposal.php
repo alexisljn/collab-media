@@ -12,7 +12,7 @@ use Yii;
  * @property string $date
  * @property int $submitter_id
  * @property string|null $social_media social medias where the proposal will be published
- * @property bool $published
+ * @property string $status
  *
  * @property Comment[] $comments
  * @property File[] $files
@@ -37,11 +37,11 @@ class Proposal extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['title', 'date', 'submitter_id'], 'required'],
+            [['title', 'date', 'submitter_id', 'status'], 'required'],
             [['date'], 'safe'],
             [['submitter_id'], 'integer'],
-            [['published'], 'boolean'],
             [['title', 'social_media'], 'string', 'max' => 255],
+            [['status'], 'string', 'max' => 20],
             [['submitter_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['submitter_id' => 'id']],
         ];
     }
@@ -57,7 +57,7 @@ class Proposal extends \yii\db\ActiveRecord
             'date' => 'Date',
             'submitter_id' => 'Submitter ID',
             'social_media' => 'Social Media',
-            'published' => 'Published',
+            'status' => 'Status',
         ];
     }
 

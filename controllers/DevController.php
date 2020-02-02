@@ -49,13 +49,21 @@ class DevController extends MainController
             $proposal->date = (\DateTime::createFromFormat('U', random_int($sixMonthsAgo, $now)))->format('Y-m-d H:i:s');
             $proposal->submitter_id = $userIds[random_int(0, count($userIds) - 1)];
 
-            $is_published = random_int(0, 1);
-
-            if($is_published) {
-                $proposal->published = true;
-                $proposal->social_media = 'twitter';
-            } else {
-                $proposal->published = false;
+            $status = random_int(0, 2);
+            switch ($status) {
+                case 0:
+                    $proposal->status = 'pending';
+                break;
+                case 1:
+                    $proposal->status = 'published';
+                    $proposal->social_media = 'twitter';
+                break;
+                case 2:
+                    $proposal->status = 'rejected';
+                break;
+                default:
+                    $proposal->status = 'pending';
+                break;
             }
 
             if(!$proposal->save()) {

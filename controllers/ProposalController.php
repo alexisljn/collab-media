@@ -58,7 +58,7 @@ class ProposalController extends MainController
                     (new Query())
                         ->select('proposal_id')
                         ->from('review')
-                        ->where(['reviewer_id' => self::getCurrentUser()])
+                        ->where(['reviewer_id' => self::getCurrentUser()->id])
                 ])
                 ->andWhere(['published' => false]),
             'pagination' => [
@@ -92,7 +92,7 @@ class ProposalController extends MainController
                 (new Query())
                     ->select('proposal_id')
                     ->from('review')
-                    ->where(['reviewer_id' => self::getCurrentUser()])
+                    ->where(['reviewer_id' => self::getCurrentUser()->id])
                     ->column()
             ])
             ->andWhere(['published' => false]),

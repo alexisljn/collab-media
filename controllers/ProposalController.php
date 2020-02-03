@@ -17,11 +17,21 @@ class ProposalController extends MainController
     1 liste qui affiche les propositions reviewées et stipule si elles ont été acceptées,
     acceptées et publiées ou refusées.
     */
+        $myPendingProposals = $this->getMyPendingProposals();
+        $myReviewedProposals = $this->getMyReviewedProposals();
 
-
+        return $this->render('my-proposals',[
+            'myPendingProposals' => $myPendingProposals,
+            'myReviewedProposals' => $myReviewedProposals
+        ]);
     }
 
-    private function getMyPendingProposals()
+    /**
+     * Returns the pending proposals of a member.
+     *
+     * @return ActiveDataProvider
+     */
+    private function getMyPendingProposals(): ActiveDataProvider
     {
         $myPendingProposals = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -42,11 +52,35 @@ class ProposalController extends MainController
             ],
             'sort' => [
                 'attributes' => ['date' ,'title', 'has_review'],
-                'defaultOrder' => ['date', 'title', 'has_review']
+                'defaultOrder' => ['date' => SORT_DESC, 'title' => SORT_ASC, 'has_review' => SORT_ASC]
             ]
         ]);
 
         return $myPendingProposals;
+    }
+
+    /**
+     * Returns the reviewed proposals of a member.
+     *
+     * @return ActiveDataProvider
+     */
+    private function getMyReviewedProposals(): ActiveDataProvider
+    {
+        $myReviewedProposals = new ActiveDataProvider([
+            'query' => Proposal::find()
+                ->where(['not',['status' => 'pending']])
+                ->andWhere(['submitter_id' => self::getCurrentUser()->id]),
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'attributes' => ['date' ,'title', 'status'],
+                'defaultOrder' => ['date' => SORT_DESC, 'title' => SORT_ASC, 'status' => SORT_ASC]
+            ]
+        ]);
+
+        return $myReviewedProposals;
     }
 
     /**

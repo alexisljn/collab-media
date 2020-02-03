@@ -11,12 +11,13 @@ use yii\db\Query;
 
 class ProposalController extends MainController
 {
-    public function actionMyProposals()
+    /**
+     * Returns all proposals submitted by a member
+     *
+     * @return string
+     */
+    public function actionMyProposals(): string
     {
-    /* 1 liste qui affiche les propositions en cours de reviews
-    1 liste qui affiche les propositions reviewées et stipule si elles ont été acceptées,
-    acceptées et publiées ou refusées.
-    */
         $myPendingProposals = $this->getMyPendingProposals();
         $myReviewedProposals = $this->getMyReviewedProposals();
 

@@ -20,10 +20,6 @@
             }
         ],
         [
-            'attribute' => 'id',
-            'label' => 'ID'
-        ],
-        [
             'attribute' => 'date',
             'label' => 'date'
         ],
@@ -72,10 +68,6 @@
 
                 return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
-        ],
-        [
-            'attribute' => 'id',
-            'label' => 'ID'
         ],
         [
             'attribute' => 'date',

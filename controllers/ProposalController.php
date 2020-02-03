@@ -23,9 +23,30 @@ class ProposalController extends MainController
 
     private function getMyPendingProposals()
     {
-       /* $myPendingProposals = new ActiveDataProvider([
+        $myPendingProposals = new ActiveDataProvider([
             'query' => Proposal::find()
-        ])*/
+                ->select('proposal.*,
+                                    CASE
+                                        WHEN 
+                                            (SELECT count(*) 
+                                            FROM review 
+                                            WHERE review.proposal_id = proposal.id) > 0 
+                                            THEN 1
+                                        ELSE 0
+                                      END as has_review')
+                ->where(['submitter_id' => self::getCurrentUser()->id])
+                ->andWhere(['status' => 'pending']),
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'attributes' => ['date' ,'title', 'has_review'],
+                'defaultOrder' => ['date', 'title', 'has_review']
+            ]
+        ]);
+
+        return $myPendingProposals;
     }
 
     /**

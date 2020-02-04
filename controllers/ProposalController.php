@@ -19,11 +19,11 @@ class ProposalController extends MainController
     public function actionMyProposals(): string
     {
         $myPendingProposals = $this->getMyPendingProposals();
-        $myReviewedProposals = $this->getMyReviewedProposals();
+        $myNotPendingProposals = $this->getMyNotPendingProposals();
 
         return $this->render('my-proposals',[
             'myPendingProposals' => $myPendingProposals,
-            'myReviewedProposals' => $myReviewedProposals
+            'myNotPendingProposals' => $myNotPendingProposals
         ]);
     }
 
@@ -65,7 +65,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getMyReviewedProposals(): ActiveDataProvider
+    private function getMyNotPendingProposals(): ActiveDataProvider
     {
         $myReviewedProposals = new ActiveDataProvider([
             'query' => Proposal::find()

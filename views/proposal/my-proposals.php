@@ -1,6 +1,6 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $myPendingProposals */
-/** @var \yii\data\ActiveDataProvider $myReviewedProposals */
+/** @var \yii\data\ActiveDataProvider $myNotPendingProposals */
 ?>
 
 
@@ -54,9 +54,9 @@
         ]
     ]
 ]); ?>
-<strong>My reviewed proposals</strong>
+<strong>Proposals history</strong>
 <?= \yii\grid\GridView::widget([
-    'dataProvider' => $myReviewedProposals,
+    'dataProvider' => $myNotPendingProposals,
     'columns' => [
         [
             'attribute' => 'title',

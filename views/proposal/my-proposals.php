@@ -1,13 +1,12 @@
 <?php
-/** @var \yii\data\ActiveDataProvider $noReviewedProposalsByAReviewerDataProvider */
-/** @var \yii\data\ActiveDataProvider $reviewedProposalsByAReviewerDataProvider */
-
-
+/** @var \yii\data\ActiveDataProvider $myPendingProposals */
+/** @var \yii\data\ActiveDataProvider $myNotPendingProposals */
 ?>
-<strong>No reviewed proposals for a reviewer</strong>
-<?=
-\yii\grid\GridView::widget([
-    'dataProvider' => $noReviewedProposalsByAReviewerDataProvider,
+
+
+<strong>My pending proposals</strong>
+<?= \yii\grid\GridView::widget([
+    'dataProvider' => $myPendingProposals,
     'columns' => [
         [
             'attribute' => 'title',
@@ -15,7 +14,6 @@
             'format' => 'raw',
             'value' => function($proposal)
             {
-
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
                 return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
@@ -23,11 +21,11 @@
         ],
         [
             'attribute' => 'date',
-            'label' => 'Date'
+            'label' => 'date'
         ],
         [
             'attribute' => 'has_review',
-            'label' => 'Reviewed ?',
+            'label' => 'has review ?',
             'value' => function($proposal) {
                 /** @var \app\models\databaseModels\Proposal $proposal */
                 if ($proposal->getReviews()->count()) {
@@ -46,30 +44,19 @@
             }
         ],
         [
-            'label' => 'Disapproval',
+            'label' => 'Rejected',
             'value' => function($proposal)
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return $proposal->getReviews()->where(['status' => 'disapproved'])->count();
-            }
-        ],
-        [
-            'label' => 'Comments',
-            'value' => function($proposal)
-            {
-                /** @var \app\models\databaseModels\Proposal $proposal */
-
-                return $proposal->getComments()->count();
+                return $proposal->getReviews()->where(['status' => 'rejected'])->count();
             }
         ]
-
     ]
-]) ?>
-<strong>reviewed proposals for a reviewer</strong>
-<?=
-\yii\grid\GridView::widget([
-    'dataProvider' => $reviewedProposalsByAReviewerDataProvider,
+]); ?>
+<strong>Proposals history</strong>
+<?= \yii\grid\GridView::widget([
+    'dataProvider' => $myNotPendingProposals,
     'columns' => [
         [
             'attribute' => 'title',
@@ -77,7 +64,6 @@
             'format' => 'raw',
             'value' => function($proposal)
             {
-
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
                 return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
@@ -85,7 +71,7 @@
         ],
         [
             'attribute' => 'date',
-            'label' => 'Date'
+            'label' => 'date'
         ],
         [
             'label' => 'Approval',
@@ -97,23 +83,13 @@
             }
         ],
         [
-            'label' => 'Disapproval',
+            'label' => 'Rejected',
             'value' => function($proposal)
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return $proposal->getReviews()->where(['status' => 'disapproved'])->count();
-            }
-        ],
-        [
-            'label' => 'Comments',
-            'value' => function($proposal)
-            {
-                /** @var \app\models\databaseModels\Proposal $proposal */
-
-                return $proposal->getComments()->count();
+                return $proposal->getReviews()->where(['status' => 'rejected'])->count();
             }
         ]
-
     ]
-]) ?>
+]); ?>

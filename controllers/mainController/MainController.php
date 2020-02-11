@@ -43,6 +43,10 @@ class MainController extends Controller
         'site' => [
             '*' => User::USER_ROLE_MEMBER,
         ],
+        'proposal' => [
+            'my-proposals' => User::USER_ROLE_MEMBER,
+            'reviewer-pending-proposals' => User::USER_ROLE_REVIEWER
+        ]
     ];
 
     /**

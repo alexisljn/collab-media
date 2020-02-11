@@ -45,12 +45,18 @@ class MainController extends Controller
         ],
     ];
 
+    /**
+     * @inheritDoc
+     */
     public function init()
     {
         parent::init();
         self::logoutUserIfPasswordChanged();
     }
 
+    /**
+     * @inheritDoc
+     */
     public function beforeAction($action)
     {
         $this->handleActionAuthorization($action);
@@ -58,6 +64,12 @@ class MainController extends Controller
         return parent::beforeAction($action);
     }
 
+    /**
+     * Handles action access according to user status (logged in or not)
+     * and, if user is logged in, his role
+     *
+     * @param Action $action
+     */
     private function handleActionAuthorization(Action $action)
     {
         if(\Yii::$app->user->isGuest) {
@@ -68,6 +80,12 @@ class MainController extends Controller
         $this->handleLoggedInActionAuthorization($action);
     }
 
+    /**
+     * Redirects the guest user to the login page if the user
+     * tries to access an action that needs to be logged in
+     *
+     * @param Action $action
+     */
     private function handleGuestActionAuthorization(Action $action)
     {
         $actionName = $action->id;
@@ -87,6 +105,12 @@ class MainController extends Controller
         }
     }
 
+    /**
+     * Denies access to the action if the user does not
+     * have the required role
+     *
+     * @param Action $action
+     */
     private function handleLoggedInActionAuthorization(Action $action)
     {
         // The exception thrown if the user has not the required role

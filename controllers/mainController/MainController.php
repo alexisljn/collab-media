@@ -8,6 +8,8 @@ use app\components\Util;
 use app\models\User;
 use yii\base\Action;
 use yii\web\Controller;
+use yii\web\NotFoundHttpException;
+use yii\web\UnauthorizedHttpException;
 
 class MainController extends Controller
 {
@@ -21,7 +23,8 @@ class MainController extends Controller
      */
     private const GUEST_ACTIONS = [
         'site' => [
-            'login'
+            'login',
+            'error',
         ]
     ];
 
@@ -38,8 +41,7 @@ class MainController extends Controller
      */
     private const ACTIONS_REQUIRED_ROLES = [
         'site' => [
-            'index' => User::USER_ROLE_MEMBER,
-            'logout' => User::USER_ROLE_MEMBER,
+            '*' => User::USER_ROLE_MEMBER,
         ],
     ];
 
@@ -87,10 +89,38 @@ class MainController extends Controller
 
     private function handleLoggedInActionAuthorization(Action $action)
     {
+        // The exception thrown if the user has not the required role
+        $unauthorizedException = NotFoundHttpException::class;
+
         $actionName = $action->id;
         $controllerName = $action->controller->id;
 
-        // TODO
+        // Error action is always accessible
+        if($controllerName === 'site' && $actionName === 'error') {
+            return;
+        }
+
+        if(!array_key_exists($controllerName, self::ACTIONS_REQUIRED_ROLES)) {
+            throw new $unauthorizedException();
+        }
+
+        if(!is_array(self::ACTIONS_REQUIRED_ROLES[$controllerName])) {
+            throw new $unauthorizedException();
+        }
+
+        if(array_key_exists('*', self::ACTIONS_REQUIRED_ROLES[$controllerName])) {
+            $requiredRole = self::ACTIONS_REQUIRED_ROLES[$controllerName]['*'];
+        } else {
+            if(!array_key_exists($actionName, self::ACTIONS_REQUIRED_ROLES[$controllerName])) {
+                throw new $unauthorizedException();
+            }
+
+            $requiredRole = self::ACTIONS_REQUIRED_ROLES[$controllerName][$actionName];
+        }
+
+        if(!self::getCurrentUser()->hasRole($requiredRole)) {
+            throw new $unauthorizedException();
+        }
     }
 
     /**

@@ -7,17 +7,27 @@ namespace app\controllers;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\Proposal;
 use yii\data\ActiveDataProvider;
+use yii\db\Exception;
 use yii\db\Query;
+use yii\web\NotFoundHttpException;
 
 class ProposalController extends MainController
 {
     /**
      * Returns all proposals submitted by a member
      *
+     * @param null $id
      * @return string
      */
-    public function actionMyProposals(): string
+    public function actionMyProposals($id = null): string
     {
+        //dd($id);
+        if (!is_null($id)) {
+            $selectedProposal = $this->checkIfProposalExists($id);
+            $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
+            dd('success');
+        }
+
         $myPendingProposals = $this->getMyPendingProposals();
         $myNotPendingProposals = $this->getMyNotPendingProposals();
 
@@ -25,6 +35,24 @@ class ProposalController extends MainController
             'myPendingProposals' => $myPendingProposals,
             'myNotPendingProposals' => $myNotPendingProposals
         ]);
+    }
+
+    private function checkIfProposalExists($id)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
+            return $selectedProposal;
+        }
+        throw new $unauthorizedException();
+    }
+
+    private function checkIfUserIsOwnerOfProposal($submitterId)
+    {
+        if($submitterId == self::getCurrentUser()->id) {
+            return;
+        }
+        throw new Exception('Not owner of this proposal');
     }
 
     /**

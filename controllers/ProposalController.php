@@ -25,7 +25,24 @@ class ProposalController extends MainController
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-            dd('success');
+            $comments = $selectedProposal->comments;
+            $reviews = $selectedProposal->reviews;
+            $history = $selectedProposal->proposalContentHistories;
+
+
+            $date = New \DateTime($comments[0]->date);
+            //echo $date->format('d-m-Y\TH:i:s.u');
+            $chronologicalStream = $this->generateChronologicalStream
+            (
+                $selectedProposal->comments,
+                $selectedProposal->reviews,
+                $selectedProposal->proposalContentHistories
+            );
+            dd($chronologicalStream);
+            return $this->render('my-proposal', [
+                'selectedProposal' => $selectedProposal
+            ]);
+            
         }
 
         $myPendingProposals = $this->getMyPendingProposals();
@@ -54,6 +71,30 @@ class ProposalController extends MainController
         }
         throw new Exception('Not owner of this proposal');
     }
+
+    private function generateChronologicalStream($comments, $reviews, $proposalContentHistories)
+    {
+       $chronologicalStream = array();
+
+        /* function sort($a,$b) {
+            if($a == $b) {
+                return 0;
+            }
+            return ($a < $b) ? -1 : 1;
+        }*/
+        foreach($comments as $comment) {
+            array_push($chronologicalStream, $comment);
+        }
+        foreach($reviews as $review) {
+            array_push($chronologicalStream, $review);
+        }
+        foreach($proposalContentHistories as $history) {
+            array_push($chronologicalStream, $history);
+        }
+
+        return $chronologicalStream;
+    }
+
 
     /**
      * Returns the pending proposals of a member.

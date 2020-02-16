@@ -63,7 +63,6 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-               // '<controller:\w+>/<id:\d+>' => '<controller>/view',
                 'proposal/my-proposals/<id:\d+>' => 'proposal/my-proposals'
             ],
         ],

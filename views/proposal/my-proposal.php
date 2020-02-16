@@ -17,5 +17,45 @@
 <?php } ?>
 <p><?= $lastProposalContent->content ?></p>
 
+<!-- Proposal History -->
+
+<?php foreach ($chronologicalStream as $oldProposalContent) {
+    if ($oldProposalContent instanceof \app\models\databaseModels\ProposalContentHistory && $oldProposalContent->date != $lastProposalContent->date) { ?>
+        <div class="bg-success">
+            <p>Previous version  of <?=' '. $oldProposalContent->date ?></p>
+            <p><?= $oldProposalContent->content ?></p>
+        </div>
+    <?php }
+} ?>
+
 <!-- Chronological Stream -->
 
+<?php
+foreach ($chronologicalStream as $chronologicalItem) {
+    if($chronologicalItem instanceof \app\models\databaseModels\Comment) { ?>
+        <div class="bg-primary">
+            <p><?= $chronologicalItem->author->firstname . ' ' . $chronologicalItem->author->lastname . ' - ' . $chronologicalItem->date ?></p>
+            <p><?= $chronologicalItem->content ?></p>
+        </div>
+    <?php }
+    elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) { ?>
+        <div class="bg-secondary">
+            <p>
+                <?= $chronologicalItem->reviewer->firstname . ' ' . $chronologicalItem->reviewer->lastname . ' - ' . $chronologicalItem->date
+                . ' ' .$chronologicalItem->status .' '?>this proposal.
+            </p>
+        </div>
+    <?php }
+    elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalContentHistory) {
+        if ($chronologicalItem->date != $selectedProposal->date)
+        { ?>
+            <div class="bg-danger">
+                <p>
+                    <?= $selectedProposal->submitter->firstname . ' ' . $selectedProposal->submitter->lastname .' ' ?> edited this proposal on
+                    <?=' ' . $chronologicalItem->date ?>
+                </p>
+            </div>
+    <?php }
+     }
+}
+?>

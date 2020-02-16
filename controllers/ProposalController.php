@@ -17,13 +17,14 @@ use yii\web\NotFoundHttpException;
 class ProposalController extends MainController
 {
     /**
-     * Returns all proposals submitted by a member
+     * Returns all proposals submitted by a member or a single proposal if
+     * an Id was specified in url.
      *
-     * @param null $id
+     * @param null|int $id
      * @return string
      * @throws Exception
      */
-    public function actionMyProposals($id = null): string
+    public function actionMyProposals(int $id = null): string
     {
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
@@ -54,12 +55,15 @@ class ProposalController extends MainController
         ]);
     }
 
-    private function singleProposalProcess($id)
-    {
-
-    }
-
-    private function checkIfProposalExists($id)
+    /**
+     * Check if a Proposal exists. If true it returns the proposal.
+     * If false it throws an exception.
+     *
+     * @param int $id
+     * @return Proposal|null
+     * @throws \Exception
+     */
+    private function checkIfProposalExists(int $id): ?Proposal
     {
         $unauthorizedException = NotFoundHttpException::class;
 
@@ -69,7 +73,15 @@ class ProposalController extends MainController
         throw new $unauthorizedException();
     }
 
-    private function checkIfUserIsOwnerOfProposal($submitterId)
+    /**
+     * Check if User is owner of the proposal.
+     * If true it returns nothing letting the process continue.
+     * If false it throws an exception
+     *
+     * @param int $submitterId
+     * @throws Exception
+     */
+    private function checkIfUserIsOwnerOfProposal(int $submitterId)
     {
         if($submitterId == self::getCurrentUser()->id) {
             return;
@@ -77,16 +89,29 @@ class ProposalController extends MainController
         throw new Exception('Not owner of this proposal');
     }
 
-    private function generateChronologicalStream($comments, $reviews, $proposalContentHistories)
+    /**
+     * Generates the chronological stream of the proposal
+     * by creating an array filled of the different parts
+     * of the proposal.
+     *
+     * @param $comments
+     * @param $reviews
+     * @param $proposalContentHistories
+     * @return array
+     */
+    private function generateChronologicalStream($comments, $reviews, $proposalContentHistories): array
     {
         $chronologicalStream = array();
 
+        /** @var Comment $comment */
         foreach($comments as $comment) {
             array_push($chronologicalStream, $comment);
         }
+        /** @var Review $review */
         foreach($reviews as $review) {
             array_push($chronologicalStream, $review);
         }
+        /** @var ProposalContentHistory $history */
         foreach($proposalContentHistories as $history) {
             array_push($chronologicalStream, $history);
         }
@@ -94,6 +119,12 @@ class ProposalController extends MainController
         return $chronologicalStream;
     }
 
+    /**
+     * Sort the chronological Stream by date
+     *
+     * @param $chronologicalStream
+     * @return mixed
+     */
     private function sortChronologicalStreamByDate($chronologicalStream)
     {
         usort($chronologicalStream, function ($a,$b): int {

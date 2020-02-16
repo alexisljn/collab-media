@@ -5,7 +5,10 @@ namespace app\controllers;
 
 
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\Comment;
 use app\models\databaseModels\Proposal;
+use app\models\databaseModels\ProposalContentHistory;
+use app\models\databaseModels\Review;
 use yii\data\ActiveDataProvider;
 use yii\db\Exception;
 use yii\db\Query;
@@ -18,31 +21,28 @@ class ProposalController extends MainController
      *
      * @param null $id
      * @return string
+     * @throws Exception
      */
     public function actionMyProposals($id = null): string
     {
-        //dd($id);
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-            $comments = $selectedProposal->comments;
-            $reviews = $selectedProposal->reviews;
-            $history = $selectedProposal->proposalContentHistories;
-
-
-            $date = New \DateTime($comments[0]->date);
-            //echo $date->format('d-m-Y\TH:i:s.u');
             $chronologicalStream = $this->generateChronologicalStream
             (
                 $selectedProposal->comments,
                 $selectedProposal->reviews,
                 $selectedProposal->proposalContentHistories
             );
-            dd($chronologicalStream);
+            $chronologicalStream = $this->sortChronologicalStreamByDate($chronologicalStream);
+            $lastProposalContent = $selectedProposal->proposalContentHistories[
+                count($selectedProposal->proposalContentHistories)-1
+            ];
             return $this->render('my-proposal', [
-                'selectedProposal' => $selectedProposal
+                'selectedProposal' => $selectedProposal,
+                'lastProposalContent' => $lastProposalContent,
+                'chronologicalStream' => $chronologicalStream
             ]);
-            
         }
 
         $myPendingProposals = $this->getMyPendingProposals();
@@ -52,6 +52,11 @@ class ProposalController extends MainController
             'myPendingProposals' => $myPendingProposals,
             'myNotPendingProposals' => $myNotPendingProposals
         ]);
+    }
+
+    private function singleProposalProcess($id)
+    {
+
     }
 
     private function checkIfProposalExists($id)
@@ -74,14 +79,8 @@ class ProposalController extends MainController
 
     private function generateChronologicalStream($comments, $reviews, $proposalContentHistories)
     {
-       $chronologicalStream = array();
+        $chronologicalStream = array();
 
-        /* function sort($a,$b) {
-            if($a == $b) {
-                return 0;
-            }
-            return ($a < $b) ? -1 : 1;
-        }*/
         foreach($comments as $comment) {
             array_push($chronologicalStream, $comment);
         }
@@ -91,6 +90,20 @@ class ProposalController extends MainController
         foreach($proposalContentHistories as $history) {
             array_push($chronologicalStream, $history);
         }
+
+        return $chronologicalStream;
+    }
+
+    private function sortChronologicalStreamByDate($chronologicalStream)
+    {
+        usort($chronologicalStream, function ($a,$b): int {
+            $aDate = New \DateTime($a->date);
+            $bDate = New \DateTime($b->date);
+            if($aDate == $bDate) {
+                return 0;
+            }
+            return ($aDate < $bDate) ? -1 : 1;
+        });
 
         return $chronologicalStream;
     }

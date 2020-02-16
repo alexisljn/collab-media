@@ -1,9 +1,8 @@
 <?php
 /** @var \app\models\databaseModels\Proposal $selectedProposal */
-//echo'toto';
+/** @var \app\models\databaseModels\ProposalContentHistory $lastProposalContent */
+/** @var \app\models\databaseModels\Review|\app\models\databaseModels\Comment|\app\models\databaseModels\ProposalContentHistory $chronologicalStream */
 
-/* = $selectedProposal->comments;
-foreach ($p as $item) {
-    dd($item);
-}*/
-//dd($p);
+//echo'toto';
+?>
+<h1><?= $selectedProposal ?></h1>

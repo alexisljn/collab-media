@@ -1,7 +1,8 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $myPendingProposals */
 /** @var \yii\data\ActiveDataProvider $myNotPendingProposals */
-?>
+
+use yii\helpers\Html; ?>
 
 
 <strong>My pending proposals</strong>
@@ -16,7 +17,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="my-proposals/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -66,7 +67,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="#">' . Html::encode($proposal->title) . '</a>';
             }
         ],
         [

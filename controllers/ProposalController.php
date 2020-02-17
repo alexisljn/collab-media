@@ -10,7 +10,6 @@ use app\models\databaseModels\Proposal;
 use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use yii\data\ActiveDataProvider;
-use yii\db\Exception;
 use yii\db\Query;
 use yii\web\NotFoundHttpException;
 
@@ -22,7 +21,6 @@ class ProposalController extends MainController
      *
      * @param null|int $id
      * @return string
-     * @throws Exception
      */
     public function actionMyProposals(int $id = null): string
     {
@@ -35,7 +33,6 @@ class ProposalController extends MainController
                 $selectedProposal->reviews,
                 $selectedProposal->proposalContentHistories
             );
-            $chronologicalStream = $this->sortChronologicalStreamByDate($chronologicalStream);
             $lastProposalContent = $selectedProposal->proposalContentHistories[
                 count($selectedProposal->proposalContentHistories)-1
             ];
@@ -61,7 +58,6 @@ class ProposalController extends MainController
      *
      * @param int $id
      * @return Proposal|null
-     * @throws \Exception
      */
     private function checkIfProposalExists(int $id): ?Proposal
     {
@@ -79,20 +75,22 @@ class ProposalController extends MainController
      * If false it throws an exception
      *
      * @param int $submitterId
-     * @throws Exception
      */
     private function checkIfUserIsOwnerOfProposal(int $submitterId)
     {
+        $unauthorizedException = NotFoundHttpException::class;
+
         if($submitterId == self::getCurrentUser()->id) {
             return;
         }
-        throw new Exception('Not owner of this proposal');
+
+        return $unauthorizedException();
     }
 
     /**
      * Generates the chronological stream of the proposal
      * by creating an array filled of the different parts
-     * of the proposal.
+     * of the proposal and sorted them by date.
      *
      * @param $comments
      * @param $reviews
@@ -116,17 +114,6 @@ class ProposalController extends MainController
             array_push($chronologicalStream, $history);
         }
 
-        return $chronologicalStream;
-    }
-
-    /**
-     * Sort the chronological Stream by date
-     *
-     * @param $chronologicalStream
-     * @return mixed
-     */
-    private function sortChronologicalStreamByDate($chronologicalStream)
-    {
         usort($chronologicalStream, function ($a,$b): int {
             $aDate = New \DateTime($a->date);
             $bDate = New \DateTime($b->date);
@@ -138,7 +125,6 @@ class ProposalController extends MainController
 
         return $chronologicalStream;
     }
-
 
     /**
      * Returns the pending proposals of a member.

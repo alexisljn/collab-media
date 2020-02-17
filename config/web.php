@@ -63,7 +63,7 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-
+                'proposal/my-proposals/<id:\d+>' => 'proposal/my-proposals'
             ],
         ],
     ],

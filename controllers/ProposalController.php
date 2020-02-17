@@ -5,19 +5,44 @@ namespace app\controllers;
 
 
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\Comment;
 use app\models\databaseModels\Proposal;
+use app\models\databaseModels\ProposalContentHistory;
+use app\models\databaseModels\Review;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
+use yii\web\NotFoundHttpException;
 
 class ProposalController extends MainController
 {
     /**
-     * Returns all proposals submitted by a member
+     * Returns all proposals submitted by a member or a single proposal if
+     * an Id was specified in url.
      *
+     * @param null|int $id
      * @return string
      */
-    public function actionMyProposals(): string
+    public function actionMyProposals(int $id = null): string
     {
+        if (!is_null($id)) {
+            $selectedProposal = $this->checkIfProposalExists($id);
+            $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
+            $chronologicalStream = $this->generateChronologicalStream
+            (
+                $selectedProposal->comments,
+                $selectedProposal->reviews,
+                $selectedProposal->proposalContentHistories
+            );
+            $lastProposalContent = $selectedProposal->proposalContentHistories[
+                count($selectedProposal->proposalContentHistories)-1
+            ];
+            return $this->render('my-proposal', [
+                'selectedProposal' => $selectedProposal,
+                'lastProposalContent' => $lastProposalContent,
+                'chronologicalStream' => $chronologicalStream
+            ]);
+        }
+
         $myPendingProposals = $this->getMyPendingProposals();
         $myNotPendingProposals = $this->getMyNotPendingProposals();
 
@@ -25,6 +50,80 @@ class ProposalController extends MainController
             'myPendingProposals' => $myPendingProposals,
             'myNotPendingProposals' => $myNotPendingProposals
         ]);
+    }
+
+    /**
+     * Check if a Proposal exists. If true it returns the proposal.
+     * If false it throws an exception.
+     *
+     * @param int $id
+     * @return Proposal|null
+     */
+    private function checkIfProposalExists(int $id): ?Proposal
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
+            return $selectedProposal;
+        }
+        throw new $unauthorizedException();
+    }
+
+    /**
+     * Check if User is owner of the proposal.
+     * If true it returns nothing letting the process continue.
+     * If false it throws an exception
+     *
+     * @param int $submitterId
+     */
+    private function checkIfUserIsOwnerOfProposal(int $submitterId)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if($submitterId == self::getCurrentUser()->id) {
+            return;
+        }
+
+        return $unauthorizedException();
+    }
+
+    /**
+     * Generates the chronological stream of the proposal
+     * by creating an array filled of the different parts
+     * of the proposal and sorted them by date.
+     *
+     * @param $comments
+     * @param $reviews
+     * @param $proposalContentHistories
+     * @return array
+     */
+    private function generateChronologicalStream($comments, $reviews, $proposalContentHistories): array
+    {
+        $chronologicalStream = array();
+
+        /** @var Comment $comment */
+        foreach($comments as $comment) {
+            array_push($chronologicalStream, $comment);
+        }
+        /** @var Review $review */
+        foreach($reviews as $review) {
+            array_push($chronologicalStream, $review);
+        }
+        /** @var ProposalContentHistory $history */
+        foreach($proposalContentHistories as $history) {
+            array_push($chronologicalStream, $history);
+        }
+
+        usort($chronologicalStream, function ($a,$b): int {
+            $aDate = New \DateTime($a->date);
+            $bDate = New \DateTime($b->date);
+            if($aDate == $bDate) {
+                return 0;
+            }
+            return ($aDate < $bDate) ? -1 : 1;
+        });
+
+        return $chronologicalStream;
     }
 
     /**

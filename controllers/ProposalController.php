@@ -13,6 +13,7 @@ use app\models\databaseModels\Review;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
 use yii\web\NotFoundHttpException;
+use yii;
 
 class ProposalController extends MainController
 {
@@ -284,7 +285,14 @@ class ProposalController extends MainController
 
         $model = new CreateProposalForm();
 
-        return $this->render('create-proposal', ['model' => $model]);
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+           dd($model);
+
+        } else {
+            return $this->render('create-proposal', ['model' => $model]);
+        }
+
+
 
         //return $this->render('create-proposal');
     }

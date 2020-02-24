@@ -286,7 +286,19 @@ class ProposalController extends MainController
         $model = new CreateProposalForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-           dd($model);
+            $post = Yii::$app->request->post();
+            dd($post['CreateProposalForm']['title']);
+            $proposal = new Proposal();
+            $proposal->title = $post['CreateProposalForm']['title'];
+            $proposal->submitter = mainController::getCurrentUser();
+            $proposal->status = 'pending';
+            $proposal->
+            $proposal->save();
+            $proposalContent = new ProposalContentHistory();
+            $proposalContent->proposal = $proposal;
+            propo
+
+
 
         } else {
             return $this->render('create-proposal', ['model' => $model]);

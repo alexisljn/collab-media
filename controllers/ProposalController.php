@@ -277,4 +277,9 @@ class ProposalController extends MainController
         return $reviewedAndNoPublishedProposalsForAReviewer;
     }
 
+    public function actionCreateProposal()
+    {
+        $this->layout = 'markdown-main';
+        return $this->render('create-proposal');
+    }
 }

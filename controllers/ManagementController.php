@@ -5,6 +5,7 @@ use app\controllers\mainController\MainController;
 use app\models\databaseModels\User;
 use Yii;
 use yii\data\ActiveDataProvider;
+use app\models\ModifyAccountForm;
 
 
 class ManagementController extends MainController
@@ -35,13 +36,22 @@ class ManagementController extends MainController
     }
 
     private function actionModifiyAccount($id)
-    {
-        $user =  User::findOne(['id' => $id]);
-        dd($user);
+    {   $user =  User::findOne(['id' => $id]);
+        //dd($user);
 
+        $form = new ModifyAccountForm();
+        $form->firstname    = $user->firstname;
+        $form->lastname     = $user->lastname;
+        $form->email        = $user->email;
+        $form->is_validated = $user->is_validated;
+        $form->is_active    = $user->is_active;
 
+        if(isset($_POST['ModifyAccountForm'])) {
+            $form->attributes = $_POST['ModifyAccountForm'];
+        }
         return $this->render('modifyAccount', [
-            'user' => $user
+            'model'=>$form,
+            'user' => $user,
         ]);
     }
 }

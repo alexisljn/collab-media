@@ -36,22 +36,43 @@ class ManagementController extends MainController
     }
 
     private function actionModifiyAccount($id)
-    {   $user =  User::findOne(['id' => $id]);
+    {
+        $user =  User::findOne(['id' => $id]);
         //dd($user);
-
         $form = new ModifyAccountForm();
+        if($form->load($_POST) && $form->validate()) {
+            $this->updateAccount($form, $user);
+        }
+
         $form->firstname    = $user->firstname;
         $form->lastname     = $user->lastname;
         $form->email        = $user->email;
         $form->is_validated = $user->is_validated;
         $form->is_active    = $user->is_active;
 
-        if(isset($_POST['ModifyAccountForm'])) {
-            $form->attributes = $_POST['ModifyAccountForm'];
-        }
+
+
         return $this->render('modifyAccount', [
             'model'=>$form,
-            'user' => $user,
         ]);
+    }
+
+    private function updateAccount(ModifyAccountForm $form, $user)
+    {
+
+        $user->firstname    = $form->firstname;
+        $user->lastname     = $form->lastname;
+        $user->email        = $form->email;
+        $user->is_validated = $form->is_validated;
+        $user->is_active    = $form->is_active;
+
+
+        if($user->save()){
+           
+
+        } else {
+            echo "save failed.";
+        }
+
     }
 }

@@ -12,9 +12,11 @@ class ManagementController extends MainController
     /**
      * Display a page where the accounts are shown
      */
-    public function actionAccounts()
+    public function actionAccounts($id = null)
     {
-
+        if(!is_null($id)) {
+            return $this->actionModifiyAccount($id);
+        }
 
         $usersDataProvider = new ActiveDataProvider([
             'query' => User::find(),
@@ -28,5 +30,18 @@ class ManagementController extends MainController
         ]);
 
 
+
+
+    }
+
+    private function actionModifiyAccount($id)
+    {
+        $user =  User::findOne(['id' => $id]);
+        dd($user);
+
+
+        return $this->render('modifyAccount', [
+            'user' => $user
+        ]);
     }
 }

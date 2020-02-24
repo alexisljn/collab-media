@@ -55,12 +55,12 @@ echo $usersDataProvider->count;
             'format'    => 'raw',
             'value'     => function ($user)
             {
-                return "<button value='modify-account' name='modify-account' id='modify-account'>";
+                /** @var \app\models\databaseModels\User $user */
+
+                return "<a href='/management/accounts/" . $user->id . "'  id='modify-account'>Modify Account<a/>";
             }
         ],
-        [
-            'class' => 'yii\grid\ActionColumn',
-        ],
+
 
     ],
 

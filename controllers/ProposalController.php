@@ -5,6 +5,7 @@ namespace app\controllers;
 
 
 use app\controllers\mainController\MainController;
+use app\models\CreateProposalForm;
 use app\models\databaseModels\Comment;
 use app\models\databaseModels\Proposal;
 use app\models\databaseModels\ProposalContentHistory;
@@ -280,6 +281,11 @@ class ProposalController extends MainController
     public function actionCreateProposal()
     {
         $this->layout = 'markdown-main';
-        return $this->render('create-proposal');
+
+        $model = new CreateProposalForm();
+
+        return $this->render('create-proposal', ['model' => $model]);
+
+        //return $this->render('create-proposal');
     }
 }

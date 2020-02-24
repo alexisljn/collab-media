@@ -28,7 +28,7 @@ AppAsset::register($this);
     <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <?php $this->registerCsrfMetaTags() ?>
-    <title>TOTO OLE<?= Html::encode($this->title) ?></title>
+    <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>
 </head>
 <body>

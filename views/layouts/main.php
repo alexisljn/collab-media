@@ -60,6 +60,10 @@ AppAsset::register($this);
     ]);
     NavBar::end();
     ?>
+    <form action="/site/logout" method="post">
+        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
+        <button type="submit">Logout</button>
+    </form>
 
     <div class="container">
         <?= Breadcrumbs::widget([

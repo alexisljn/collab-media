@@ -289,55 +289,19 @@ class ProposalController extends MainController
         $model = new CreateProposalForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-
             $transaction = Yii::$app->db->beginTransaction();
+
             try {
                 $post = Yii::$app->request->post();
-                // dd($post['CreateProposalForm']['title']);
-                $proposal = new Proposal();
-                $proposal->title = $post['CreateProposalForm']['title'];
-                $proposal->submitter_id = mainController::getCurrentUser()->id;
-                $proposal->status = 'pending';
-                $proposal->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
-                if(!$proposal->save()) {
-                    throw new CannotSaveException($proposal);
-                }
-                $proposalContent = new ProposalContentHistory();
-                $proposalContent->proposal_id = $proposal->id;
-                $proposalContent->date = $proposal->date;
-                $proposalContent->content = $post['CreateProposalForm']['content'];
-                $proposalContent->save();
-                if(!$proposalContent->save()) {
-                    throw new CannotSaveException($proposal);
-                }
-                $uploadedFile = $_FILES['CreateProposalForm'];
+                $proposal = $this->saveProposal($post['CreateProposalForm']['title']);
+                $this->saveProposalContent($post['CreateProposalForm']['content'], $proposal);
+
                 if (!empty($_FILES['CreateProposalForm']['name']['relatedFile'])) {
-                    // Faire le traitement
-                    // S'il y a une erreur serveur
-                    if ($uploadedFile['error']['relatedFile'] != 0) {
-                        throw new \Exception('Error');
-                    }
-                    $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
-                    $extension = $explodedFilename[count($explodedFilename)-1];
-                    if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
-                        throw new \Exception('Extension pas autorisé');
-                    }
-                    if ($uploadedFile['size']['relatedFile'] > 52428800) {
-                        throw new \Exception('file trop grand');
-                    }
-                    $newFilename = basename($proposal->id . '.' . $extension);
-                    move_uploaded_file(
-                        $uploadedFile['tmp_name']['relatedFile'],
-                        '../uploaded-files/proposal-related-files/' . $newFilename
-                    );
-                    $file = new File();
-                    $file->proposal_id = $proposal->id;
-                    $file->path = $newFilename;
-                    $file->save();
-                    if (!$file->save()) {
-                        throw new \Exception('file not saved');
-                    }
+                    $uploadedFile = $_FILES['CreateProposalForm'];
+                    $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $proposal);
+                    $this->saveProposalRelatedFile($movedFilename, $proposal);
                 }
+
                 $transaction->commit();
                 return $this->redirect('/proposal/my-proposals/' . $proposal->id);
 
@@ -346,13 +310,73 @@ class ProposalController extends MainController
                 throw $e;
             }
 
-
         } else {
             return $this->render('create-proposal', ['model' => $model]);
         }
-
-
-
-        //return $this->render('create-proposal');
     }
+
+    private function saveProposal($proposalTitle)
+    {
+        $proposal = new Proposal();
+        $proposal->title = $proposalTitle;
+        $proposal->submitter_id = mainController::getCurrentUser()->id;
+        $proposal->status = 'pending';
+        $proposal->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if(!$proposal->save()) {
+            throw new CannotSaveException($proposal);
+        }
+
+        return $proposal;
+    }
+
+    private function saveProposalContent($proposalContent, $proposal)
+    {
+        $proposalContentHistory = new ProposalContentHistory();
+        $proposalContentHistory->proposal_id = $proposal->id;
+        $proposalContentHistory->date = $proposal->date;
+        $proposalContentHistory->content = $proposalContent;
+
+        if(!$proposalContentHistory->save()) {
+            throw new CannotSaveException($proposalContentHistory);
+        }
+    }
+
+    private function moveUploadedFileToServer($uploadedFile, $proposal)
+    {
+        if ($uploadedFile['error']['relatedFile'] != 0) {
+            throw new \Exception('Error');
+        }
+
+        if ($uploadedFile['size']['relatedFile'] > 52428800) {
+            throw new \Exception('file trop grand');
+        }
+
+        $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
+        $extension = $explodedFilename[count($explodedFilename)-1];
+
+        if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
+            throw new \Exception('Extension pas autorisé');
+        }
+
+        $newFilename = basename($proposal->id . '.' . $extension);
+        move_uploaded_file(
+            $uploadedFile['tmp_name']['relatedFile'],
+            '../uploaded-files/proposal-related-files/' . $newFilename
+        );
+
+        return $newFilename;
+    }
+
+    private function saveProposalRelatedFile($movedFilename, $proposal)
+    {
+        $file = new File();
+        $file->proposal_id = $proposal->id;
+        $file->path = $movedFilename;
+
+        if (!$file->save()) {
+            throw new \Exception('file not saved');
+        }
+    }
+
 }

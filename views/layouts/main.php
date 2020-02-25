@@ -60,10 +60,6 @@ AppAsset::register($this);
     ]);
     NavBar::end();
     ?>
-    <form action="/site/logout" method="post">
-        <input type="hidden" name="<?= Yii::$app->request->csrfParam ?>" value="<?= Yii::$app->request->csrfToken ?>">
-        <button type="submit">Logout</button>
-    </form>
 
     <div class="container">
         <?= Breadcrumbs::widget([
@@ -76,7 +72,7 @@ AppAsset::register($this);
 
 <footer>
     <div class="container center">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
+        <p class="copyright">&copy; My Company <?= date('Y') ?></p>
     </div>
 </footer>
 

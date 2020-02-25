@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   web:
-    image: webdevops/php-nginx:7.4
+    image: mimile38/nginx-php7.4.2-upload1g
     working_dir: /app
     ports:
       - 8000:80

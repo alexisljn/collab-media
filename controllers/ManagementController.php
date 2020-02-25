@@ -13,10 +13,10 @@ class ManagementController extends MainController
     /**
      * Action that allows an admin to look at all the accounts
      *
-     * @param null | User $id
+     * @param null | int $id
      * @return string
      */
-    public function actionAccounts(User $id = null)
+    public function actionAccounts($id = null)
     {
 
         if(!is_null($id)) {
@@ -36,10 +36,10 @@ class ManagementController extends MainController
     /**
      * Display a page where the account of the user selected in actionAccounts
      *
-     * @param User $id
+     * @param int $id
      * @return string
      */
-    private function actionModifiyAccount(User $id)
+    private function actionModifiyAccount($id)
     {
 
         $user = $this->checkIfUserExist($id);
@@ -84,10 +84,10 @@ class ManagementController extends MainController
     /**
      * Check if the user given in the URL exist in the database
      *
-     * @param User $id
+     * @param int $id
      * @return User|null
      */
-    private function checkIfUserExist(User $id)
+    private function checkIfUserExist($id)
     {
         $unauthorizedException = NotFoundHttpException::class;
         if (!is_null($user = User::findOne(['id' => $id]))) {

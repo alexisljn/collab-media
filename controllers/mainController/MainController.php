@@ -49,6 +49,7 @@ class MainController extends Controller
         ],
         'management' => [
             'accounts' => User::USER_ROLE_ADMIN,
+            'create-account' => User::USER_ROLE_ADMIN
         ],
     ];
 

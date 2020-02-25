@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\controllers\mainController\MainController;
+use app\models\CreateAccountForm;
 use app\models\databaseModels\User;
 use yii\data\ActiveDataProvider;
 use app\models\ModifyAccountForm;
@@ -94,6 +95,46 @@ class ManagementController extends MainController
             return $user;
         }
         throw new $unauthorizedException();
+    }
+
+    /**
+     * Display a page with the acount creation form
+     * Test the form and if it's validated, calls the function createAccount
+     *
+     * @return string
+     */
+    public function actionCreateAccount()
+    {
+        $form = new CreateAccountForm();
+
+
+        if($form->load($_POST) && $form->validate()) {
+            $this->createAccount($form);
+        }
+        return $this->render('createAccount', [
+            'model'=>$form,
+        ]);
+    }
+
+    /**
+     * Create a new user with the datas from the form
+     *
+     * @param CreateAccountForm $form
+     */
+    private function createAccount(CreateAccountForm $form)
+    {
+        $user = new User();
+
+        $user->firstname    = $form->firstname;
+        $user->lastname     = $form->lastname;
+        $user->email        = $form->email;
+        $user->is_validated = "0";
+        $user->is_active = "0";
+        $user->role         = $form->role;
+
+        if(!$user->save()){
+            echo "save failed.";
+        }
     }
 }
 ?>

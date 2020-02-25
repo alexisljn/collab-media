@@ -83,7 +83,7 @@ class ManagementController extends MainController
 
     /**
      * Check if the user given in the URL exist in the database
-     * 
+     *
      * @param User $id
      * @return User|null
      */

@@ -2,13 +2,11 @@
 
 namespace app\models;
 
-use Yii;
 use yii\base\Model;
 
 /**
  * ModifyAccountForm is the model behind the modify account form.
  */
-
 class ModifyAccountForm extends Model
 {
     public $firstname;
@@ -20,7 +18,6 @@ class ModifyAccountForm extends Model
     /**
      * @return array the validation rules.
      */
-
     public function rules()
     {
         return [

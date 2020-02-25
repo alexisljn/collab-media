@@ -5,6 +5,7 @@ use app\controllers\mainController\MainController;
 use app\models\databaseModels\User;
 use yii\data\ActiveDataProvider;
 use app\models\ModifyAccountForm;
+use yii\web\NotFoundHttpException;
 
 
 class ManagementController extends MainController
@@ -40,7 +41,9 @@ class ManagementController extends MainController
      */
     private function actionModifiyAccount(User $id)
     {
-        $user =  User::findOne(['id' => $id]);
+
+        $user = $this->checkIfUserExist($id);
+
         $form = new ModifyAccountForm();
 
         if($form->load($_POST) && $form->validate()) {
@@ -76,6 +79,21 @@ class ManagementController extends MainController
         if(!$user->save()){
             echo "save failed.";
         }
+    }
+
+    /**
+     * Check if the user given in the URL exist in the database
+     * 
+     * @param User $id
+     * @return User|null
+     */
+    private function checkIfUserExist(User $id)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+        if (!is_null($user = User::findOne(['id' => $id]))) {
+            return $user;
+        }
+        throw new $unauthorizedException();
     }
 }
 ?>

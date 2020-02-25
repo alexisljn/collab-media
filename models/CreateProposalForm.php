@@ -4,6 +4,7 @@
 namespace app\models;
 
 
+use app\components\Util;
 use yii\base\Model;
 
 class CreateProposalForm extends Model
@@ -16,7 +17,10 @@ class CreateProposalForm extends Model
     {
         return [
             [['title', 'content'], 'required'],
-            ['relatedFile', 'file', 'extensions' => ['png', 'jpg', 'jpeg', 'gif'], 'maxSize' => 52428800],
+            ['relatedFile', 'file', 'extensions' =>
+                Util::ALLOWED_EXTENSIONS,
+                'maxSize' => 52428800],
         ];
+
     }
 }

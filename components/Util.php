@@ -8,6 +8,8 @@ use app\models\exceptions\StaticClassNotInstantiableException;
 
 class Util
 {
+    public const ALLOWED_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'mp3', 'mp4', 'mov', 'pdf', 'zip' ];
+
     public function __construct()
     {
         throw new StaticClassNotInstantiableException();

@@ -291,8 +291,33 @@ class ProposalController extends MainController
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
 
 
+            $uploadedFile = $_FILES['CreateProposalForm'];
+//            dd($uploadedFile);
+            //dd(basename($uploadedFile['name']['relatedFile']));
+            if ($uploadedFile['error']['relatedFile'] != 0) {
+                throw new \Exception();
+                //dd('toto');
+            }
+            //if ($uploadedFile['name'])
+            $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
+            $extension = $explodedFilename[count($explodedFilename)-1];
+            //dd($extension);
+            if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
+                //dd('toto extension MAUVAIS');
+                throw new \Exception();
+            }
+            if($uploadedFile['size']['relatedFile'] > 52428800) {
+                dd('file trop grand');
+                //throw new \Exception()
+            }
+            $newFilename = basename(random_int(0,10000). '.' . $extension);
+            move_uploaded_file(
+                $uploadedFile['tmp_name']['relatedFile'],
+                '../uploaded-files/proposal-related-files/' . $newFilename
+            );
+
             //if ($uploadedFile)
-            $transaction = Yii::$app->db->beginTransaction();
+           /* $transaction = Yii::$app->db->beginTransaction();
             try {
                 $post = Yii::$app->request->post();
                 // dd($post['CreateProposalForm']['title']);
@@ -317,37 +342,14 @@ class ProposalController extends MainController
 //                $file->id = $proposal->id;
 
                 //dd($_FILES['CreateProposalForm']);
-                $uploadedFile = $_FILES['CreateProposalForm'];
-//            dd($uploadedFile);
-                //dd(basename($uploadedFile['name']['relatedFile']));
-                if ($uploadedFile['error']['relatedFile'] != 0) {
-                    throw new \Exception();
-                    //dd('toto');
-                }
-                //if ($uploadedFile['name'])
-                $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
-                $extension = $explodedFilename[count($explodedFilename)-1];
-                //dd($extension);
-                if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
-                    //dd('toto extension MAUVAIS');
-                    throw new \Exception();
-                }
-                if($uploadedFile['size']['relatedFile'] > 52428800) {
-                    dd('file trop grand');
-                    //throw new \Exception()
-                }
-                $newFilename = basename($proposal->id . '.' . $extension);
-                    move_uploaded_file(
-                        $uploadedFile['tmp_name']['relatedFile'],
-                        '../uploaded-files/proposal-related-file/' . $newFilename
-                    );
+
 
 
                 $transaction->commit();
             } catch(\Throwable $e) {
                 $transaction->rollBack();
                 throw $e;
-            }
+            }*/
 
 
         } else {

@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   web:
-    image: mimile38/nginx-php7.4.2-upload1g
+    image: webdevops/php-nginx:7.4
     working_dir: /app
     ports:
       - 8000:80
@@ -10,6 +10,7 @@ services:
       - database
     volumes:
       - .:/app
+      - "./custom_proxy_settings.conf:/etc/nginx/conf.d/custom_proxy_settings.conf"
     environment:
       WEB_DOCUMENT_ROOT: /app/web
       WEB_DOCUMENT_INDEX: index.php

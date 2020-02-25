@@ -5,6 +5,7 @@ namespace app\controllers\mainController;
 
 
 use app\components\Util;
+use app\components\view\navbar\Navbar;
 use app\models\User;
 use yii\base\Action;
 use yii\web\Controller;
@@ -50,6 +51,51 @@ class MainController extends Controller
     ];
 
     /**
+     * Defines the configuration of the header Navbar. See {@see \app\components\view\navbar\Navbar::__construct} for details
+     */
+    private const HEADER_NAVBAR_CONFIG = [
+        'items' => [
+            [
+                'title' => 'Home',
+                'url' => '/',
+                'roleNeeded' => User::USER_ROLE_MEMBER,
+                'activeActions' => [
+                    'site' => ['index'],
+                ],
+            ],
+            [
+                'title' => 'Proposals',
+                'url' => '/proposals/my-proposals',
+                'roleNeeded' => User::USER_ROLE_MEMBER,
+                'activeActions' => [
+                    'proposal' => ['my-proposals'],
+                ],
+                'children' => [
+                    [
+                        'title' => 'My proposals',
+                        'url' => '/proposals/my-proposals',
+                        'roleNeeded' => User::USER_ROLE_MEMBER,
+                        'activeActions' => [
+                            'proposal' => ['my-proposals'],
+                        ]
+                    ],
+                    'divider',
+                    [
+                        'title' => 'Proposals to review',
+                        'url' => '/proposals/to-review',
+                        'roleNeeded' => User::USER_ROLE_REVIEWER,
+                    ]
+                ]
+            ]
+        ],
+    ];
+
+    /**
+     * @var Navbar The header navbar
+     */
+    public static $headerNavbar;
+
+    /**
      * @inheritDoc
      */
     public function init()
@@ -64,6 +110,8 @@ class MainController extends Controller
     public function beforeAction($action)
     {
         $this->handleActionAuthorization($action);
+
+        self::$headerNavbar = new Navbar(self::HEADER_NAVBAR_CONFIG);
 
         return parent::beforeAction($action);
     }

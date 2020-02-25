@@ -4,14 +4,19 @@
 namespace app\controllers;
 
 
+use app\components\Util;
 use app\controllers\mainController\MainController;
+use app\models\CreateProposalForm;
 use app\models\databaseModels\Comment;
+use app\models\databaseModels\File;
 use app\models\databaseModels\Proposal;
 use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
+use app\models\exceptions\CannotSaveException;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
 use yii\web\NotFoundHttpException;
+use yii;
 
 class ProposalController extends MainController
 {
@@ -277,4 +282,82 @@ class ProposalController extends MainController
         return $reviewedAndNoPublishedProposalsForAReviewer;
     }
 
+    public function actionCreateProposal()
+    {
+        $this->layout = 'markdown-main';
+
+        $model = new CreateProposalForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+
+
+            $uploadedFile = $_FILES['CreateProposalForm'];
+//            dd($uploadedFile);
+            //dd(basename($uploadedFile['name']['relatedFile']));
+            if ($uploadedFile['error']['relatedFile'] != 0) {
+                throw new \Exception();
+                //dd('toto');
+            }
+            //if ($uploadedFile['name'])
+            $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
+            $extension = $explodedFilename[count($explodedFilename)-1];
+            //dd($extension);
+            if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
+                //dd('toto extension MAUVAIS');
+                throw new \Exception();
+            }
+            if($uploadedFile['size']['relatedFile'] > 52428800) {
+                dd('file trop grand');
+                //throw new \Exception()
+            }
+            $newFilename = basename(random_int(0,10000). '.' . $extension);
+            move_uploaded_file(
+                $uploadedFile['tmp_name']['relatedFile'],
+                '../uploaded-files/proposal-related-files/' . $newFilename
+            );
+
+            //if ($uploadedFile)
+           /* $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $post = Yii::$app->request->post();
+                // dd($post['CreateProposalForm']['title']);
+                $proposal = new Proposal();
+                $proposal->title = $post['CreateProposalForm']['title'];
+                $proposal->submitter_id = mainController::getCurrentUser()->id;
+                $proposal->status = 'pending';
+                $proposal->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+                if(!$proposal->save()) {
+                    throw new CannotSaveException($proposal);
+                }
+                $proposalContent = new ProposalContentHistory();
+                $proposalContent->proposal_id = $proposal->id;
+                $proposalContent->date = $proposal->date;
+                $proposalContent->content = $post['CreateProposalForm']['content'];
+                $proposalContent->save();
+                if(!$proposalContent->save()) {
+                    throw new CannotSaveException($proposal);
+                }
+//                $file = new File();
+//                $file
+//                $file->id = $proposal->id;
+
+                //dd($_FILES['CreateProposalForm']);
+
+
+
+                $transaction->commit();
+            } catch(\Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
+            }*/
+
+
+        } else {
+            return $this->render('create-proposal', ['model' => $model]);
+        }
+
+
+
+        //return $this->render('create-proposal');
+    }
 }

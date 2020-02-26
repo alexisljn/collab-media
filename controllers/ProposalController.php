@@ -285,7 +285,7 @@ class ProposalController extends MainController
 
     /**
      * Display a form to create a Proposal
-     * Save the proposal in DDB when form is submitted
+     * Save the proposal in DB when form is submitted
      *
      * @return string|yii\web\Response
      * @throws \Throwable
@@ -298,9 +298,9 @@ class ProposalController extends MainController
             $transaction = Yii::$app->db->beginTransaction();
 
             try {
-                $post = Yii::$app->request->post();
-                $proposal = $this->saveProposal($post['CreateProposalForm']['title']);
-                $this->saveProposalContent($post['CreateProposalForm']['content'], $proposal);
+                $postRequest = Yii::$app->request->post();
+                $proposal = $this->saveProposal($postRequest['CreateProposalForm']['title']);
+                $this->saveProposalContent($postRequest['CreateProposalForm']['content'], $proposal);
 
                 if (!empty($_FILES['CreateProposalForm']['name']['relatedFile'])) {
                     $uploadedFile = $_FILES['CreateProposalForm'];
@@ -324,7 +324,7 @@ class ProposalController extends MainController
     }
 
     /**
-     * Save proposal in DDB
+     * Save proposal in DB
      *
      * @param $proposalTitle
      * @return Proposal
@@ -335,7 +335,7 @@ class ProposalController extends MainController
         $proposal = new Proposal();
         $proposal->title = $proposalTitle;
         $proposal->submitter_id = mainController::getCurrentUser()->id;
-        $proposal->status = 'pending';
+        $proposal->status = \app\models\Proposal::STATUS_PENDING;
         $proposal->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
 
         if(!$proposal->save()) {
@@ -346,7 +346,7 @@ class ProposalController extends MainController
     }
 
     /**
-     * Save ProposalContentHistory in DDB
+     * Save ProposalContentHistory in DB
      *
      * @param $proposalContent
      * @param $proposal
@@ -401,7 +401,7 @@ class ProposalController extends MainController
     }
 
     /**
-     * Save the file in DDB.
+     * Save the file in DB.
      *
      * @param $movedFilename
      * @param $proposal

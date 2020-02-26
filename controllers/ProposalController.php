@@ -305,11 +305,11 @@ class ProposalController extends MainController
 
             try {
                 $postRequest = Yii::$app->request->post();
-                $proposal = $this->saveProposal($postRequest['CreateProposalForm']['title']);
-                $this->saveProposalContent($postRequest['CreateProposalForm']['content'], $proposal);
+                $proposal = $this->saveProposal($postRequest['ManageProposalForm']['title']);
+                $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $proposal);
 
-                if (!empty($_FILES['CreateProposalForm']['name']['relatedFile'])) {
-                    $uploadedFile = $_FILES['CreateProposalForm'];
+                if (!empty($_FILES['ManageProposalForm']['name']['relatedFile'])) {
+                    $uploadedFile = $_FILES['ManageProposalForm'];
                     $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $proposal);
                     $this->saveProposalRelatedFile($movedFilename, $proposal);
                 }

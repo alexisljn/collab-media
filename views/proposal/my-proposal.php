@@ -11,22 +11,22 @@ use yii\widgets\ActiveForm; ?>
 
 
     <a href="#" id="edit-link">Edit</a>
-<h1><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
-<p>Created at <?= $selectedProposal->date ?></p>
+<h1 class="content-layout"><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
+<p class="content-layout">Created at <?= $selectedProposal->date ?></p>
 <?php if($selectedProposal->date != $lastProposalContent->date) { ?>
-    <p>Last edit : <?= $lastProposalContent->date ?></p>
+    <p class="content-layout">Last edit : <?= $lastProposalContent->date ?></p>
 <?php } ?>
-<p>Status : <?= $selectedProposal->status ?></p>
+<p class="content-layout">Status : <?= $selectedProposal->status ?></p>
 <?php if (!is_null($selectedProposal->social_media)) { ?>
-    <p>Published on : <?= $selectedProposal->social ?></p>
+    <p class="content-layout">Published on : <?= $selectedProposal->social ?></p>
 <?php } ?>
-<p><?= (new Parsedown())
-        ->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?></p>
+<div class="content-layout" id="original-content"><?= (new Parsedown())
+        ->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?></div>
 
 <!-- Proposal History -->
 
 <!-- Edit Form -->
-<div style="display: none;" id="proposal-form-div">
+<div style="display: none;" class="form-layout">
     <?php
     $form = yii\widgets\ActiveForm::begin([
         'id' => 'proposalForm',
@@ -34,6 +34,7 @@ use yii\widgets\ActiveForm; ?>
     ?>
     <?= $form->field($model, 'title')->textInput(['id' => 'proposalFormTitleInput']); ?>
     <?= $form->field($model, 'content')->hiddenInput(['id' => 'proposalFormContentInput']); ?>
+    <div id="Proposalcontent" class="editSection"></div>
     <?php yii\widgets\ActiveForm::end(); ?>
 </div>
 
@@ -86,7 +87,20 @@ foreach ($chronologicalStream as $chronologicalItem) {
 <script type="text/javascript">
     $(() => {
         $('#edit-link').on('click', () => {
-            $('#proposal-form-div').css('display', 'block');
-        })
+            $('.form-layout').css('display', 'block');
+            $('.content-layout').css('display', 'none');
+            const proposalContent = new TurndownService({
+                headingStyle: 'atx',
+                bulletListMarker: '-' }).turndown($('#original-content').html());
+            console.log(proposalContent);
+            const editor = new tui.Editor({
+                el: document.querySelector('.editSection'),
+                previewStyle: 'vertical',
+                height: '300px',
+                initialEditType: 'markdown',
+                initialValue: proposalContent
+            });
+        });
+
     })
 </script>

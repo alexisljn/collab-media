@@ -6,7 +6,7 @@ namespace app\controllers;
 
 use app\components\Util;
 use app\controllers\mainController\MainController;
-use app\models\forms\CreateProposalForm;
+use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
 use app\models\databaseModels\File;
 use app\models\databaseModels\Proposal;
@@ -42,10 +42,16 @@ class ProposalController extends MainController
             $lastProposalContent = $selectedProposal->proposalContentHistories[
                 count($selectedProposal->proposalContentHistories)-1
             ];
+
+            $model = new ManageProposalForm();
+            $model->title = $selectedProposal->title;
+            $model->content = $lastProposalContent->content;
+
             return $this->render('my-proposal', [
                 'selectedProposal' => $selectedProposal,
                 'lastProposalContent' => $lastProposalContent,
-                'chronologicalStream' => $chronologicalStream
+                'chronologicalStream' => $chronologicalStream,
+                'model' => $model
             ]);
         }
 
@@ -292,7 +298,7 @@ class ProposalController extends MainController
      */
     public function actionCreateProposal()
     {
-        $model = new CreateProposalForm();
+        $model = new ManageProposalForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $transaction = Yii::$app->db->beginTransaction();
@@ -416,6 +422,35 @@ class ProposalController extends MainController
         if (!$file->save()) {
             throw new CannotSaveException($file);
         }
+    }
+
+    public function actionEditProposal(int $id)
+    {
+        //dd($id);
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
+        $chronologicalStream = $this->generateChronologicalStream
+        (
+            $selectedProposal->comments,
+            $selectedProposal->reviews,
+            $selectedProposal->proposalContentHistories
+        );
+        $lastProposalContent = $selectedProposal->proposalContentHistories[
+        count($selectedProposal->proposalContentHistories)-1
+        ];
+
+
+        $model = new ManageProposalForm();
+        $model->title = $selectedProposal->title;
+        $model->content = $lastProposalContent->content;
+
+        return $this->render('my-proposal', [
+            'selectedProposal' => $selectedProposal,
+            'lastProposalContent' => $lastProposalContent,
+            'chronologicalStream' => $chronologicalStream,
+            'model' => $model
+        ]);
+
     }
 
 }

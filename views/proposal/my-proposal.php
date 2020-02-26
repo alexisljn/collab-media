@@ -2,10 +2,15 @@
 /** @var \app\models\databaseModels\Proposal $selectedProposal */
 /** @var \app\models\databaseModels\ProposalContentHistory $lastProposalContent */
 /** @var \app\models\databaseModels\Review|\app\models\databaseModels\Comment|\app\models\databaseModels\ProposalContentHistory $chronologicalStream */
-?>
+
+use yii\widgets\ActiveForm; ?>
 
 <!-- Proposal informations -->
 
+
+
+
+    <a href="#" id="edit-link">Edit</a>
 <h1><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
 <p>Created at <?= $selectedProposal->date ?></p>
 <?php if($selectedProposal->date != $lastProposalContent->date) { ?>
@@ -19,6 +24,18 @@
         ->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?></p>
 
 <!-- Proposal History -->
+
+<!-- Edit Form -->
+<div style="display: none;" id="proposal-form-div">
+    <?php
+    $form = yii\widgets\ActiveForm::begin([
+        'id' => 'proposalForm',
+    ]);
+    ?>
+    <?= $form->field($model, 'title')->textInput(['id' => 'proposalFormTitleInput']); ?>
+    <?= $form->field($model, 'content')->hiddenInput(['id' => 'proposalFormContentInput']); ?>
+    <?php yii\widgets\ActiveForm::end(); ?>
+</div>
 
 <?php foreach ($chronologicalStream as $oldProposalContent) {
     if ($oldProposalContent instanceof \app\models\databaseModels\ProposalContentHistory && $oldProposalContent->date != $lastProposalContent->date) { ?>
@@ -66,3 +83,10 @@ foreach ($chronologicalStream as $chronologicalItem) {
      }
 }
 ?>
+<script type="text/javascript">
+    $(() => {
+        $('#edit-link').on('click', () => {
+            $('#proposal-form-div').css('display', 'block');
+        })
+    })
+</script>

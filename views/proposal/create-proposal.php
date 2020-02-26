@@ -2,7 +2,7 @@
 /** @var string $error  */
 use yii\helpers\Html; ?>
 
-<?= 'CREATE PROPOSAL'; ?>
+<h1>Create Proposal</h1>
 
 <?php
     if (!is_null($error)) {

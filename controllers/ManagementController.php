@@ -2,9 +2,11 @@
 namespace app\controllers;
 
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\SocialMediaPermission;
 use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
+use app\models\forms\ModifySocialMediaPermissionForm;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
 use yii\web\NotFoundHttpException;
@@ -45,23 +47,36 @@ class ManagementController extends MainController
      */
     private function actionModifiyAccount($id)
     {
-
         $user = $this->checkIfUserExist($id);
 
-        $form = new ModifyAccountForm();
+        $userPermission = $this->checkIfPermissionExists($id);
 
-        if($form->load($_POST) && $form->validate()) {
-            $this->updateAccount($form, $user);
+
+        $formModifyAccount = new ModifyAccountForm();
+
+        $formSocialMediaPermission = new ModifySocialMediaPermissionForm();
+
+        if ($formModifyAccount->load($_POST) && $formModifyAccount->validate()) {
+            $this->updateAccount($formModifyAccount, $user);
         }
 
-        $form->firstname    = $user->firstname;
-        $form->lastname     = $user->lastname;
-        $form->email        = $user->email;
-        $form->role         = $user->role;
-        $form->is_active    = $user->is_active;
+        if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
+            $this->updateSocialMediaPermission($formSocialMediaPermission, $userPermission);
+        }
+
+        $formModifyAccount->firstname    = $user->firstname;
+        $formModifyAccount->lastname     = $user->lastname;
+        $formModifyAccount->email        = $user->email;
+        $formModifyAccount->role         = $user->role;
+        $formModifyAccount->is_active    = $user->is_active;
+
+        $formSocialMediaPermission->facebook_enabled = $userPermission->facebook_enabled;
+        $formSocialMediaPermission->twitter_enabled  = $userPermission->twitter_enabled;
+        $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
 
         return $this->render('modifyAccount', [
-            'model'=>$form,
+            'formModifyAccount_model' => $formModifyAccount,
+            'formSocialMediaPermission_model' => $formSocialMediaPermission,
         ]);
     }
 
@@ -74,7 +89,6 @@ class ManagementController extends MainController
      */
     private function updateAccount(ModifyAccountForm $form, $user)
     {
-
         $user->firstname    = $form->firstname;
         $user->lastname     = $form->lastname;
         $user->email        = $form->email;
@@ -83,6 +97,22 @@ class ManagementController extends MainController
 
         if(!$user->save()){
             throw new CannotSaveException($user);
+        }
+    }
+
+    /**
+     * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
+     * @param $userPermission
+     * @throws CannotSaveException
+     */
+    private function updateSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, $userPermission)
+    {
+        $userPermission->facebook_enabled = $formSocialMediaPermission->facebook_enabled;
+        $userPermission->twitter_enabled  = $formSocialMediaPermission->twitter_enabled;
+        $userPermission->linkedin_enabled = $formSocialMediaPermission->linkedin_enabled;
+
+        if(!$userPermission->save()){
+            throw new CannotSaveException($userPermission);
         }
     }
 
@@ -102,6 +132,18 @@ class ManagementController extends MainController
     }
 
     /**
+     * @param int $id
+     * @return SocialMediaPermission|null
+     */
+    private function checkIfPermissionExists($id)
+    {
+        if (!is_null($userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]))) {
+            return $userPermission;
+        }
+        return null;
+    }
+
+    /**
      * Display a page with the acount creation form
      * Test the form and if it's validated, calls the function createAccount
      *
@@ -111,7 +153,6 @@ class ManagementController extends MainController
     public function actionCreateAccount()
     {
         $form = new CreateAccountForm();
-
 
         if($form->load($_POST) && $form->validate()) {
             $this->createAccount($form);

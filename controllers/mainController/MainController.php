@@ -73,7 +73,7 @@ class MainController extends Controller
                 'children' => [
                     [
                         'title' => 'My proposals',
-                        'url' => '/proposals/my-proposals',
+                        'url' => '/proposal/my-proposals',
                         'roleNeeded' => User::USER_ROLE_MEMBER,
                         'activeActions' => [
                             'proposal' => ['my-proposals'],
@@ -82,11 +82,11 @@ class MainController extends Controller
                     'divider',
                     [
                         'title' => 'Proposals to review',
-                        'url' => '/proposals/to-review',
+                        'url' => '/proposal/to-review',
                         'roleNeeded' => User::USER_ROLE_REVIEWER,
                     ]
                 ]
-            ]
+            ],
         ],
     ];
 

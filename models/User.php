@@ -11,6 +11,13 @@ class User extends databaseModels\User implements \yii\web\IdentityInterface
     public const USER_ROLE_PUBLISHER = 'publisher';
     public const USER_ROLE_ADMIN = 'admin';
 
+    public const USER_ROLES = [
+        self::USER_ROLE_MEMBER,
+        self::USER_ROLE_REVIEWER,
+        self::USER_ROLE_PUBLISHER,
+        self::USER_ROLE_ADMIN,
+    ];
+
     /**
      * Defines roles inheritances
      *

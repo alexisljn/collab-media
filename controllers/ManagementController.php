@@ -55,7 +55,6 @@ class ManagementController extends MainController
         $form->lastname     = $user->lastname;
         $form->email        = $user->email;
         $form->role         = $user->role;
-        $form->is_validated = $user->is_validated;
         $form->is_active    = $user->is_active;
 
         return $this->render('modifyAccount', [

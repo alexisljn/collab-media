@@ -26,10 +26,19 @@ class ModifyAccountForm extends Model
             // email has to be a valid email address
             ['email', 'email'],
             // name length
-            [['firstname'], 'string', 'length' => 32],
-            [['lastname'], 'string', 'length' => 64],
+            [['firstname'], 'string', 'max' => 32],
+            [['lastname'], 'string', 'max' => 64],
+            // role has to be in the roles defined
+            ['role', 'validateRole'],
 
         ];
+    }
+
+    public function validateRole($attribute)
+    {
+        if (!in_array($this->role, User::USER_ROLES)) {
+            $this->addError($attribute, 'Invalid Role');
+        }
     }
 
 }

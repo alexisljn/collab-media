@@ -76,7 +76,7 @@ class ManagementController extends MainController
 
         return $this->render('modifyAccount', [
             'formModifyAccount_model'=>$formModifyAccount,
-            'formSocialMEdiaPermission_model'=> $formSocialMediaPermission,
+            'formSocialMediaPermission_model'=> $formSocialMediaPermission,
         ]);
     }
 

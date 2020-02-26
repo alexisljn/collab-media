@@ -40,7 +40,7 @@ $this->title = 'Modify Account';
 
     <div class="form-group">
         <div class="col-lg-offset-1 col-lg-11">
-            <?= Html::submitButton('Submit', [
+            <?= Html::submitButton('Modify Account', [
                     'class' => 'btn btn-primary', 'name' => 'modify-account-button'
             ]) ?>
         </div>
@@ -60,18 +60,15 @@ $this->title = 'Modify Account';
             ],
         ]);?>
 
-        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'facebook_enabled')
-            ->checkbox(); ?>
+        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'facebook_enabled')->checkbox(); ?>
 
-        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'twitter_enabled')
-            ->checkbox(); ?>
+        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'twitter_enabled')->checkbox(); ?>
 
-        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'linkedin_enabled')
-            ->checkbox(); ?>
+        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'linkedin_enabled')->checkbox(); ?>
 
         <div class="form-group">
             <div class="col-lg-offset-1 col-lg-11">
-                <?= Html::submitButton('Submit', [
+                <?= Html::submitButton('Modify Permission', [
                         'class' => 'btn btn-primary', 'name' => 'modify-social-media-permission-button'
                 ]) ?>
             </div>

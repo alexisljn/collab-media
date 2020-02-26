@@ -1,7 +1,7 @@
 <?php
 
 
-namespace app\models;
+namespace app\models\forms;
 
 
 use app\components\Util;

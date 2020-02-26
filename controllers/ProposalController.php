@@ -6,7 +6,7 @@ namespace app\controllers;
 
 use app\components\Util;
 use app\controllers\mainController\MainController;
-use app\models\CreateProposalForm;
+use app\models\forms\CreateProposalForm;
 use app\models\databaseModels\Comment;
 use app\models\databaseModels\File;
 use app\models\databaseModels\Proposal;

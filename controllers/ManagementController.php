@@ -2,7 +2,7 @@
 namespace app\controllers;
 
 use app\controllers\mainController\MainController;
-use app\models\CreateAccountForm;
+use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
 use yii\data\ActiveDataProvider;

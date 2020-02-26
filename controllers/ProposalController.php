@@ -4,14 +4,20 @@
 namespace app\controllers;
 
 
+use app\components\Util;
 use app\controllers\mainController\MainController;
+use app\models\CreateProposalForm;
 use app\models\databaseModels\Comment;
+use app\models\databaseModels\File;
 use app\models\databaseModels\Proposal;
 use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
+use app\models\exceptions\CannotHandleUploadedFileException;
+use app\models\exceptions\CannotSaveException;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
 use yii\web\NotFoundHttpException;
+use yii;
 
 class ProposalController extends MainController
 {
@@ -275,6 +281,141 @@ class ProposalController extends MainController
         ]);
 
         return $reviewedAndNoPublishedProposalsForAReviewer;
+    }
+
+    /**
+     * Display a form to create a Proposal
+     * Save the proposal in DB when form is submitted
+     *
+     * @return string|yii\web\Response
+     * @throws \Throwable
+     */
+    public function actionCreateProposal()
+    {
+        $model = new CreateProposalForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $transaction = Yii::$app->db->beginTransaction();
+
+            try {
+                $postRequest = Yii::$app->request->post();
+                $proposal = $this->saveProposal($postRequest['CreateProposalForm']['title']);
+                $this->saveProposalContent($postRequest['CreateProposalForm']['content'], $proposal);
+
+                if (!empty($_FILES['CreateProposalForm']['name']['relatedFile'])) {
+                    $uploadedFile = $_FILES['CreateProposalForm'];
+                    $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $proposal);
+                    $this->saveProposalRelatedFile($movedFilename, $proposal);
+                }
+
+                $transaction->commit();
+                return $this->redirect('/proposal/my-proposals/' . $proposal->id);
+            } catch (CannotHandleUploadedFileException $cannotHandleUploadedFileException) {
+                $transaction->rollBack();
+                return $this->render('create-proposal', ['model' => $model, 'error' => 'Invalid file']);
+
+            } catch(\Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
+        } else {
+            return $this->render('create-proposal', ['model' => $model, 'error' => null]);
+        }
+    }
+
+    /**
+     * Save proposal in DB
+     *
+     * @param $proposalTitle
+     * @return Proposal
+     * @throws CannotSaveException
+     */
+    private function saveProposal(string $proposalTitle): Proposal
+    {
+        $proposal = new Proposal();
+        $proposal->title = $proposalTitle;
+        $proposal->submitter_id = mainController::getCurrentUser()->id;
+        $proposal->status = \app\models\Proposal::STATUS_PENDING;
+        $proposal->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if(!$proposal->save()) {
+            throw new CannotSaveException($proposal);
+        }
+
+        return $proposal;
+    }
+
+    /**
+     * Save ProposalContentHistory in DB
+     *
+     * @param $proposalContent
+     * @param $proposal
+     * @throws CannotSaveException
+     */
+    private function saveProposalContent(string $proposalContent,Proposal $proposal)
+    {
+        $proposalContentHistory = new ProposalContentHistory();
+        $proposalContentHistory->proposal_id = $proposal->id;
+        $proposalContentHistory->date = $proposal->date;
+        $proposalContentHistory->content = $proposalContent;
+
+        if(!$proposalContentHistory->save()) {
+            throw new CannotSaveException($proposalContentHistory);
+        }
+    }
+
+    /**
+     * Move the uploaded file to server
+     *
+     * @param $uploadedFile
+     * @param $proposal
+     * @return string
+     * @throws CannotHandleUploadedFileException
+     */
+    private function moveUploadedFileToServer($uploadedFile, Proposal $proposal): string
+    {
+        if ($uploadedFile['error']['relatedFile'] != 0) {
+            throw new CannotHandleUploadedFileException();
+        }
+
+        if ($uploadedFile['size']['relatedFile'] > 52428800) {
+            throw new CannotHandleUploadedFileException();
+        }
+
+        $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
+        $extension = $explodedFilename[count($explodedFilename)-1];
+
+        if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
+            throw new CannotHandleUploadedFileException();
+        }
+
+        $newFilename = basename($proposal->id . '.' . $extension);
+        if(!move_uploaded_file(
+            $uploadedFile['tmp_name']['relatedFile'],
+            '../uploaded-files/proposal-related-files/' . $newFilename
+        )) {
+            throw new CannotHandleUploadedFileException();
+        }
+
+        return $newFilename;
+    }
+
+    /**
+     * Save the file in DB.
+     *
+     * @param $movedFilename
+     * @param $proposal
+     * @throws CannotSaveException
+     */
+    private function saveProposalRelatedFile(string $movedFilename, Proposal $proposal)
+    {
+        $file = new File();
+        $file->proposal_id = $proposal->id;
+        $file->path = $movedFilename;
+
+        if (!$file->save()) {
+            throw new CannotSaveException($file);
+        }
     }
 
 }

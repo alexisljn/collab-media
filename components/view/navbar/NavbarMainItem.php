@@ -45,7 +45,43 @@ class NavbarMainItem extends AbstractNavbarItem
      */
     public function getHTML(): string
     {
-        // TODO: Implement getHTML() method.
-        return 'TODO';
+        ob_start();
+        if($this->isDisplayed) {
+            if($this->hasChildren()) {
+                ?>
+                <li class="nav-item dropdown<?= $this->isActive ? ' active' : '' ?>">
+                    <a class="nav-link dropdown-toggle" href="<?= $this->url ?>" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <?= $this->title ?>
+                    </a>
+                    <div class="dropdown-menu">
+                        <?php
+                        foreach($this->children as $child) {
+                            ?>
+                            <?= $child->getHTML(); ?>
+                            <?php
+                        }
+                        ?>
+                    </div>
+                </li>
+                <?php
+            } else {
+                ?>
+                <li class="nav-item<?= $this->isActive ? ' active' : '' ?>">
+                    <a class="nav-link" href="<?= $this->url ?>"><?= $this->title ?><?= $this->isActive ? ' <span class="sr-only">(current)</span>' : '' ?></a>
+                </li>
+                <?php
+            }
+        }
+        return ob_get_clean();
+    }
+
+    /**
+     * Returns true if item has at least one child, false otherwise
+     *
+     * @return bool
+     */
+    private function hasChildren(): bool
+    {
+        return !empty($this->children);
     }
 }

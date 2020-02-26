@@ -74,4 +74,21 @@ class Navbar
             $this->items[] = new NavbarMainItem($itemConfig);
         }
     }
+
+    public function getHTML(): string
+    {
+        ob_start();
+        ?>
+            <ul class="navbar-nav mr-auto">
+                <?php
+                foreach($this->items as $item) {
+                    ?>
+                    <?= $item->getHTML(); ?>
+                    <?php
+                }
+                ?>
+            </ul>
+        <?php
+        return ob_get_clean();
+    }
 }

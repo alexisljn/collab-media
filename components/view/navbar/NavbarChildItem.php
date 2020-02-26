@@ -22,7 +22,12 @@ class NavbarChildItem extends AbstractNavbarItem implements NavbarItemChildInter
      */
     public function getHTML(): string
     {
-        // TODO: Implement getHTML() method.
-        return 'TODO';
+        ob_start();
+        if($this->isDisplayed) {
+            ?>
+            <a class="dropdown-item<?= $this->isActive ? ' active' : '' ?>" href="<?= $this->url ?>"><?= $this->title ?><?= $this->title ?><?= $this->isActive ? ' <span class="sr-only">(current)</span>' : '' ?></a>
+            <?php
+        }
+        return ob_get_clean();
     }
 }

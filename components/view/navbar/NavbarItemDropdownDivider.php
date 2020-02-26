@@ -11,6 +11,10 @@ class NavbarItemDropdownDivider implements NavbarItemChildInterface
      */
     public function getHTML(): string
     {
-        return '<div>DIVIDER</div>';
+        ob_start();
+        ?>
+        <div class="dropdown-divider"></div>
+        <?php
+        return ob_get_clean();
     }
 }

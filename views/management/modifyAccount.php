@@ -2,7 +2,7 @@
 
 /* @var $this yii\web\View */
 /* @var $form yii\bootstrap\ActiveForm */
-/* @var $model app\models\ModifyAccountForm */
+/* @var $model app\models\forms\ModifyAccountForm */
 /* @var $user \app\models\databaseModels\User */
 
 use yii\helpers\Html;

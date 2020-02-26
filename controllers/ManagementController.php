@@ -6,7 +6,7 @@ use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
 use yii\data\ActiveDataProvider;
-use app\models\ModifyAccountForm;
+use app\models\forms\ModifyAccountForm;
 use yii\web\NotFoundHttpException;
 
 

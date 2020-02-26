@@ -15,7 +15,8 @@
 <?php if (!is_null($selectedProposal->social_media)) { ?>
     <p>Published on : <?= $selectedProposal->social ?></p>
 <?php } ?>
-<p><?= \yii\helpers\Html::encode($lastProposalContent->content) ?></p>
+<p><?= (new Parsedown())
+        ->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?></p>
 
 <!-- Proposal History -->
 
@@ -23,7 +24,8 @@
     if ($oldProposalContent instanceof \app\models\databaseModels\ProposalContentHistory && $oldProposalContent->date != $lastProposalContent->date) { ?>
         <div class="bg-success">
             <p>Previous version  of <?=' '. $oldProposalContent->date ?></p>
-            <p><?= \yii\helpers\Html::encode($oldProposalContent->content) ?></p>
+            <p><?= (new Parsedown())
+                    ->text(\yii\helpers\Html::encode($oldProposalContent->content)) ?></p>
         </div>
     <?php }
 } ?>
@@ -39,7 +41,6 @@ foreach ($chronologicalStream as $chronologicalItem) {
                 \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
                 $chronologicalItem->date ?>
             </p>
-            <p><?= \yii\helpers\Html::encode($chronologicalItem->content) ?></p>
         </div>
     <?php }
     elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) { ?>

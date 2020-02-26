@@ -21,7 +21,12 @@ AppAsset::register($this);
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/codemirror.css">
+    <link rel="stylesheet" href="/css/github.css">
+    <link rel="stylesheet" href="/css/tui-editor.css">
+    <link rel="stylesheet" href="/css/tui-editor-contents.css">
     <script src="/js/jquery-3.4.1.min.js"></script>
+    <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>

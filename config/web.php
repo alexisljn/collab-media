@@ -63,9 +63,11 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'proposal/my-proposals/<id:\d+>' => 'proposal/my-proposals'
+                'proposal/my-proposals/<id:\d+>' => 'proposal/my-proposals',
+                'management/accounts/<id:\d+>'   => 'management/accounts',
             ],
         ],
+
     ],
     'params' => $params,
 ];

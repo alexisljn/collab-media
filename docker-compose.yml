@@ -2,7 +2,7 @@ version: "3.5"
 
 services:
   web:
-    image: webdevops/php-nginx:7.4
+    image: webdevops/php-apache:7.4
     working_dir: /app
     ports:
       - 8000:80
@@ -15,6 +15,8 @@ services:
       WEB_DOCUMENT_INDEX: index.php
       PHP_DATE_TIMEZONE: "Europe/Paris"
       PHP_DISPLAY_ERRORS: 1
+      PHP_POST_MAX_SIZE: 500M
+      PHP_UPLOAD_MAX_FILESIZE: 500M
 
   database:
     image: mariadb:10.4.11

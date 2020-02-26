@@ -385,7 +385,7 @@ class ProposalController extends MainController
         $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
         $extension = $explodedFilename[count($explodedFilename)-1];
 
-        if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
+        if (!in_array($extension,Util::UPLOADED_FILE_ALLOWED_EXTENSIONS)) {
             throw new CannotHandleUploadedFileException();
         }
 

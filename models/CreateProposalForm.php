@@ -18,7 +18,7 @@ class CreateProposalForm extends Model
         return [
             [['title', 'content'], 'required'],
             ['relatedFile', 'file', 'extensions' =>
-                Util::ALLOWED_EXTENSIONS,
+                Util::UPLOADED_FILE_ALLOWED_EXTENSIONS,
                 'maxSize' => 52428800],
         ];
 

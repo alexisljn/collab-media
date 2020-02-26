@@ -12,6 +12,7 @@ use app\models\databaseModels\File;
 use app\models\databaseModels\Proposal;
 use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
+use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
@@ -282,6 +283,13 @@ class ProposalController extends MainController
         return $reviewedAndNoPublishedProposalsForAReviewer;
     }
 
+    /**
+     * Display a form to create a Proposal
+     * Save the proposal in DDB when form is submitted
+     *
+     * @return string|yii\web\Response
+     * @throws \Throwable
+     */
     public function actionCreateProposal()
     {
         $this->layout = 'markdown-main';
@@ -304,17 +312,26 @@ class ProposalController extends MainController
 
                 $transaction->commit();
                 return $this->redirect('/proposal/my-proposals/' . $proposal->id);
+            } catch (CannotHandleUploadedFileException $cannotHandleUploadedFileException) {
+                $transaction->rollBack();
+                return $this->render('create-proposal', ['model' => $model, 'error' => 'Invalid file']);
 
             } catch(\Throwable $e) {
                 $transaction->rollBack();
                 throw $e;
             }
-
         } else {
             return $this->render('create-proposal', ['model' => $model]);
         }
     }
 
+    /**
+     * Save proposal in DDB
+     *
+     * @param $proposalTitle
+     * @return Proposal
+     * @throws CannotSaveException
+     */
     private function saveProposal($proposalTitle)
     {
         $proposal = new Proposal();
@@ -330,6 +347,13 @@ class ProposalController extends MainController
         return $proposal;
     }
 
+    /**
+     * Save ProposalContentHistory in DDB
+     *
+     * @param $proposalContent
+     * @param $proposal
+     * @throws CannotSaveException
+     */
     private function saveProposalContent($proposalContent, $proposal)
     {
         $proposalContentHistory = new ProposalContentHistory();
@@ -342,32 +366,49 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Move the uploaded file to server
+     *
+     * @param $uploadedFile
+     * @param $proposal
+     * @return string
+     * @throws CannotHandleUploadedFileException
+     */
     private function moveUploadedFileToServer($uploadedFile, $proposal)
     {
         if ($uploadedFile['error']['relatedFile'] != 0) {
-            throw new \Exception('Error');
+            throw new CannotHandleUploadedFileException();
         }
 
         if ($uploadedFile['size']['relatedFile'] > 52428800) {
-            throw new \Exception('file trop grand');
+            throw new CannotHandleUploadedFileException();
         }
 
         $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
         $extension = $explodedFilename[count($explodedFilename)-1];
 
         if (!in_array($extension,Util::ALLOWED_EXTENSIONS)) {
-            throw new \Exception('Extension pas autorisé');
+            throw new CannotHandleUploadedFileException();
         }
 
         $newFilename = basename($proposal->id . '.' . $extension);
-        move_uploaded_file(
+        if(!move_uploaded_file(
             $uploadedFile['tmp_name']['relatedFile'],
             '../uploaded-files/proposal-related-files/' . $newFilename
-        );
+        )) {
+            throw new CannotHandleUploadedFileException();
+        }
 
         return $newFilename;
     }
 
+    /**
+     * Save the file in DDB.
+     *
+     * @param $movedFilename
+     * @param $proposal
+     * @throws CannotSaveException
+     */
     private function saveProposalRelatedFile($movedFilename, $proposal)
     {
         $file = new File();
@@ -375,7 +416,7 @@ class ProposalController extends MainController
         $file->path = $movedFilename;
 
         if (!$file->save()) {
-            throw new \Exception('file not saved');
+            throw new CannotSaveException($file);
         }
     }
 

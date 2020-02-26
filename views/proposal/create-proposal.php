@@ -4,7 +4,6 @@ echo 'CREATE PROPOSAL';
 use yii\helpers\Html; ?>
 
 <?php $form = yii\widgets\ActiveForm::begin([
-//        'action' => '/proposal/validate-proposal',
         'id' => 'proposalForm',
         'enableClientValidation' => false
 ]);

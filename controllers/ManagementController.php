@@ -49,7 +49,7 @@ class ManagementController extends MainController
     {
         $user = $this->checkIfUserExist($id);
 
-        $userPermission = $this->chekcIfUserPermission($id);
+        $userPermission = $this->checkIfPermissionExists($id);
 
 
         $formModifyAccount = new ModifyAccountForm();
@@ -75,8 +75,8 @@ class ManagementController extends MainController
         $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
 
         return $this->render('modifyAccount', [
-            'formModifyAccount_model'=>$formModifyAccount,
-            'formSocialMediaPermission_model'=> $formSocialMediaPermission,
+            'formModifyAccount_model' => $formModifyAccount,
+            'formSocialMediaPermission_model' => $formSocialMediaPermission,
         ]);
     }
 
@@ -135,7 +135,7 @@ class ManagementController extends MainController
      * @param int $id
      * @return SocialMediaPermission|null
      */
-    private function chekcIfUserPermission($id)
+    private function checkIfPermissionExists($id)
     {
         if (!is_null($userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]))) {
             return $userPermission;

@@ -29,7 +29,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $form->field($model, 'email')?>
 
-    <?= $form->field($model,'is_validated')->checkbox(); ?>
+    <?= $form->field($model, 'role')->dropDownList([
+            'user'=>'User', 'reviewer'=>'Reviewer','publisher'=>'Publisher','admin'=>'Admin'
+    ],[
+        'options'=>[
+            'role' => ['selected' => true]
+        ]]) ?>
 
     <?= $form->field($model,'is_active')->checkbox(); ?>
 

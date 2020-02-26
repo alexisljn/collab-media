@@ -12,7 +12,7 @@ class ModifyAccountForm extends Model
     public $firstname;
     public $lastname;
     public $email;
-    public $is_validated;
+    public $role;
     public $is_active;
 
     /**
@@ -22,9 +22,13 @@ class ModifyAccountForm extends Model
     {
         return [
             // name, email, subject and body are required
-            [['firstname','lastname', 'email', 'is_validated', 'is_active'], 'required'],
+            [['firstname','lastname', 'email','role', 'is_active'], 'required'],
             // email has to be a valid email address
             ['email', 'email'],
+            // name length
+            [['firstname'], 'string', 'length' => 32],
+            [['lastname'], 'string', 'length' => 64],
+
         ];
     }
 

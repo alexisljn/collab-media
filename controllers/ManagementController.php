@@ -54,6 +54,7 @@ class ManagementController extends MainController
         $form->firstname    = $user->firstname;
         $form->lastname     = $user->lastname;
         $form->email        = $user->email;
+        $form->role         = $user->role;
         $form->is_validated = $user->is_validated;
         $form->is_active    = $user->is_active;
 
@@ -74,7 +75,7 @@ class ManagementController extends MainController
         $user->firstname    = $form->firstname;
         $user->lastname     = $form->lastname;
         $user->email        = $form->email;
-        $user->is_validated = $form->is_validated;
+        $user->role         = $form->role;
         $user->is_active    = $form->is_active;
 
         if(!$user->save()){
@@ -128,8 +129,8 @@ class ManagementController extends MainController
         $user->firstname    = $form->firstname;
         $user->lastname     = $form->lastname;
         $user->email        = $form->email;
-        $user->is_validated = "0";
-        $user->is_active = "0";
+        $user->is_validated = false;
+        $user->is_active = true;
         $user->role         = $form->role;
 
         if(!$user->save()){

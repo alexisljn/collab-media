@@ -292,8 +292,6 @@ class ProposalController extends MainController
      */
     public function actionCreateProposal()
     {
-        $this->layout = 'markdown-main';
-
         $model = new CreateProposalForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
@@ -321,7 +319,7 @@ class ProposalController extends MainController
                 throw $e;
             }
         } else {
-            return $this->render('create-proposal', ['model' => $model]);
+            return $this->render('create-proposal', ['model' => $model, 'error' => null]);
         }
     }
 
@@ -332,7 +330,7 @@ class ProposalController extends MainController
      * @return Proposal
      * @throws CannotSaveException
      */
-    private function saveProposal($proposalTitle)
+    private function saveProposal(string $proposalTitle): Proposal
     {
         $proposal = new Proposal();
         $proposal->title = $proposalTitle;
@@ -354,7 +352,7 @@ class ProposalController extends MainController
      * @param $proposal
      * @throws CannotSaveException
      */
-    private function saveProposalContent($proposalContent, $proposal)
+    private function saveProposalContent(string $proposalContent,Proposal $proposal)
     {
         $proposalContentHistory = new ProposalContentHistory();
         $proposalContentHistory->proposal_id = $proposal->id;
@@ -374,7 +372,7 @@ class ProposalController extends MainController
      * @return string
      * @throws CannotHandleUploadedFileException
      */
-    private function moveUploadedFileToServer($uploadedFile, $proposal)
+    private function moveUploadedFileToServer($uploadedFile, Proposal $proposal): string
     {
         if ($uploadedFile['error']['relatedFile'] != 0) {
             throw new CannotHandleUploadedFileException();
@@ -409,7 +407,7 @@ class ProposalController extends MainController
      * @param $proposal
      * @throws CannotSaveException
      */
-    private function saveProposalRelatedFile($movedFilename, $proposal)
+    private function saveProposalRelatedFile(string $movedFilename, Proposal $proposal)
     {
         $file = new File();
         $file->proposal_id = $proposal->id;

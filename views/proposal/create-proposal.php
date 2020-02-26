@@ -1,24 +1,25 @@
 <?php
-echo 'CREATE PROPOSAL';
-
+/** @var string $error  */
 use yii\helpers\Html; ?>
 
-<?php $form = yii\widgets\ActiveForm::begin([
-        'id' => 'proposalForm',
-        'enableClientValidation' => false
-]);
-echo $form->field($model, 'title')->textInput(['id' => 'proposalFormTitleInput']);
-echo $form->field($model, 'content')->hiddenInput(['id' => 'proposalFormContentInput']); ?>
-<div id="Proposalcontent" class="editSection"></div>
+<?= 'CREATE PROPOSAL'; ?>
 
-<button id="toto">Click</button>
+<?php
+    if (!is_null($error)) {
+        echo "TODO : Boostrap Alert";
+    }
+?>
+<?php
+    $form = yii\widgets\ActiveForm::begin([
+        'id' => 'proposalForm',
+    ]);
+?>
+<?= $form->field($model, 'title')->textInput(['id' => 'proposalFormTitleInput']); ?>
+<?= $form->field($model, 'content')->hiddenInput(['id' => 'proposalFormContentInput']); ?>
+<div id="Proposalcontent" class="editSection"></div>
 <?= $form->field($model, 'relatedFile')->fileInput(); ?>
 <?= yii\helpers\Html::submitButton('Submit'); ?>
 <?php yii\widgets\ActiveForm::end(); ?>
-
-
-
-
 
 <script type="text/javascript">
     const editor = new tui.Editor({
@@ -27,14 +28,12 @@ echo $form->field($model, 'content')->hiddenInput(['id' => 'proposalFormContentI
        height: '300px',
        initialEditType: 'markdown'
     });
-
     const form = document.querySelector('#proposalForm');
      $(() => {
         $(form).on("submit", function() {
             $("#proposalFormContentInput").val(editor.getMarkdown());
         })
      })
-
 </script>
 
 

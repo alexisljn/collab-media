@@ -28,11 +28,11 @@ class Navbar
      *              'url'           => 'URL when item clicked',
      *              'roleNeeded'    => 'role'   // Optionnal, if not set everyone will see it
      *              'activeActions' => [        // Optionnal, if not set the item will never be shown as active
-     *                  'controller-name'   => [
+     *                  'controller-name'   => '*'
+     *                  // OR
+     *                  'controller-name    => [
      *                      'action-name',
      *                      'action-name',
-     *                      // OR
-     *                      '*'
      *                  ],
      *                  ...
      *              ]
@@ -47,9 +47,9 @@ class Navbar
      *                      ...
      *                  ]
      *              ],
-     *              [
-     *                  ...
-     *              ]
+     *          ],
+     *          [
+     *              ...
      *          ]
      *      ]
      *  ]

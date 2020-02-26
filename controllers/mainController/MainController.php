@@ -118,6 +118,14 @@ class MainController extends Controller
                             'management' => ['accounts', 'modify-account'],
                         ],
                     ],
+                    [
+                        'title' => 'Create an account',
+                        'url' => '/management/create-account',
+                        'roleNeeded' => User::USER_ROLE_ADMIN,
+                        'activeActions' => [
+                            'management' => ['create-account'],
+                        ],
+                    ],
                 ],
             ],
         ],

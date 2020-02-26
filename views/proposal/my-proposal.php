@@ -41,7 +41,6 @@ foreach ($chronologicalStream as $chronologicalItem) {
                 \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
                 $chronologicalItem->date ?>
             </p>
-            <div id="viewProposition"></div>
         </div>
     <?php }
     elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) { ?>

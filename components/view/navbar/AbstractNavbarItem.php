@@ -53,8 +53,12 @@ abstract class AbstractNavbarItem
 
         // Determines whether the item should be displayed or not
         if(array_key_exists('roleNeeded', $config)) {
-            // If a role is needed, the item is displayed if the current user has the needed role
-            $this->isDisplayed = MainController::getCurrentUser()->hasRole($config['roleNeeded']);
+            if(\Yii::$app->user->isGuest) {
+                $this->isDisplayed = false;
+            } else {
+                // If a role is needed, the item is displayed if the current user has the needed role
+                $this->isDisplayed = MainController::getCurrentUser()->hasRole($config['roleNeeded']);
+            }
         } else {
             // If no role is needed, the item is always displayed
             $this->isDisplayed = true;

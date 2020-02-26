@@ -25,7 +25,7 @@ class NavbarChildItem extends AbstractNavbarItem implements NavbarItemChildInter
         ob_start();
         if($this->isDisplayed) {
             ?>
-            <a class="dropdown-item<?= $this->isActive ? ' active' : '' ?>" href="<?= $this->url ?>"><?= $this->title ?><?= $this->title ?><?= $this->isActive ? ' <span class="sr-only">(current)</span>' : '' ?></a>
+            <a class="dropdown-item<?= $this->isActive ? ' active' : '' ?>" href="<?= $this->url ?>"><?= $this->title ?><?= $this->isActive ? ' <span class="sr-only">(current)</span>' : '' ?></a>
             <?php
         }
         return ob_get_clean();

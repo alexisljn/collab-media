@@ -5,6 +5,7 @@ namespace app\controllers\mainController;
 
 
 use app\components\Util;
+use app\components\view\navbar\Navbar;
 use app\models\User;
 use yii\base\Action;
 use yii\web\Controller;
@@ -55,6 +56,87 @@ class MainController extends Controller
     ];
 
     /**
+     * Defines the configuration of the header Navbar. See {@see \app\components\view\navbar\Navbar::__construct} for details
+     */
+    private const HEADER_NAVBAR_CONFIG = [
+        'items' => [
+            [
+                'title' => 'Home',
+                'url' => '/',
+                'roleNeeded' => User::USER_ROLE_MEMBER,
+                'activeActions' => [
+                    'site' => ['index'],
+                ],
+            ],
+            [
+                'title' => 'Create a proposal',
+                'url' => '/proposal/create-proposal',
+                'roleNeeded' => User::USER_ROLE_MEMBER,
+                'activeActions' => [
+                    'proposal' => ['create-proposal'],
+                ],
+            ],
+            [
+                'title' => 'Proposals',
+                'url' => '/proposal/my-proposals',
+                'roleNeeded' => User::USER_ROLE_MEMBER,
+                'activeActions' => [
+                    'proposal' => ['my-proposals'],
+                ],
+            ],
+            [
+                'title' => 'Review',
+                'url' => '/proposal/reviewer-pending-proposals',
+                'roleNeeded' => User::USER_ROLE_REVIEWER,
+                'activeActions' => [
+                    'proposal' => ['reviewer-pending-proposals'],
+                ],
+                'children' => [
+                    [
+                        'title' => 'Not reviewed proposals',
+                        'url' => '/proposal/reviewer-pending-proposals',
+                        'roleNeeded' => User::USER_ROLE_REVIEWER,
+                        'activeActions' => [
+                            'proposal' => ['reviewer-pending-proposals'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Manage',
+                'url' => '/management/accounts',
+                'roleNeeded' => User::USER_ROLE_ADMIN,
+                'activeActions' => [
+                    'management' => ['accounts'],
+                ],
+                'children' => [
+                    [
+                        'title' => 'Accounts',
+                        'url' => '/management/accounts',
+                        'roleNeeded' => User::USER_ROLE_ADMIN,
+                        'activeActions' => [
+                            'management' => ['accounts', 'modify-account'],
+                        ],
+                    ],
+                    [
+                        'title' => 'Create an account',
+                        'url' => '/management/create-account',
+                        'roleNeeded' => User::USER_ROLE_ADMIN,
+                        'activeActions' => [
+                            'management' => ['create-account'],
+                        ],
+                    ],
+                ],
+            ],
+        ],
+    ];
+
+    /**
+     * @var Navbar The header navbar
+     */
+    public static $headerNavbar;
+
+    /**
      * @inheritDoc
      */
     public function init()
@@ -69,6 +151,8 @@ class MainController extends Controller
     public function beforeAction($action)
     {
         $this->handleActionAuthorization($action);
+
+        self::$headerNavbar = new Navbar(self::HEADER_NAVBAR_CONFIG);
 
         return parent::beforeAction($action);
     }

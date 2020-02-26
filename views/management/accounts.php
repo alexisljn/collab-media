@@ -2,7 +2,6 @@
 /** @var \yii\data\ActiveDataProvider $usersDataProvider */
 
 echo $usersDataProvider->count;
-//dd($usersDataProvider);
 ?>
 <?= \yii\grid\GridView::widget([
     'dataProvider' => $usersDataProvider,

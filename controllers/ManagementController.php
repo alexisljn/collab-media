@@ -17,6 +17,7 @@ class ManagementController extends MainController
      *
      * @param null | int $id
      * @return string
+     * @throws CannotSaveException
      */
     public function actionAccounts($id = null)
     {
@@ -40,6 +41,7 @@ class ManagementController extends MainController
      *
      * @param int $id
      * @return string
+     * @throws CannotSaveException
      */
     private function actionModifiyAccount($id)
     {

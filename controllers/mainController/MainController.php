@@ -69,28 +69,56 @@ class MainController extends Controller
                 ],
             ],
             [
+                'title' => 'Create a proposal',
+                'url' => '/proposal/create-proposal',
+                'roleNeeded' => User::USER_ROLE_MEMBER,
+                'activeActions' => [
+                    'proposal' => ['create-proposal'],
+                ],
+            ],
+            [
                 'title' => 'Proposals',
-                'url' => '/proposals/my-proposals',
+                'url' => '/proposal/my-proposals',
                 'roleNeeded' => User::USER_ROLE_MEMBER,
                 'activeActions' => [
                     'proposal' => ['my-proposals'],
                 ],
+            ],
+            [
+                'title' => 'Review',
+                'url' => '/proposal/reviewer-pending-proposals',
+                'roleNeeded' => User::USER_ROLE_REVIEWER,
+                'activeActions' => [
+                    'proposal' => ['reviewer-pending-proposals'],
+                ],
                 'children' => [
                     [
-                        'title' => 'My proposals',
-                        'url' => '/proposal/my-proposals',
-                        'roleNeeded' => User::USER_ROLE_MEMBER,
-                        'activeActions' => [
-                            'proposal' => ['my-proposals'],
-                        ]
-                    ],
-                    'divider',
-                    [
-                        'title' => 'Proposals to review',
-                        'url' => '/proposal/to-review',
+                        'title' => 'Not reviewed proposals',
+                        'url' => '/proposal/reviewer-pending-proposals',
                         'roleNeeded' => User::USER_ROLE_REVIEWER,
-                    ]
-                ]
+                        'activeActions' => [
+                            'proposal' => ['reviewer-pending-proposals'],
+                        ],
+                    ],
+                ],
+            ],
+            [
+                'title' => 'Manage',
+                'url' => '/management/accounts',
+                'roleNeeded' => User::USER_ROLE_ADMIN,
+                'activeActions' => [
+                    'management' => ['accounts'],
+                ],
+                'children' => [
+                    [
+                        'title' => 'Accounts',
+                        'url' => '/management/accounts',
+                        'roleNeeded' => User::USER_ROLE_ADMIN,
+                        'activeActions' => [
+                            'management' => ['accounts', 'modify-account'],
+                        ],
+                    ],
+                ],
             ],
         ],
     ];

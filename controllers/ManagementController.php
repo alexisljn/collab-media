@@ -4,6 +4,7 @@ namespace app\controllers;
 use app\controllers\mainController\MainController;
 use app\models\CreateAccountForm;
 use app\models\databaseModels\User;
+use app\models\exceptions\CannotSaveException;
 use yii\data\ActiveDataProvider;
 use app\models\ModifyAccountForm;
 use yii\web\NotFoundHttpException;
@@ -67,6 +68,7 @@ class ManagementController extends MainController
      *
      * @param ModifyAccountForm $form
      * @param $user
+     * @throws CannotSaveException
      */
     private function updateAccount(ModifyAccountForm $form, $user)
     {
@@ -78,7 +80,7 @@ class ManagementController extends MainController
         $user->is_active    = $form->is_active;
 
         if(!$user->save()){
-            echo "save failed.";
+            throw new CannotSaveException($user);
         }
     }
 
@@ -102,6 +104,7 @@ class ManagementController extends MainController
      * Test the form and if it's validated, calls the function createAccount
      *
      * @return string
+     * @throws CannotSaveException
      */
     public function actionCreateAccount()
     {
@@ -120,6 +123,7 @@ class ManagementController extends MainController
      * Create a new user with the datas from the form
      *
      * @param CreateAccountForm $form
+     * @throws CannotSaveException
      */
     private function createAccount(CreateAccountForm $form)
     {
@@ -133,7 +137,7 @@ class ManagementController extends MainController
         $user->role         = $form->role;
 
         if(!$user->save()){
-            echo "save failed.";
+            throw new CannotSaveException($user);
         }
     }
 }

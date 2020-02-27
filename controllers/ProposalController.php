@@ -498,7 +498,13 @@ class ProposalController extends MainController
 
                     $uploadedFile = $_FILES['ManageProposalForm'];
                     $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $editedProposal);
-                    $this->saveEditedFile($movedFilename, $editedProposal);
+
+                    if (!is_null($editedProposal->file)) {
+                        $this->saveEditedFile($movedFilename, $editedProposal);
+                    } else {
+                        $this->saveProposalRelatedFile($movedFilename, $editedProposal);
+                    }
+
                     $this->saveProposalFileHistory($movedFilename, $editedProposal, false);
                 }
 

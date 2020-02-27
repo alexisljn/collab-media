@@ -53,6 +53,7 @@ class MainController extends Controller
         'management' => [
             'accounts' => User::USER_ROLE_ADMIN,
             'create-account' => User::USER_ROLE_ADMIN,
+            'social-media' => User::USER_ROLE_ADMIN,
         ],
     ];
 
@@ -125,6 +126,14 @@ class MainController extends Controller
                         'roleNeeded' => User::USER_ROLE_ADMIN,
                         'activeActions' => [
                             'management' => ['create-account'],
+                        ],
+                    ],
+                    [
+                        'title' => 'Social Media',
+                        'url' => '/management/social-media',
+                        'roleNeeded' => User::USER_ROLE_ADMIN,
+                        'activeActions' => [
+                            'management' => ['social-media'],
                         ],
                     ],
                 ],

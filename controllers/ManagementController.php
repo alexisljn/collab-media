@@ -62,7 +62,7 @@ class ManagementController extends MainController
 
         if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
             if ($userPermission == null){
-                $this->createSocialMediaPermission($formSocialMediaPermission, $user, $userPermission);
+                $this->createSocialMediaPermission($formSocialMediaPermission, $user);
             } else {
                 $this->updateSocialMediaPermission($formSocialMediaPermission, $userPermission);
             }
@@ -106,18 +106,21 @@ class ManagementController extends MainController
     }
 
     /**
+     * Create a new publisher permission 
+     *
      * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
      * @param $user
-     * @param $userPermission
      * @throws CannotSaveException
      */
-    private function createSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, $user, $userPermission)
+    private function createSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, $user)
     {
-        dd($userPermission);
+        $userPermission = new SocialMediaPermission();
+
         $userPermission->publisher_id     = $user->id;
         $userPermission->facebook_enabled = $formSocialMediaPermission->facebook_enabled;
         $userPermission->twitter_enabled  = $formSocialMediaPermission->twitter_enabled;
         $userPermission->linkedin_enabled = $formSocialMediaPermission->linkedin_enabled;
+
         if (!$userPermission->save()) {
             throw new CannotSaveException($userPermission);
         }

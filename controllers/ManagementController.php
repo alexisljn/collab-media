@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\SocialMediaPermission;
 use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
@@ -182,6 +183,23 @@ class ManagementController extends MainController
         if(!$user->save()){
             throw new CannotSaveException($user);
         }
+    }
+
+    public function actionSocialMedias($id = null)
+    {
+        if(!is_null($id)) {
+            //TO DO -> function render ONE Social Media to be able to modify it (account, API, is_enabled)
+            dd("toto");
+        }
+        $socialMediasDataProvider = new ActiveDataProvider([
+            'query' => EnabledSocialMedia::find(),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
+        return $this->render('accounts', [
+            'socialMediasDataProvider' => $socialMediasDataProvider
+        ]);
     }
 }
 ?>

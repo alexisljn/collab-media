@@ -65,6 +65,7 @@ $config = [
             'rules' => [
                 'proposal/my-proposals/<id:\d+>' => 'proposal/my-proposals',
                 'management/accounts/<id:\d+>'   => 'management/accounts',
+                'management/social-medias/<id:\d+>' => 'management/social-medias',
             ],
         ],
 

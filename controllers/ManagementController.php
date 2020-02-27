@@ -188,8 +188,7 @@ class ManagementController extends MainController
     public function actionSocialMedias($id = null)
     {
         if(!is_null($id)) {
-            //TO DO -> function render ONE Social Media to be able to modify it (account, API, is_enabled)
-            dd("toto");
+           return $this->actionModifySocialMedias($id);
         }
         $socialMediasDataProvider = new ActiveDataProvider([
             'query' => EnabledSocialMedia::find(),
@@ -199,6 +198,14 @@ class ManagementController extends MainController
         ]);
         return $this->render('social-medias', [
             'socialMediasDataProvider' => $socialMediasDataProvider
+        ]);
+    }
+    private function actionModifySocialMedias(string $id)
+    {
+        $socialMedia = $this->checkIfSocialMediaExist($id);
+
+        return $this->render('modify-social-medias', [
+            'formModifySocialMediasModel' => $formModifySocialMediasModel,
         ]);
     }
 }

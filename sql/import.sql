@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 4.9.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : database
--- Généré le : Dim 02 fév. 2020 à 20:25
+-- Généré le :  jeu. 27 fév. 2020 à 15:08
 -- Version du serveur :  10.4.11-MariaDB-1:10.4.11+maria~bionic
--- Version de PHP : 7.4.1
+-- Version de PHP :  7.2.19
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données : `collabmedia`
+-- Base de données :  `collabmedia`
 --
 
 -- --------------------------------------------------------
@@ -595,6 +595,19 @@ INSERT INTO `proposal_content_history` (`id`, `proposal_id`, `date`, `content`) 
 -- --------------------------------------------------------
 
 --
+-- Structure de la table `proposal_file_history`
+--
+
+CREATE TABLE `proposal_file_history` (
+  `id` int(11) UNSIGNED NOT NULL,
+  `proposal_id` int(11) UNSIGNED NOT NULL,
+  `date` datetime NOT NULL,
+  `path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Structure de la table `review`
 --
 
@@ -968,6 +981,7 @@ ALTER TABLE `enabled_social_media`
 --
 ALTER TABLE `file`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `proposal_id` (`proposal_id`),
   ADD KEY `file_proposal_id` (`proposal_id`);
 
 --
@@ -983,6 +997,13 @@ ALTER TABLE `proposal`
 ALTER TABLE `proposal_content_history`
   ADD PRIMARY KEY (`id`),
   ADD KEY `proposal_content_history_proposal_id` (`proposal_id`);
+
+--
+-- Index pour la table `proposal_file_history`
+--
+ALTER TABLE `proposal_file_history`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `proposal_file_history_proposal_id` (`proposal_id`);
 
 --
 -- Index pour la table `review`
@@ -1041,6 +1062,12 @@ ALTER TABLE `proposal_content_history`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=301;
 
 --
+-- AUTO_INCREMENT pour la table `proposal_file_history`
+--
+ALTER TABLE `proposal_file_history`
+  MODIFY `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT pour la table `review`
 --
 ALTER TABLE `review`
@@ -1080,6 +1107,12 @@ ALTER TABLE `proposal`
 --
 ALTER TABLE `proposal_content_history`
   ADD CONSTRAINT `proposal_content_history_proposal_id` FOREIGN KEY (`proposal_id`) REFERENCES `proposal` (`id`);
+
+--
+-- Contraintes pour la table `proposal_file_history`
+--
+ALTER TABLE `proposal_file_history`
+  ADD CONSTRAINT `proposal_file_history_proposal_id` FOREIGN KEY (`proposal_id`) REFERENCES `proposal` (`id`);
 
 --
 -- Contraintes pour la table `review`

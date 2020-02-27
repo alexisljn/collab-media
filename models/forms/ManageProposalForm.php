@@ -7,7 +7,7 @@ namespace app\models\forms;
 use app\components\Util;
 use yii\base\Model;
 
-class CreateProposalForm extends Model
+class ManageProposalForm extends Model
 {
     public $title;
     public $content;

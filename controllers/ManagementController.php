@@ -2,9 +2,11 @@
 namespace app\controllers;
 
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\SocialMediaPermission;
 use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
+use app\models\forms\ModifySocialMediaPermissionForm;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
 use yii\web\NotFoundHttpException;
@@ -45,23 +47,41 @@ class ManagementController extends MainController
      */
     private function actionModifiyAccount($id)
     {
-
         $user = $this->checkIfUserExist($id);
 
-        $form = new ModifyAccountForm();
+        $userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]);
 
-        if($form->load($_POST) && $form->validate()) {
-            $this->updateAccount($form, $user);
+
+        $formModifyAccount = new ModifyAccountForm();
+
+        $formSocialMediaPermission = new ModifySocialMediaPermissionForm();
+
+        if ($formModifyAccount->load($_POST) && $formModifyAccount->validate()) {
+            $this->updateAccount($formModifyAccount, $user);
         }
 
-        $form->firstname    = $user->firstname;
-        $form->lastname     = $user->lastname;
-        $form->email        = $user->email;
-        $form->role         = $user->role;
-        $form->is_active    = $user->is_active;
+        if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
+            if ($userPermission === null) {
+                $this->createSocialMediaPermission($formSocialMediaPermission, $user);
+            } else {
+                $this->updateSocialMediaPermission($formSocialMediaPermission, $userPermission);
+            }
 
-        return $this->render('modifyAccount', [
-            'model'=>$form,
+        }
+
+        $formModifyAccount->firstname    = $user->firstname;
+        $formModifyAccount->lastname     = $user->lastname;
+        $formModifyAccount->email        = $user->email;
+        $formModifyAccount->role         = $user->role;
+        $formModifyAccount->is_active    = $user->is_active;
+
+        $formSocialMediaPermission->facebook_enabled = $userPermission->facebook_enabled;
+        $formSocialMediaPermission->twitter_enabled  = $userPermission->twitter_enabled;
+        $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
+
+        return $this->render('modify-account', [
+            'formModifyAccountModel' => $formModifyAccount,
+            'formSocialMediaPermissionModel' => $formSocialMediaPermission,
         ]);
     }
 
@@ -74,15 +94,50 @@ class ManagementController extends MainController
      */
     private function updateAccount(ModifyAccountForm $form, $user)
     {
-
         $user->firstname    = $form->firstname;
         $user->lastname     = $form->lastname;
         $user->email        = $form->email;
         $user->role         = $form->role;
         $user->is_active    = $form->is_active;
 
-        if(!$user->save()){
+        if (!$user->save()) {
             throw new CannotSaveException($user);
+        }
+    }
+
+    /**
+     * Create a new publisher permission 
+     *
+     * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
+     * @param $user
+     * @throws CannotSaveException
+     */
+    private function createSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, $user)
+    {
+        $userPermission = new SocialMediaPermission();
+
+        $userPermission->publisher_id     = $user->id;
+        $userPermission->facebook_enabled = $formSocialMediaPermission->facebook_enabled;
+        $userPermission->twitter_enabled  = $formSocialMediaPermission->twitter_enabled;
+        $userPermission->linkedin_enabled = $formSocialMediaPermission->linkedin_enabled;
+
+        if (!$userPermission->save()) {
+            throw new CannotSaveException($userPermission);
+        }
+    }
+    /**
+     * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
+     * @param $userPermission
+     * @throws CannotSaveException
+     */
+    private function updateSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, $userPermission)
+    {
+        $userPermission->facebook_enabled = $formSocialMediaPermission->facebook_enabled;
+        $userPermission->twitter_enabled  = $formSocialMediaPermission->twitter_enabled;
+        $userPermission->linkedin_enabled = $formSocialMediaPermission->linkedin_enabled;
+
+        if (!$userPermission->save()) {
+            throw new CannotSaveException($userPermission);
         }
     }
 
@@ -112,11 +167,10 @@ class ManagementController extends MainController
     {
         $form = new CreateAccountForm();
 
-
         if($form->load($_POST) && $form->validate()) {
             $this->createAccount($form);
         }
-        return $this->render('createAccount', [
+        return $this->render('create-account', [
             'model'=>$form,
         ]);
     }

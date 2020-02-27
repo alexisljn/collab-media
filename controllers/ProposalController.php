@@ -51,7 +51,9 @@ class ProposalController extends MainController
             $model->title = $selectedProposal->title;
             $model->content = $lastProposalContent->content;
 
-            return $this->render('my-proposal', [
+
+            return $this->render('proposal', [
+
                 'selectedProposal' => $selectedProposal,
                 'lastProposalContent' => $lastProposalContent,
                 'chronologicalStream' => $chronologicalStream,

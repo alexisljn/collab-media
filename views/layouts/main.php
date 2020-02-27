@@ -62,7 +62,7 @@ AppAsset::register($this);
 
 <footer>
     <div class="container center">
-        <p class="copyright">&copy; My Company <?= date('Y') ?></p>
+        <p class="copyright">&copy; Collab'Media - Robusoft Microsystems <?= date('Y') ?></p>
     </div>
 </footer>
 

@@ -79,7 +79,7 @@ class ManagementController extends MainController
         $formSocialMediaPermission->twitter_enabled  = $userPermission->twitter_enabled;
         $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
 
-        return $this->render('modifyAccount', [
+        return $this->render('modify-account', [
             'formModifyAccountModel' => $formModifyAccount,
             'formSocialMediaPermissionModel' => $formSocialMediaPermission,
         ]);
@@ -170,7 +170,7 @@ class ManagementController extends MainController
         if($form->load($_POST) && $form->validate()) {
             $this->createAccount($form);
         }
-        return $this->render('createAccount', [
+        return $this->render('create-account', [
             'model'=>$form,
         ]);
     }

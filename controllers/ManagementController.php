@@ -41,7 +41,7 @@ class ManagementController extends MainController
     }
 
     /**
-     * Display a page where the account of the user selected in actionAccounts
+     * Display a page where the account of the user selected in actionAccounts can be modified
      *
      * @param int $id
      * @return string
@@ -127,6 +127,7 @@ class ManagementController extends MainController
             throw new CannotSaveException($userPermission);
         }
     }
+
     /**
      * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
      * @param $userPermission
@@ -151,11 +152,11 @@ class ManagementController extends MainController
      */
     private function checkIfUserExist($id)
     {
-        $unauthorizedException = NotFoundHttpException::class;
+        $notFoundException = NotFoundHttpException::class;
         if (!is_null($user = User::findOne(['id' => $id]))) {
             return $user;
         }
-        throw new $unauthorizedException();
+        throw new $notFoundException();
     }
 
     /**
@@ -200,6 +201,8 @@ class ManagementController extends MainController
     }
 
     /**
+     * Action that allows an admin to look at all the social medias
+     *
      * @param null $id
      * @return string
      * @throws CannotSaveException
@@ -221,20 +224,22 @@ class ManagementController extends MainController
     }
 
     /**
+     * Display a page where the social media selected in actionSocialMedias can be modified
+     *
      * @param string $id
      * @return string
      * @throws CannotSaveException
      */
     private function actionModifySocialMedias(string $id)
     {
-        $socialMedia = $this->checkIfSocialMediaExist($id);
+        $socialMedia = $this->checkIfSocialMediaExists($id);
 
         $formModifySocialMedias = new ModifySocialMediaInformationsForm();
 
         if ($formModifySocialMedias->load($_POST) && $formModifySocialMedias->validate()) {
             $this->updateSocialMedia($formModifySocialMedias, $socialMedia);
         }
-        $formModifySocialMedias->is_enabled    = $socialMedia->is_enabled;
+        $formModifySocialMedias->is_enabled = $socialMedia->is_enabled;
 
 
 
@@ -245,26 +250,30 @@ class ManagementController extends MainController
     }
 
     /**
+     * Check if the social media exists
+     *
      * @param string $id
      * @return EnabledSocialMedia|null
      */
-    private function checkIfSocialMediaExist(string $id)
+    private function checkIfSocialMediaExists(string $id)
     {
-        $unauthorizedException = NotFoundHttpException::class;
+        $notFoundException = NotFoundHttpException::class;
         if (!is_null($socialMedia = EnabledSocialMedia::findOne(['social_media_name' => $id]))) {
             return $socialMedia;
         }
-        throw new $unauthorizedException();
+        throw new $notFoundException();
     }
 
     /**
+     * Update the is_enabled value of a social media
+     *
      * @param ModifySocialMediaInformationsForm $formModifySocialMedias
      * @param $socialMedia
      * @throws CannotSaveException
      */
     private function updateSocialMedia(ModifySocialMediaInformationsForm $formModifySocialMedias, $socialMedia)
     {
-           $socialMedia->is_enabled = $formModifySocialMedias->is_enabled;
+        $socialMedia->is_enabled = $formModifySocialMedias->is_enabled;
 
         if(!$socialMedia->save()){
             throw new CannotSaveException($socialMedia);

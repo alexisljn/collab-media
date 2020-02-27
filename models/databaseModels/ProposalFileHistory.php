@@ -5,22 +5,23 @@ namespace app\models\databaseModels;
 use Yii;
 
 /**
- * This is the model class for table "file".
+ * This is the model class for table "proposal_file_history".
  *
  * @property int $id
  * @property int $proposal_id
+ * @property string $date
  * @property string $path
  *
  * @property Proposal $proposal
  */
-class File extends \yii\db\ActiveRecord
+class ProposalFileHistory extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'file';
+        return 'proposal_file_history';
     }
 
     /**
@@ -29,10 +30,10 @@ class File extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['proposal_id', 'path'], 'required'],
+            [['proposal_id', 'date', 'path'], 'required'],
             [['proposal_id'], 'integer'],
+            [['date'], 'safe'],
             [['path'], 'string', 'max' => 255],
-            [['proposal_id'], 'unique'],
             [['proposal_id'], 'exist', 'skipOnError' => true, 'targetClass' => Proposal::className(), 'targetAttribute' => ['proposal_id' => 'id']],
         ];
     }
@@ -45,6 +46,7 @@ class File extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'proposal_id' => 'Proposal ID',
+            'date' => 'Date',
             'path' => 'Path',
         ];
     }

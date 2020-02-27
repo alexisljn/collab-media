@@ -61,7 +61,7 @@ class ManagementController extends MainController
         }
 
         if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
-            if ($userPermission == null){
+            if ($userPermission === null) {
                 $this->createSocialMediaPermission($formSocialMediaPermission, $user);
             } else {
                 $this->updateSocialMediaPermission($formSocialMediaPermission, $userPermission);

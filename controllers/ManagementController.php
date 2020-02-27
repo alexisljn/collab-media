@@ -207,10 +207,10 @@ class ManagementController extends MainController
      * @return string
      * @throws CannotSaveException
      */
-    public function actionSocialMedias($id = null)
+    public function actionSocialMedia($id = null)
     {
         if(!is_null($id)) {
-           return $this->actionModifySocialMedias($id);
+           return $this->actionModifySocialMedia($id);
         }
         $socialMediasDataProvider = new ActiveDataProvider([
             'query' => EnabledSocialMedia::find(),
@@ -218,7 +218,7 @@ class ManagementController extends MainController
                 'pageSize' => 10,
             ],
         ]);
-        return $this->render('social-medias', [
+        return $this->render('social-media', [
             'socialMediasDataProvider' => $socialMediasDataProvider
         ]);
     }
@@ -230,7 +230,7 @@ class ManagementController extends MainController
      * @return string
      * @throws CannotSaveException
      */
-    private function actionModifySocialMedias(string $id)
+    private function actionModifySocialMedia(string $id)
     {
         $socialMedia = $this->checkIfSocialMediaExists($id);
 
@@ -243,7 +243,7 @@ class ManagementController extends MainController
 
 
 
-        return $this->render('modify-social-medias', [
+        return $this->render('modify-social-media', [
             'formModifySocialMediasModel' => $formModifySocialMedias,
             'socialMedia' => $socialMedia
         ]);

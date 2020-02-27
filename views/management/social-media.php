@@ -41,7 +41,7 @@ use yii\grid\GridView; ?>
             'format'    => 'raw',
             'value'     => function ($socialMedia)
             {
-                return "<a href='/management/social-medias/" . $socialMedia->social_media_name . "'  id='modify-social-media'>Modify<a/>";
+                return "<a href='/management/social-media/" . $socialMedia->social_media_name . "'  id='modify-social-media'>Modify<a/>";
             }
         ],
     ],

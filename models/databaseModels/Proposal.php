@@ -18,6 +18,7 @@ use Yii;
  * @property File[] $files
  * @property User $submitter
  * @property ProposalContentHistory[] $proposalContentHistories
+ * @property ProposalFileHistory[] $proposalFileHistories
  * @property Review[] $reviews
  * @property ScheduledPublication $scheduledPublication
  */
@@ -99,6 +100,16 @@ class Proposal extends \yii\db\ActiveRecord
     public function getProposalContentHistories()
     {
         return $this->hasMany(ProposalContentHistory::className(), ['proposal_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ProposalFileHistories]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getProposalFileHistories()
+    {
+        return $this->hasMany(ProposalFileHistory::className(), ['proposal_id' => 'id']);
     }
 
     /**

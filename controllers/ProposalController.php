@@ -454,7 +454,7 @@ class ProposalController extends MainController
 
                     $uploadedFile = $_FILES['ManageProposalForm'];
                     $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $editedProposal);
-                    $this->saveProposalRelatedFile($movedFilename, $editedProposal);
+                    $this->saveEditedFile($movedFilename, $editedProposal);
                 }
 
                 $transaction->commit();
@@ -480,6 +480,16 @@ class ProposalController extends MainController
 
         if(!$proposal->save()) {
             throw new CannotSaveException($proposal);
+        }
+    }
+
+    private function saveEditedFile($movedFilename, Proposal $proposal)
+    {
+        $file = $proposal->files[0];
+        $file->path = $movedFilename;
+
+        if (!$file->save()) {
+            throw new CannotSaveException($file);
         }
     }
 

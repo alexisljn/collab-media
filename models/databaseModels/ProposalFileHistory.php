@@ -5,7 +5,7 @@ namespace app\models\databaseModels;
 use Yii;
 
 /**
- * This is the model class for table "file_content_history".
+ * This is the model class for table "proposal_file_history".
  *
  * @property int $id
  * @property int $proposal_id
@@ -14,14 +14,14 @@ use Yii;
  *
  * @property Proposal $proposal
  */
-class FileContentHistory extends \yii\db\ActiveRecord
+class ProposalFileHistory extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}
      */
     public static function tableName()
     {
-        return 'file_content_history';
+        return 'proposal_file_history';
     }
 
     /**

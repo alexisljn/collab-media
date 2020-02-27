@@ -1,11 +1,10 @@
 <?php
 
 /* @var $this yii\web\View */
-/* @var $form yii\bootstrap\ActiveForm */
-/* @var $formModifyAccount_model app\models\forms\ModifyAccountForm */
-/* @var $formSocialMediaPermission_model app\models\forms\ModifySocialMediaPermissionForm */
-/* @var $user \app\models\databaseModels\User */
+/* @var $formModifyAccountModel app\models\forms\ModifyAccountForm */
+/* @var $formSocialMediaPermissionModel app\models\forms\ModifySocialMediaPermissionForm */
 
+use app\models\User;
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
@@ -14,7 +13,7 @@ $this->title = 'Modify Account';
     <h1><?= Html::encode($this->title) ?></h1>
 
     <?php $formModifyAccount = ActiveForm::begin([
-        'id' => 'modifyAccount-form',
+        'id' => 'modify-account-form',
         'method' => 'post',
         'layout' => 'horizontal',
         'fieldConfig' => [
@@ -23,20 +22,23 @@ $this->title = 'Modify Account';
         ],
     ]);?>
 
-    <?= $formModifyAccount->field($formModifyAccount_model, 'firstname')?>
+    <?= $formModifyAccount->field($formModifyAccountModel, 'firstname')?>
 
-    <?= $formModifyAccount->field($formModifyAccount_model, 'lastname')?>
+    <?= $formModifyAccount->field($formModifyAccountModel, 'lastname')?>
 
-    <?= $formModifyAccount->field($formModifyAccount_model, 'email')?>
+    <?= $formModifyAccount->field($formModifyAccountModel, 'email')?>
 
-    <?= $formModifyAccount->field($formModifyAccount_model, 'role')->dropDownList([
-            'user'=>'User', 'reviewer'=>'Reviewer','publisher'=>'Publisher','admin'=>'Admin'
+    <?= $formModifyAccount->field($formModifyAccountModel, 'role')->dropDownList([
+            User::USER_ROLE_MEMBER => 'Member',
+            User::USER_ROLE_REVIEWER => 'Reviewer',
+            User::USER_ROLE_PUBLISHER => 'Publisher',
+            User::USER_ROLE_ADMIN => 'Admin'
     ],[
         'options'=>[
             'role' => ['selected' => true]
         ]]) ?>
 
-    <?= $formModifyAccount->field($formModifyAccount_model,'is_active')->checkbox(); ?>
+    <?= $formModifyAccount->field($formModifyAccountModel,'is_active')->checkbox(); ?>
 
     <div class="form-group">
         <div class="col-lg-offset-1 col-lg-11">
@@ -49,9 +51,9 @@ $this->title = 'Modify Account';
 
     <?php ActiveForm::end();
 
-    if (in_array($formModifyAccount_model->role, ['publisher','admin'])) {
+    if (in_array($formModifyAccountModel->role, [User::USER_ROLE_PUBLISHER, User::USER_ROLE_ADMIN])) {
         $formModifySocialMediaPermission = ActiveForm::begin([
-            'id' => 'modifySocialMedia-form',
+            'id' => 'modify-social-media-form',
             'method' => 'post',
             'layout' => 'horizontal',
             'fieldConfig' => [
@@ -60,11 +62,11 @@ $this->title = 'Modify Account';
             ],
         ]);?>
 
-        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'facebook_enabled')->checkbox(); ?>
+        <?= $formModifySocialMediaPermission->field($formSocialMediaPermissionModel,'facebook_enabled')->checkbox(); ?>
 
-        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'twitter_enabled')->checkbox(); ?>
+        <?= $formModifySocialMediaPermission->field($formSocialMediaPermissionModel,'twitter_enabled')->checkbox(); ?>
 
-        <?= $formModifySocialMediaPermission->field($formSocialMediaPermission_model,'linkedin_enabled')->checkbox(); ?>
+        <?= $formModifySocialMediaPermission->field($formSocialMediaPermissionModel,'linkedin_enabled')->checkbox(); ?>
 
         <div class="form-group">
             <div class="col-lg-offset-1 col-lg-11">

@@ -42,7 +42,7 @@ class ProposalController extends MainController
             $lastProposalContent = $selectedProposal->proposalContentHistories[
                 count($selectedProposal->proposalContentHistories)-1
             ];
-            return $this->render('my-proposal', [
+            return $this->render('proposal', [
                 'selectedProposal' => $selectedProposal,
                 'lastProposalContent' => $lastProposalContent,
                 'chronologicalStream' => $chronologicalStream

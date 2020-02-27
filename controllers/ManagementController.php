@@ -49,7 +49,7 @@ class ManagementController extends MainController
     {
         $user = $this->checkIfUserExist($id);
 
-        $userPermission = $this->checkIfPermissionExists($id);
+        $userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]);
 
 
         $formModifyAccount = new ModifyAccountForm();
@@ -61,7 +61,12 @@ class ManagementController extends MainController
         }
 
         if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
-            $this->updateSocialMediaPermission($formSocialMediaPermission, $userPermission);
+            if ($userPermission === null) {
+                $this->createSocialMediaPermission($formSocialMediaPermission, $user);
+            } else {
+                $this->updateSocialMediaPermission($formSocialMediaPermission, $userPermission);
+            }
+
         }
 
         $formModifyAccount->firstname    = $user->firstname;
@@ -74,9 +79,9 @@ class ManagementController extends MainController
         $formSocialMediaPermission->twitter_enabled  = $userPermission->twitter_enabled;
         $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
 
-        return $this->render('modifyAccount', [
-            'formModifyAccount_model' => $formModifyAccount,
-            'formSocialMediaPermission_model' => $formSocialMediaPermission,
+        return $this->render('modify-account', [
+            'formModifyAccountModel' => $formModifyAccount,
+            'formSocialMediaPermissionModel' => $formSocialMediaPermission,
         ]);
     }
 
@@ -95,11 +100,31 @@ class ManagementController extends MainController
         $user->role         = $form->role;
         $user->is_active    = $form->is_active;
 
-        if(!$user->save()){
+        if (!$user->save()) {
             throw new CannotSaveException($user);
         }
     }
 
+    /**
+     * Create a new publisher permission 
+     *
+     * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
+     * @param $user
+     * @throws CannotSaveException
+     */
+    private function createSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, $user)
+    {
+        $userPermission = new SocialMediaPermission();
+
+        $userPermission->publisher_id     = $user->id;
+        $userPermission->facebook_enabled = $formSocialMediaPermission->facebook_enabled;
+        $userPermission->twitter_enabled  = $formSocialMediaPermission->twitter_enabled;
+        $userPermission->linkedin_enabled = $formSocialMediaPermission->linkedin_enabled;
+
+        if (!$userPermission->save()) {
+            throw new CannotSaveException($userPermission);
+        }
+    }
     /**
      * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
      * @param $userPermission
@@ -111,7 +136,7 @@ class ManagementController extends MainController
         $userPermission->twitter_enabled  = $formSocialMediaPermission->twitter_enabled;
         $userPermission->linkedin_enabled = $formSocialMediaPermission->linkedin_enabled;
 
-        if(!$userPermission->save()){
+        if (!$userPermission->save()) {
             throw new CannotSaveException($userPermission);
         }
     }
@@ -132,18 +157,6 @@ class ManagementController extends MainController
     }
 
     /**
-     * @param int $id
-     * @return SocialMediaPermission|null
-     */
-    private function checkIfPermissionExists($id)
-    {
-        if (!is_null($userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]))) {
-            return $userPermission;
-        }
-        return null;
-    }
-
-    /**
      * Display a page with the acount creation form
      * Test the form and if it's validated, calls the function createAccount
      *
@@ -157,7 +170,7 @@ class ManagementController extends MainController
         if($form->load($_POST) && $form->validate()) {
             $this->createAccount($form);
         }
-        return $this->render('createAccount', [
+        return $this->render('create-account', [
             'model'=>$form,
         ]);
     }

@@ -31,12 +31,13 @@ use yii\widgets\ActiveForm; ?>
     <?php
     $form = yii\widgets\ActiveForm::begin([
         'id' => 'proposal-form',
-        'action' => '/proposal/edit-proposal'
+        'action' => '/proposal/edit-proposal/'. $selectedProposal->id
     ]);
     ?>
     <?= $form->field($model, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
     <?= $form->field($model, 'content')->hiddenInput(['id' => 'proposal-form-content-input']); ?>
     <div id="proposal-content" class="edit-section"></div>
+    <?= $form->field($model, 'relatedFile')->fileInput(); ?>
     <?= yii\helpers\Html::submitButton('Edit'); ?>
     <?php yii\widgets\ActiveForm::end(); ?>
 </div>
@@ -95,11 +96,12 @@ foreach ($chronologicalStream as $chronologicalItem) {
             previewStyle: 'vertical',
             height: '300px',
             initialEditType: 'markdown',
-            initialValue: '<?= $lastProposalContent->content ?>'
+            initialValue: `<?= $lastProposalContent->content ?>`
         });
         $('#edit-link').on('click', () => {
             $('.form-layout').css('display', 'block');
             $('.content-layout').css('display', 'none');
+            editor.setMarkdown(`<?= $lastProposalContent->content ?>`);
         });
         $(form).on("submit", function() {
             $("#proposal-form-content-input").val(editor.getMarkdown());

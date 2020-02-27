@@ -6,6 +6,7 @@ namespace app\controllers;
 
 use app\components\Util;
 use app\controllers\mainController\MainController;
+use app\models\exceptions\CannotDeleteFileException;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
 use app\models\databaseModels\File;
@@ -96,7 +97,7 @@ class ProposalController extends MainController
             return;
         }
 
-        return $unauthorizedException();
+        throw new $unauthorizedException();
     }
 
     /**
@@ -307,7 +308,7 @@ class ProposalController extends MainController
             try {
                 $postRequest = Yii::$app->request->post();
                 $proposal = $this->saveProposal($postRequest['ManageProposalForm']['title']);
-                $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $proposal);
+                $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $proposal, true);
 
                 if (!empty($_FILES['ManageProposalForm']['name']['relatedFile'])) {
                     $uploadedFile = $_FILES['ManageProposalForm'];
@@ -359,11 +360,17 @@ class ProposalController extends MainController
      * @param $proposal
      * @throws CannotSaveException
      */
-    private function saveProposalContent(string $proposalContent,Proposal $proposal)
+    private function saveProposalContent(string $proposalContent,Proposal $proposal, bool $isANewProposal)
     {
         $proposalContentHistory = new ProposalContentHistory();
         $proposalContentHistory->proposal_id = $proposal->id;
-        $proposalContentHistory->date = $proposal->date;
+
+        if ($isANewProposal) {
+            $proposalContentHistory->date = $proposal->date;
+        } else {
+            $proposalContentHistory->date = Util::getDateTimeFormattedForDatabase(new \Datetime());
+        }
+
         $proposalContentHistory->content = $proposalContent;
 
         if(!$proposalContentHistory->save()) {
@@ -427,29 +434,34 @@ class ProposalController extends MainController
 
     public function actionEditProposal()
     {
-       // dd(Yii::$app->request->post()['ManageProposalForm']);
+        $editedProposal = Proposal::findOne(['id' => Yii::$app->request->get()]);
         $model = New ManageProposalForm();
-        $postRequest = Yii::$app->request->post()
+        $postRequest = Yii::$app->request->post();
+
         $model->title = $postRequest['ManageProposalForm']['title'];
         $model->content = $postRequest['ManageProposalForm']['content'];
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $postRequest = Yii::$app->request->post();
-                $proposal = $this->saveProposal($postRequest['ManageProposalForm']['title']);
-                $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $proposal);
-
+                $this->saveEditedProposal($postRequest['ManageProposalForm']['title'], $editedProposal);
+                $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $editedProposal, false);
                 if (!empty($_FILES['ManageProposalForm']['name']['relatedFile'])) {
+
+                    if (!is_null($editedProposal->files[0]->path)) {
+                        $this->removeExistingUploadedFile($editedProposal->files[0]->path);
+                    }
+
                     $uploadedFile = $_FILES['ManageProposalForm'];
-                    $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $proposal);
-                    $this->saveProposalRelatedFile($movedFilename, $proposal);
+                    $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $editedProposal);
+                    $this->saveProposalRelatedFile($movedFilename, $editedProposal);
                 }
 
                 $transaction->commit();
-                return $this->redirect('/proposal/my-proposals/' . $proposal->id);
+                return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
             } catch (CannotHandleUploadedFileException $cannotHandleUploadedFileException) {
                 $transaction->rollBack();
+               // A modifier
                 return $this->render('create-proposal', ['model' => $model, 'error' => 'Invalid file']);
 
             } catch(\Throwable $e) {
@@ -457,9 +469,24 @@ class ProposalController extends MainController
                 throw $e;
             }
         } else {
-           // return vue proposal
+            return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
         }
 
     }
 
+    private function saveEditedProposal(string $proposalTitle, Proposal $proposal)
+    {
+        $proposal->title = $proposalTitle;
+
+        if(!$proposal->save()) {
+            throw new CannotSaveException($proposal);
+        }
+    }
+
+    private function removeExistingUploadedFile(string $filepath)
+    {
+        if (!unlink('../uploaded-files/proposal-related-files/'. $filepath)) {
+            throw new CannotDeleteFileException();
+        }
+    }
 }

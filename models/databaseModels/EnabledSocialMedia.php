@@ -3,6 +3,7 @@
 namespace app\models\databaseModels;
 
 use Yii;
+use yii\db\ActiveRecord;
 
 /**
  * This is the model class for table "enabled_social_media".
@@ -10,7 +11,7 @@ use Yii;
  * @property string $social_media_name
  * @property bool $is_enabled
  */
-class EnabledSocialMedia extends \yii\db\ActiveRecord
+class EnabledSocialMedia extends ActiveRecord
 {
     /**
      * {@inheritdoc}

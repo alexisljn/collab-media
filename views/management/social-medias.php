@@ -17,7 +17,7 @@ use yii\grid\GridView; ?>
             {
                 return $socialMedia->social_media_name;
             },
-            'contentOptions' => ['style' => 'text-transform: capitalize ;'],
+            'contentOptions' => ['class' => 'social-media-name'],
         ],
         [
             'attribute' => 'is_enabled',

@@ -6,6 +6,7 @@ namespace app\controllers;
 
 use app\components\Util;
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\ProposalFileHistory;
 use app\models\exceptions\CannotDeleteFileException;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
@@ -38,7 +39,9 @@ class ProposalController extends MainController
             (
                 $selectedProposal->comments,
                 $selectedProposal->reviews,
-                $selectedProposal->proposalContentHistories
+                $selectedProposal->proposalContentHistories,
+                $selectedProposal->proposalFileHistories,
+
             );
             $lastProposalContent = $selectedProposal->proposalContentHistories[
                 count($selectedProposal->proposalContentHistories)-1
@@ -110,7 +113,7 @@ class ProposalController extends MainController
      * @param $proposalContentHistories
      * @return array
      */
-    private function generateChronologicalStream($comments, $reviews, $proposalContentHistories): array
+    private function generateChronologicalStream($comments, $reviews, $proposalContentHistories, $proposalFileHistories): array
     {
         $chronologicalStream = array();
 
@@ -125,6 +128,10 @@ class ProposalController extends MainController
         /** @var ProposalContentHistory $history */
         foreach($proposalContentHistories as $history) {
             array_push($chronologicalStream, $history);
+        }
+        /** @var ProposalFileHistory $fileHistory */
+        foreach($proposalFileHistories as $fileHistory) {
+            array_push($chronologicalStream, $fileHistory);
         }
 
         usort($chronologicalStream, function ($a,$b): int {
@@ -300,7 +307,6 @@ class ProposalController extends MainController
     public function actionCreateProposal()
     {
         $model = new ManageProposalForm();
-        dd($model);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $transaction = Yii::$app->db->beginTransaction();
@@ -314,6 +320,7 @@ class ProposalController extends MainController
                     $uploadedFile = $_FILES['ManageProposalForm'];
                     $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $proposal);
                     $this->saveProposalRelatedFile($movedFilename, $proposal);
+                    $this->saveProposalFileHistory($movedFilename, $proposal, true);
                 }
 
                 $transaction->commit();
@@ -432,9 +439,26 @@ class ProposalController extends MainController
         }
     }
 
+    private function saveProposalFileHistory(string $movedFilename, Proposal $proposal, bool $isANewProposal)
+    {
+        $proposalFileHistory = new ProposalFileHistory();
+        $proposalFileHistory->proposal_id = $proposal->id;
+        $proposalFileHistory->path = $movedFilename;
+        if($isANewProposal) {
+            $proposalFileHistory->date = $proposal->date;
+        }
+        $proposalFileHistory->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if (!$proposalFileHistory->save()) {
+            throw new CannotSaveException($proposalFileHistory);
+        }
+    }
+
     public function actionEditProposal()
     {
         $editedProposal = Proposal::findOne(['id' => Yii::$app->request->get()]);
+        $lastProposalContent = $editedProposal->proposalContentHistories[
+        count($editedProposal->proposalContentHistories)-1];
         $model = New ManageProposalForm();
         $postRequest = Yii::$app->request->post();
 
@@ -445,7 +469,11 @@ class ProposalController extends MainController
             $transaction = Yii::$app->db->beginTransaction();
             try {
                 $this->saveEditedProposal($postRequest['ManageProposalForm']['title'], $editedProposal);
-                $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $editedProposal, false);
+
+                if ($postRequest['ManageProposalForm']['content'] != $lastProposalContent->content) {
+                    $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $editedProposal, false);
+                }
+
                 if (!empty($_FILES['ManageProposalForm']['name']['relatedFile'])) {
 
                     if (!is_null($editedProposal->files[0]->path)) {
@@ -455,14 +483,14 @@ class ProposalController extends MainController
                     $uploadedFile = $_FILES['ManageProposalForm'];
                     $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $editedProposal);
                     $this->saveEditedFile($movedFilename, $editedProposal);
+                    $this->saveProposalFileHistory($movedFilename, $editedProposal, false);
                 }
 
                 $transaction->commit();
                 return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
             } catch (CannotHandleUploadedFileException $cannotHandleUploadedFileException) {
                 $transaction->rollBack();
-               // A modifier
-                return $this->render('create-proposal', ['model' => $model, 'error' => 'Invalid file']);
+                return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
 
             } catch(\Throwable $e) {
                 $transaction->rollBack();
@@ -471,7 +499,6 @@ class ProposalController extends MainController
         } else {
             return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
         }
-
     }
 
     private function saveEditedProposal(string $proposalTitle, Proposal $proposal)

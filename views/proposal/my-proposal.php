@@ -11,7 +11,7 @@ use yii\widgets\ActiveForm; ?>
 
 
 
-    <a href="#" id="edit-link" class="content-layout">Edit</a>
+<a href="#" id="edit-link" class="content-layout">Edit</a>
 <h1 class="content-layout"><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
 <p class="content-layout">Created at <?= $selectedProposal->date ?></p>
 <?php if($selectedProposal->date != $lastProposalContent->date) { ?>
@@ -86,6 +86,18 @@ foreach ($chronologicalStream as $chronologicalItem) {
             </div>
     <?php }
      }
+    elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalFileHistory) {
+        if ($chronologicalItem->date != $selectedProposal->date) { ?>
+        <div class="bg-warning">
+            <p>
+                <?= \yii\helpers\Html::encode($selectedProposal->submitter->firstname) . ' ' .
+                \yii\helpers\Html::encode($selectedProposal->submitter->lastname) .' ' ?>
+                uploaded new file <?= $chronologicalItem->path ?> the <?=' ' . $chronologicalItem->date ?>
+            </p>
+        </div>
+    <?php
+        }
+    }
 }
 ?>
 <script type="text/javascript">

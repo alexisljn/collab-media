@@ -75,8 +75,8 @@ class ManagementController extends MainController
         $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
 
         return $this->render('modifyAccount', [
-            'formModifyAccount_model' => $formModifyAccount,
-            'formSocialMediaPermission_model' => $formSocialMediaPermission,
+            'formModifyAccountModel' => $formModifyAccount,
+            'formSocialMediaPermissionModel' => $formSocialMediaPermission,
         ]);
     }
 

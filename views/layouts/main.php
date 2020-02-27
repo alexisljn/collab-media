@@ -25,7 +25,6 @@ AppAsset::register($this);
     <link rel="stylesheet" href="/css/tui-editor.css">
     <link rel="stylesheet" href="/css/tui-editor-contents.css">
     <script src="/js/jquery-3.4.1.min.js"></script>
-    <script src="/js/turndown.js"></script>
     <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <?php $this->registerCsrfMetaTags() ?>

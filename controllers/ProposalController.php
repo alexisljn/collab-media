@@ -299,6 +299,7 @@ class ProposalController extends MainController
     public function actionCreateProposal()
     {
         $model = new ManageProposalForm();
+        dd($model);
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $transaction = Yii::$app->db->beginTransaction();
@@ -424,32 +425,40 @@ class ProposalController extends MainController
         }
     }
 
-    public function actionEditProposal(int $id)
+    public function actionEditProposal()
     {
-        //dd($id);
-        $selectedProposal = $this->checkIfProposalExists($id);
-        $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-        $chronologicalStream = $this->generateChronologicalStream
-        (
-            $selectedProposal->comments,
-            $selectedProposal->reviews,
-            $selectedProposal->proposalContentHistories
-        );
-        $lastProposalContent = $selectedProposal->proposalContentHistories[
-        count($selectedProposal->proposalContentHistories)-1
-        ];
+       // dd(Yii::$app->request->post()['ManageProposalForm']);
+        $model = New ManageProposalForm();
+        $postRequest = Yii::$app->request->post()
+        $model->title = $postRequest['ManageProposalForm']['title'];
+        $model->content = $postRequest['ManageProposalForm']['content'];
 
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $postRequest = Yii::$app->request->post();
+                $proposal = $this->saveProposal($postRequest['ManageProposalForm']['title']);
+                $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $proposal);
 
-        $model = new ManageProposalForm();
-        $model->title = $selectedProposal->title;
-        $model->content = $lastProposalContent->content;
+                if (!empty($_FILES['ManageProposalForm']['name']['relatedFile'])) {
+                    $uploadedFile = $_FILES['ManageProposalForm'];
+                    $movedFilename = $this->moveUploadedFileToServer($uploadedFile, $proposal);
+                    $this->saveProposalRelatedFile($movedFilename, $proposal);
+                }
 
-        return $this->render('my-proposal', [
-            'selectedProposal' => $selectedProposal,
-            'lastProposalContent' => $lastProposalContent,
-            'chronologicalStream' => $chronologicalStream,
-            'model' => $model
-        ]);
+                $transaction->commit();
+                return $this->redirect('/proposal/my-proposals/' . $proposal->id);
+            } catch (CannotHandleUploadedFileException $cannotHandleUploadedFileException) {
+                $transaction->rollBack();
+                return $this->render('create-proposal', ['model' => $model, 'error' => 'Invalid file']);
+
+            } catch(\Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
+        } else {
+           // return vue proposal
+        }
 
     }
 

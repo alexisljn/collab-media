@@ -3,6 +3,7 @@
 /** @var \app\models\databaseModels\ProposalContentHistory $lastProposalContent */
 /** @var \app\models\databaseModels\Review|\app\models\databaseModels\Comment|\app\models\databaseModels\ProposalContentHistory $chronologicalStream */
 
+use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
 
 <!-- Proposal informations -->
@@ -10,7 +11,7 @@ use yii\widgets\ActiveForm; ?>
 
 
 
-    <a href="#" id="edit-link">Edit</a>
+    <a href="#" id="edit-link" class="content-layout">Edit</a>
 <h1 class="content-layout"><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
 <p class="content-layout">Created at <?= $selectedProposal->date ?></p>
 <?php if($selectedProposal->date != $lastProposalContent->date) { ?>
@@ -29,12 +30,14 @@ use yii\widgets\ActiveForm; ?>
 <div style="display: none;" class="form-layout">
     <?php
     $form = yii\widgets\ActiveForm::begin([
-        'id' => 'proposalForm',
+        'id' => 'proposal-form',
+        'action' => '/proposal/edit-proposal'
     ]);
     ?>
-    <?= $form->field($model, 'title')->textInput(['id' => 'proposalFormTitleInput']); ?>
-    <?= $form->field($model, 'content')->hiddenInput(['id' => 'proposalFormContentInput']); ?>
-    <div id="Proposalcontent" class="editSection"></div>
+    <?= $form->field($model, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
+    <?= $form->field($model, 'content')->hiddenInput(['id' => 'proposal-form-content-input']); ?>
+    <div id="proposal-content" class="edit-section"></div>
+    <?= yii\helpers\Html::submitButton('Edit'); ?>
     <?php yii\widgets\ActiveForm::end(); ?>
 </div>
 
@@ -86,21 +89,20 @@ foreach ($chronologicalStream as $chronologicalItem) {
 ?>
 <script type="text/javascript">
     $(() => {
+        const form = document.querySelector('#proposal-form');
+        const editor = new tui.Editor({
+            el: document.querySelector('.edit-section'),
+            previewStyle: 'vertical',
+            height: '300px',
+            initialEditType: 'markdown',
+            initialValue: '<?= $lastProposalContent->content ?>'
+        });
         $('#edit-link').on('click', () => {
             $('.form-layout').css('display', 'block');
             $('.content-layout').css('display', 'none');
-            const proposalContent = new TurndownService({
-                headingStyle: 'atx',
-                bulletListMarker: '-' }).turndown($('#original-content').html());
-            console.log(proposalContent);
-            const editor = new tui.Editor({
-                el: document.querySelector('.editSection'),
-                previewStyle: 'vertical',
-                height: '300px',
-                initialEditType: 'markdown',
-                initialValue: proposalContent
-            });
         });
-
-    })
+        $(form).on("submit", function() {
+            $("#proposal-form-content-input").val(editor.getMarkdown());
+        })
+    });
 </script>

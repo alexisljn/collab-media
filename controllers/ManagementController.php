@@ -49,7 +49,7 @@ class ManagementController extends MainController
     {
         $user = $this->checkIfUserExist($id);
 
-        $userPermission = $this->checkIfPermissionExists($id);
+        $userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]);
 
 
         $formModifyAccount = new ModifyAccountForm();
@@ -154,18 +154,6 @@ class ManagementController extends MainController
             return $user;
         }
         throw new $unauthorizedException();
-    }
-
-    /**
-     * @param int $id
-     * @return SocialMediaPermission|null
-     */
-    private function checkIfPermissionExists($id)
-    {
-        if (!is_null($userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]))) {
-            return $userPermission;
-        }
-        return $userPermission;
     }
 
     /**

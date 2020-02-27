@@ -253,6 +253,7 @@ class ProposalController extends MainController
                 'defaultPageSize' => 20
             ],
             'sort' => [
+                'sortParam' => 'pendingSort',
                 'attributes' => ['has_review','date', 'title'],
                 'defaultOrder' => [
                     'has_review' => SORT_ASC,
@@ -288,6 +289,7 @@ class ProposalController extends MainController
                 'defaultPageSize' => 20
             ],
             'sort' => [
+                'sortParam' => 'historySort',
                 'attributes' => ['date', 'title'],
                 'defaultOrder' => [
                     'date' => SORT_DESC,

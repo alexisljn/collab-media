@@ -2,6 +2,7 @@ html,
 body {
     height: 100%;
     font-family: 'Lato', sans-serif;
+    color: #333;
 }
 
 .wrap {
@@ -12,7 +13,7 @@ body {
 }
 
 .wrap > .container {
-    padding: 70px 15px 20px;
+    padding: 50px 15px 20px;
 }
 
 footer {
@@ -33,6 +34,12 @@ footer .copyright {
 .not-set {
     color: #c55;
     font-style: italic;
+}
+
+h1 {
+    font-weight: 400;
+    padding-bottom: 0.2em;
+    border-bottom: 1px solid #e8e8e8;
 }
 
 /* add sorting icons to gridview sort links */
@@ -75,26 +82,46 @@ a.desc:after {
     margin: 0 0 15px 0;
 }
 
-/* align the logout "link" (button in form) of the navbar */
-.nav li > form > button.logout {
-    padding: 15px;
-    border: none;
-}
-
-@media(max-width:767px) {
-    .nav li > form > button.logout {
-        display:block;
-        text-align: left;
-        width: 100%;
-        padding: 10px 15px;
-    }
-}
-
-.nav > li > form > button.logout:focus,
-.nav > li > form > button.logout:hover {
-    text-decoration: none;
-}
-
 .nav > li > form > button.logout:focus {
     outline: none;
+}
+
+.below-title-info-container {
+    color: #555;
+    font-size: 0.9em;
+}
+
+.below-title-info-container .below-title-info-status,
+.below-title-info-container .below-title-info-date {
+    display: inline-block;
+}
+
+.below-title-info-container .below-title-info-status {
+    margin-right: 5px;
+}
+
+.below-title-info-container .below-title-info-date {
+    margin-left: 5px;
+}
+
+.status {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: 700;
+}
+
+.status.pending {
+    background-color: #f3af22;
+    color: #fff;
+}
+
+.status.published {
+    background-color: #3cbb1e;
+    color: #fff;
+}
+
+.status.rejected {
+    background-color: #c21b15;
+    color: #fff;
 }

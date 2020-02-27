@@ -2,16 +2,47 @@
 /** @var \app\models\databaseModels\Proposal $selectedProposal */
 /** @var \app\models\databaseModels\ProposalContentHistory $lastProposalContent */
 /** @var \app\models\databaseModels\Review|\app\models\databaseModels\Comment|\app\models\databaseModels\ProposalContentHistory $chronologicalStream */
-?>
+
+use app\models\Proposal; ?>
 
 <!-- Proposal informations -->
 
 <h1><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
-<p>Created at <?= $selectedProposal->date ?></p>
-<?php if($selectedProposal->date != $lastProposalContent->date) { ?>
-    <p>Last edit : <?= $lastProposalContent->date ?></p>
-<?php } ?>
-<p>Status : <?= $selectedProposal->status ?></p>
+<div class="below-title-info-container">
+    <div class="below-title-info-status">
+        <?php
+        switch($selectedProposal->status) {
+            case Proposal::STATUS_PENDING:
+                ?>
+                <span class="status pending">Pending</span>
+                <?php
+                break;
+            case Proposal::STATUS_PUBLISHED:
+                ?>
+                <span class="status published">Published</span>
+                <?php
+                break;
+            case Proposal::STATUS_REJECTED:
+                ?>
+                <span class="status rejected">Rejected</span>
+                <?php
+                break;
+        }
+        ?>
+    </div>
+    <div class="below-title-info-date">
+        <span>Created at <?= $selectedProposal->date ?></span>
+
+        <?php
+        if($selectedProposal->date !== $lastProposalContent->date) {
+            ?>
+            - <span>Last edit at <?= $lastProposalContent->date ?></span>
+            <?php
+        }
+        ?>
+    </div>
+</div>
+
 <?php if (!is_null($selectedProposal->social_media)) { ?>
     <p>Published on : <?= $selectedProposal->social ?></p>
 <?php } ?>
@@ -41,6 +72,7 @@ foreach ($chronologicalStream as $chronologicalItem) {
                 \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
                 $chronologicalItem->date ?>
             </p>
+            <p><?= \yii\helpers\Html::encode($chronologicalItem->content) ?></p>
         </div>
     <?php }
     elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) { ?>

@@ -197,7 +197,7 @@ class ManagementController extends MainController
                 'pageSize' => 10,
             ],
         ]);
-        return $this->render('accounts', [
+        return $this->render('social-medias', [
             'socialMediasDataProvider' => $socialMediasDataProvider
         ]);
     }

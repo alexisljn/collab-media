@@ -25,6 +25,7 @@ AppAsset::register($this);
     <link rel="stylesheet" href="/css/github.css">
     <link rel="stylesheet" href="/css/tui-editor.css">
     <link rel="stylesheet" href="/css/tui-editor-contents.css">
+    <link rel="stylesheet" href="/fontawesome/css/all.min.css">
     <script src="/js/jquery-3.4.1.min.js"></script>
     <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>

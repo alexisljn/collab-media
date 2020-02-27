@@ -439,6 +439,14 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Save the proposal file history in DB.
+     *
+     * @param string $movedFilename
+     * @param Proposal $proposal
+     * @param bool $isANewProposal
+     * @throws CannotSaveException
+     */
     private function saveProposalFileHistory(string $movedFilename, Proposal $proposal, bool $isANewProposal)
     {
         $proposalFileHistory = new ProposalFileHistory();
@@ -454,6 +462,13 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Allow a user to edit his proposal. It loads a form
+     * which is displayed if the user click on edit link
+     *
+     * @return yii\web\Response
+     * @throws \Throwable
+     */
     public function actionEditProposal()
     {
         $editedProposal = Proposal::findOne(['id' => Yii::$app->request->get()]);
@@ -501,6 +516,13 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Save the edited Proposal in DB.
+     *
+     * @param string $proposalTitle
+     * @param Proposal $proposal
+     * @throws CannotSaveException
+     */
     private function saveEditedProposal(string $proposalTitle, Proposal $proposal)
     {
         $proposal->title = $proposalTitle;
@@ -510,6 +532,13 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Save the edited file in DB
+     *
+     * @param $movedFilename
+     * @param Proposal $proposal
+     * @throws CannotSaveException
+     */
     private function saveEditedFile($movedFilename, Proposal $proposal)
     {
         $file = $proposal->files[0];
@@ -520,6 +549,12 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Remove the existing uploaded file on server
+     *
+     * @param string $filepath
+     * @throws CannotDeleteFileException
+     */
     private function removeExistingUploadedFile(string $filepath)
     {
         if (!unlink('../uploaded-files/proposal-related-files/'. $filepath)) {

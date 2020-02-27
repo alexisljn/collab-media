@@ -23,6 +23,7 @@ AppAsset::register($this);
     <link rel="stylesheet" href="/css/tui-editor.css">
     <link rel="stylesheet" href="/css/tui-editor-contents.css">
     <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
     <script src="/js/jquery-3.4.1.min.js"></script>
     <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>

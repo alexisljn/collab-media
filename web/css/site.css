@@ -125,3 +125,7 @@ a.desc:after {
     background-color: #c21b15;
     color: #fff;
 }
+
+.social-media-name {
+    text-transform: capitalize ;
+}

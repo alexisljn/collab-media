@@ -2,10 +2,12 @@
 namespace app\controllers;
 
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\SocialMediaPermission;
 use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
+use app\models\forms\ModifySocialMediaInformationsForm;
 use app\models\forms\ModifySocialMediaPermissionForm;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
@@ -39,7 +41,7 @@ class ManagementController extends MainController
     }
 
     /**
-     * Display a page where the account of the user selected in actionAccounts
+     * Display a page where the account of the user selected in actionAccounts can be modified
      *
      * @param int $id
      * @return string
@@ -125,6 +127,7 @@ class ManagementController extends MainController
             throw new CannotSaveException($userPermission);
         }
     }
+
     /**
      * @param ModifySocialMediaPermissionForm $formSocialMediaPermission
      * @param $userPermission
@@ -149,11 +152,11 @@ class ManagementController extends MainController
      */
     private function checkIfUserExist($id)
     {
-        $unauthorizedException = NotFoundHttpException::class;
+        $notFoundException = NotFoundHttpException::class;
         if (!is_null($user = User::findOne(['id' => $id]))) {
             return $user;
         }
-        throw new $unauthorizedException();
+        throw new $notFoundException();
     }
 
     /**
@@ -194,6 +197,86 @@ class ManagementController extends MainController
 
         if(!$user->save()){
             throw new CannotSaveException($user);
+        }
+    }
+
+    /**
+     * Action that allows an admin to look at all the social medias
+     *
+     * @param null $id
+     * @return string
+     * @throws CannotSaveException
+     */
+    public function actionSocialMedia($id = null)
+    {
+        if(!is_null($id)) {
+           return $this->actionModifySocialMedia($id);
+        }
+        $socialMediasDataProvider = new ActiveDataProvider([
+            'query' => EnabledSocialMedia::find(),
+            'pagination' => [
+                'pageSize' => 10,
+            ],
+        ]);
+        return $this->render('social-media', [
+            'socialMediasDataProvider' => $socialMediasDataProvider
+        ]);
+    }
+
+    /**
+     * Display a page where the social media selected in actionSocialMedias can be modified
+     *
+     * @param string $id
+     * @return string
+     * @throws CannotSaveException
+     */
+    private function actionModifySocialMedia(string $id)
+    {
+        $socialMedia = $this->checkIfSocialMediaExists($id);
+
+        $formModifySocialMedias = new ModifySocialMediaInformationsForm();
+
+        if ($formModifySocialMedias->load($_POST) && $formModifySocialMedias->validate()) {
+            $this->updateSocialMedia($formModifySocialMedias, $socialMedia);
+        }
+        $formModifySocialMedias->is_enabled = $socialMedia->is_enabled;
+
+
+
+        return $this->render('modify-social-media', [
+            'formModifySocialMediasModel' => $formModifySocialMedias,
+            'socialMedia' => $socialMedia
+        ]);
+    }
+
+    /**
+     * Check if the social media exists
+     *
+     * @param string $id
+     * @return EnabledSocialMedia|null
+     */
+    private function checkIfSocialMediaExists(string $id)
+    {
+        $notFoundException = NotFoundHttpException::class;
+        if (!is_null($socialMedia = EnabledSocialMedia::findOne(['social_media_name' => $id]))) {
+            return $socialMedia;
+        }
+        throw new $notFoundException();
+    }
+
+    /**
+     * Update the is_enabled value of a social media
+     *
+     * @param ModifySocialMediaInformationsForm $formModifySocialMedias
+     * @param $socialMedia
+     * @throws CannotSaveException
+     */
+    private function updateSocialMedia(ModifySocialMediaInformationsForm $formModifySocialMedias, $socialMedia)
+    {
+        $socialMedia->is_enabled = $formModifySocialMedias->is_enabled;
+
+        if(!$socialMedia->save()){
+            throw new CannotSaveException($socialMedia);
         }
     }
 }

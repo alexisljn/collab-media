@@ -8,9 +8,6 @@ use yii\widgets\ActiveForm; ?>
 
 <!-- Proposal informations -->
 
-
-
-
 <a href="#" id="edit-link" class="content-layout">Edit</a>
 <h1 class="content-layout"><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
 <p class="content-layout">Created at <?= $selectedProposal->date ?></p>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : database
--- Généré le :  jeu. 27 fév. 2020 à 11:44
+-- Généré le :  jeu. 27 fév. 2020 à 15:08
 -- Version du serveur :  10.4.11-MariaDB-1:10.4.11+maria~bionic
 -- Version de PHP :  7.2.19
 
@@ -981,6 +981,7 @@ ALTER TABLE `enabled_social_media`
 --
 ALTER TABLE `file`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `proposal_id` (`proposal_id`),
   ADD KEY `file_proposal_id` (`proposal_id`);
 
 --

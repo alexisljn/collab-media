@@ -77,12 +77,12 @@ class ProposalController extends MainController
      */
     private function checkIfProposalExists(int $id): ?Proposal
     {
-        $unauthorizedException = NotFoundHttpException::class;
+        $notFoundException = NotFoundHttpException::class;
 
         if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
             return $selectedProposal;
         }
-        throw new $unauthorizedException();
+        throw new $notFoundException();
     }
 
     /**
@@ -454,8 +454,10 @@ class ProposalController extends MainController
         $proposalFileHistory->path = $movedFilename;
         if($isANewProposal) {
             $proposalFileHistory->date = $proposal->date;
+        } else {
+            $proposalFileHistory->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
         }
-        $proposalFileHistory->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
 
         if (!$proposalFileHistory->save()) {
             throw new CannotSaveException($proposalFileHistory);
@@ -473,26 +475,23 @@ class ProposalController extends MainController
     {
         $editedProposal = Proposal::findOne(['id' => Yii::$app->request->get()]);
         $lastProposalContent = $editedProposal->proposalContentHistories[
-        count($editedProposal->proposalContentHistories)-1];
+            count($editedProposal->proposalContentHistories)-1];
         $model = New ManageProposalForm();
         $postRequest = Yii::$app->request->post();
-
-        $model->title = $postRequest['ManageProposalForm']['title'];
-        $model->content = $postRequest['ManageProposalForm']['content'];
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $transaction = Yii::$app->db->beginTransaction();
             try {
-                $this->saveEditedProposal($postRequest['ManageProposalForm']['title'], $editedProposal);
+                $this->saveEditedProposal($model->title, $editedProposal);
 
-                if ($postRequest['ManageProposalForm']['content'] != $lastProposalContent->content) {
-                    $this->saveProposalContent($postRequest['ManageProposalForm']['content'], $editedProposal, false);
+                if ($model->content != $lastProposalContent->content) {
+                    $this->saveProposalContent($model->content, $editedProposal, false);
                 }
 
                 if (!empty($_FILES['ManageProposalForm']['name']['relatedFile'])) {
 
-                    if (!is_null($editedProposal->files[0]->path)) {
-                        $this->removeExistingUploadedFile($editedProposal->files[0]->path);
+                    if (!is_null($editedProposal->file->path)) {
+                        $this->removeExistingUploadedFile($editedProposal->file->path);
                     }
 
                     $uploadedFile = $_FILES['ManageProposalForm'];
@@ -541,7 +540,7 @@ class ProposalController extends MainController
      */
     private function saveEditedFile($movedFilename, Proposal $proposal)
     {
-        $file = $proposal->files[0];
+        $file = $proposal->file;
         $file->path = $movedFilename;
 
         if (!$file->save()) {

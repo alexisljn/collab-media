@@ -15,7 +15,7 @@ use Yii;
  * @property string $status
  *
  * @property Comment[] $comments
- * @property File[] $files
+ * @property File $file
  * @property User $submitter
  * @property ProposalContentHistory[] $proposalContentHistories
  * @property ProposalFileHistory[] $proposalFileHistories
@@ -73,13 +73,13 @@ class Proposal extends \yii\db\ActiveRecord
     }
 
     /**
-     * Gets query for [[Files]].
+     * Gets query for [[File]].
      *
      * @return \yii\db\ActiveQuery
      */
-    public function getFiles()
+    public function getFile()
     {
-        return $this->hasMany(File::className(), ['proposal_id' => 'id']);
+        return $this->hasOne(File::className(), ['proposal_id' => 'id']);
     }
 
     /**

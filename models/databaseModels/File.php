@@ -32,6 +32,7 @@ class File extends \yii\db\ActiveRecord
             [['proposal_id', 'path'], 'required'],
             [['proposal_id'], 'integer'],
             [['path'], 'string', 'max' => 255],
+            [['proposal_id'], 'unique'],
             [['proposal_id'], 'exist', 'skipOnError' => true, 'targetClass' => Proposal::className(), 'targetAttribute' => ['proposal_id' => 'id']],
         ];
     }

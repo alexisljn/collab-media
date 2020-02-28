@@ -18,7 +18,7 @@ class ManageProposalForm extends Model
         return [
             [['title', 'content'], 'required'],
             ['relatedFile', 'file', 'extensions' =>
-                Util::UPLOADED_FILE_RULES,
+                array_keys(Util::UPLOADED_FILE_RULES),
                 'maxSize' => 15000000],
         ];
 

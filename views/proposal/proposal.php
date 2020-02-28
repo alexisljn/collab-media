@@ -154,8 +154,8 @@ use yii\widgets\ActiveForm; ?>
                     <div class="col-lg-9 col-md-12">
                         <div class="rating-viewer-container">
                             <div class="rating-viewer-counts-container">
-                                <div class="rating-viewer-counts-approvals" style="float: left">4</div>
-                                <div class="rating-viewer-counts-disapprovals" style="float: right">1</div>
+                                <div class="rating-viewer-counts-approvals">4</div>
+                                <div class="rating-viewer-counts-disapprovals">1</div>
                                 <div class="clear"></div>
                             </div>
                             <div class="rating-viewer-bar-container">

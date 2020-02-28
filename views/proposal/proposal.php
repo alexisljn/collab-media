@@ -103,8 +103,15 @@ use yii\widgets\ActiveForm; ?>
     </div>
     <aside class="col-3 proposal-sidebar">
         <div class="proposal-sidebar-block">
-            <button id="edit-link" class="btn btn-sm">Edit</button>
+<!--            TODO Display this block only if the current user is not the proposal submitter -->
+            Created by <strong><?= Html::encode($selectedProposal->submitter->firstname . ' ' . $selectedProposal->submitter->lastname) ?></strong>
         </div>
+        <div class="proposal-sidebar-divider"></div>
+        <div class="proposal-sidebar-block">
+<!--            TODO Display this block only if the current user is the proposal submitter AND if the proposal is still pending -->
+            <button id="edit-link" class="btn btn-block btn-sm">Edit</button>
+        </div>
+        <div class="proposal-sidebar-divider"></div>
         <div class="proposal-sidebar-block">
             Status:
             <?php

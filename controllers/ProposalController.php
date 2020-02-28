@@ -401,14 +401,14 @@ class ProposalController extends MainController
             throw new CannotHandleUploadedFileException();
         }
 
-        if ($uploadedFile['size']['relatedFile'] > 52428800) {
-            throw new CannotHandleUploadedFileException();
-        }
-
         $explodedFilename = explode('.', $uploadedFile['name']['relatedFile']);
         $extension = $explodedFilename[count($explodedFilename)-1];
 
-        if (!in_array($extension,Util::UPLOADED_FILE_ALLOWED_EXTENSIONS)) {
+        if (!array_key_exists($extension,Util::UPLOADED_FILE_RULES)) {
+            throw new CannotHandleUploadedFileException();
+        }
+
+        if ($uploadedFile['size']['relatedFile'] > Util::UPLOADED_FILE_RULES[$extension]) {
             throw new CannotHandleUploadedFileException();
         }
 

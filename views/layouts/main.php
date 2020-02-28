@@ -23,7 +23,7 @@ AppAsset::register($this);
     <link rel="stylesheet" href="/css/tui-editor.css">
     <link rel="stylesheet" href="/css/tui-editor-contents.css">
     <link rel="stylesheet" href="/fontawesome/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,600,700,900&display=swap" rel="stylesheet">
     <script src="/js/jquery-3.4.1.min.js"></script>
     <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>
@@ -46,7 +46,7 @@ AppAsset::register($this);
                 <?= MainController::$headerNavbar->getHTML() ?>
                 <form method="post" action="/site/logout" class="form-inline my-2 my-lg-0">
                     <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-                    <button class="btn btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
+                    <button class="btn btn-outline btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
                 </form>
             </div>
         </nav>

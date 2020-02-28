@@ -39,6 +39,7 @@ footer .copyright {
 h1 {
     font-weight: 400;
     padding-bottom: 0.2em;
+    margin-bottom: 0.5em;
     border-bottom: 1px solid #e8e8e8;
 }
 
@@ -91,17 +92,13 @@ a.desc:after {
     font-size: 0.9em;
 }
 
-.below-title-info-container .below-title-info-status,
-.below-title-info-container .below-title-info-date {
-    display: inline-block;
+.proposal-content .proposal-sidebar {
+    font-size: 0.9em;
+    color: #555;
 }
 
-.below-title-info-container .below-title-info-status {
-    margin-right: 5px;
-}
-
-.below-title-info-container .below-title-info-date {
-    margin-left: 5px;
+.proposal-sidebar-block:not(:last-child) {
+    margin-bottom: 10px;
 }
 
 .status {
@@ -128,4 +125,20 @@ a.desc:after {
 
 .social-media-name {
     text-transform: capitalize ;
+}
+
+.btn:not(.btn-outline) {
+    background-color: #eff3f6;
+    background-image: linear-gradient(-180deg,#fafbfc,#eff3f6 90%);
+    border: 1px solid rgba(27,31,35,.2);
+    font-weight: 600;
+    color: #2c2c2c;
+    font-size: 0.9em;
+    padding: 3px 10px;
+}
+
+.btn:not(.btn-outline):hover {
+    background-color: #e6ebf1;
+    background-image: linear-gradient(-180deg,#f0f3f6,#e6ebf1 90%);
+    /*background-position: -.5em;*/
 }

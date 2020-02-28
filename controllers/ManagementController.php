@@ -31,7 +31,7 @@ class ManagementController extends MainController
         }
         $usersDataProvider = new ActiveDataProvider([
             'query' => User::find(),
-            'sort' => ['defaultOrder'=>['id' => SORT_DESC]],
+            'sort' => ['defaultOrder' => ['id' => SORT_DESC]],
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -189,18 +189,19 @@ class ManagementController extends MainController
     {
         $user = new User();
 
-        $user->firstname    = $form->firstname;
-        $user->lastname     = $form->lastname;
-        $user->email        = $form->email;
+        $user->firstname = $form->firstname;
+        $user->lastname = $form->lastname;
+        $user->email = $form->email;
         $user->is_validated = false;
         $user->is_active = true;
-        $user->role         = $form->role;
+        $user->role = $form->role;
 
-        if($user->save()){
-            $this->redirect(['accounts']);
-        }else{
+        if (!$user->save()) {
+
             throw new CannotSaveException($user);
         }
+        $this->redirect("/management/accounts/" . $user->id);
+
     }
 
     /**

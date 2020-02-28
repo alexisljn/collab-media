@@ -146,6 +146,26 @@ use yii\widgets\ActiveForm; ?>
             }
             ?>
         </div>
+        <div class="proposal-sidebar-divider"></div>
+        <div class="proposal-sidebar-block">
+            <div class="container no-padding">
+                <div class="row">
+                    <div class="col-lg-3 col-md-12">Rating:</div>
+                    <div class="col-lg-9 col-md-12">
+                        <div class="rating-viewer-container">
+                            <div class="rating-viewer-counts-container">
+                                <div class="rating-viewer-counts-approvals" style="float: left">4</div>
+                                <div class="rating-viewer-counts-disapprovals" style="float: right">1</div>
+                                <div class="clear"></div>
+                            </div>
+                            <div class="rating-viewer-bar-container">
+                                <div class="rating-viewer-approval-bar" style="width: 80%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </aside>
 </div>
 

@@ -106,6 +106,42 @@ a.desc:after {
     margin-bottom: 15px;
 }
 
+.proposal-sidebar-block-title {
+    font-size: 1.05em;
+    color: #333;
+}
+
+.rating-viewer-counts-approvals {
+    float: left;
+    color: #1bab1b;
+    font-weight: 600;
+}
+
+.rating-viewer-counts-disapprovals {
+    float: right;
+    font-weight: 600;
+    color: #ef0c0c;
+}
+
+.rating-viewer-bar-container {
+    position: relative;
+
+    width: 100%;
+    height: 4px;
+    border-radius: 2px;
+    background-color: #e42929;
+}
+
+.rating-viewer-approval-bar {
+    position: absolute;
+    left: 0;
+
+    height: 100%;
+    border-top-left-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background-color: #25e03c;
+}
+
 .status {
     display: inline-block;
     padding: 5px 10px;
@@ -146,4 +182,12 @@ a.desc:after {
     background-color: #e6ebf1;
     background-image: linear-gradient(-180deg,#f0f3f6,#e6ebf1 90%);
     /*background-position: -.5em;*/
+}
+
+.clear {
+    clear: both;
+}
+
+.no-padding {
+    padding: 0;
 }

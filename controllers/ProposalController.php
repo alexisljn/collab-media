@@ -47,17 +47,28 @@ class ProposalController extends MainController
                 count($selectedProposal->proposalContentHistories)-1
             ];
 
+            $reviewsQuery = Review::find()->where(['proposal_id' => $selectedProposal->id]);
+
+            $approvalsCount = $reviewsQuery
+                ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
+                ->count();
+
+            $disapprovalsCount = $reviewsQuery
+                ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
+                ->count();
+
             $model = new ManageProposalForm();
             $model->title = $selectedProposal->title;
             $model->content = $lastProposalContent->content;
 
 
             return $this->render('proposal', [
-
                 'selectedProposal' => $selectedProposal,
                 'lastProposalContent' => $lastProposalContent,
                 'chronologicalStream' => $chronologicalStream,
-                'model' => $model
+                'model' => $model,
+                'approvalsCount' => $approvalsCount,
+                'disapprovalsCount' => $disapprovalsCount,
             ]);
         }
 

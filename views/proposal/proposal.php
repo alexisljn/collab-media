@@ -2,6 +2,8 @@
 /** @var \app\models\databaseModels\Proposal $selectedProposal */
 /** @var \app\models\databaseModels\ProposalContentHistory $lastProposalContent */
 /** @var \app\models\databaseModels\Review|\app\models\databaseModels\Comment|\app\models\databaseModels\ProposalContentHistory $chronologicalStream */
+/** @var int $approvalsCount */
+/** @var int $disapprovalsCount */
 
 use app\models\Proposal;
 use yii\helpers\Html;
@@ -154,12 +156,20 @@ use yii\widgets\ActiveForm; ?>
                     <div class="col-lg-9 col-md-12">
                         <div class="rating-viewer-container">
                             <div class="rating-viewer-counts-container">
-                                <div class="rating-viewer-counts-approvals">4</div>
-                                <div class="rating-viewer-counts-disapprovals">1</div>
+                                <div class="rating-viewer-counts-approvals"><?= $approvalsCount ?></div>
+                                <div class="rating-viewer-counts-disapprovals"><?= $disapprovalsCount ?></div>
                                 <div class="clear"></div>
                             </div>
                             <div class="rating-viewer-bar-container">
-                                <div class="rating-viewer-approval-bar" style="width: 80%"></div>
+                                <?php
+                                $totalReviewsCount = $approvalsCount + $disapprovalsCount;
+                                if($totalReviewsCount === 0) {
+                                    $barPercentage = 50;
+                                } else {
+                                    $barPercentage = $approvalsCount / $totalReviewsCount * 100;
+                                }
+                                ?>
+                                <div class="rating-viewer-approval-bar" style="width: <?= $barPercentage ?>%"></div>
                             </div>
                         </div>
                     </div>

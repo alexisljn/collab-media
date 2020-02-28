@@ -12,6 +12,7 @@ use Yii;
  * @property int $author_id
  * @property string $content
  * @property string $date
+ * @property string $edited_date
  *
  * @property User $author
  * @property Proposal $proposal
@@ -32,10 +33,10 @@ class Comment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['proposal_id', 'author_id', 'content', 'date'], 'required'],
+            [['proposal_id', 'author_id', 'content', 'date', 'edited_date'], 'required'],
             [['proposal_id', 'author_id'], 'integer'],
             [['content'], 'string'],
-            [['date'], 'safe'],
+            [['date', 'edited_date'], 'safe'],
             [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['author_id' => 'id']],
             [['proposal_id'], 'exist', 'skipOnError' => true, 'targetClass' => Proposal::className(), 'targetAttribute' => ['proposal_id' => 'id']],
         ];
@@ -52,6 +53,7 @@ class Comment extends \yii\db\ActiveRecord
             'author_id' => 'Author ID',
             'content' => 'Content',
             'date' => 'Date',
+            'edited_date' => 'Edited Date',
         ];
     }
 

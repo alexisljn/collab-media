@@ -10,7 +10,7 @@ use Yii;
  * @property string $social_media_name
  * @property bool $is_enabled
  */
-class EnabledSocialMedia extends yii\db\ActiveRecord
+class EnabledSocialMedia extends \yii\db\ActiveRecord
 {
     /**
      * {@inheritdoc}

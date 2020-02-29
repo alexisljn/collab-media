@@ -12,7 +12,7 @@ use Yii;
  * @property int $author_id
  * @property string $content
  * @property string $date
- * @property string $edited_date
+ * @property string|null $edited_date
  *
  * @property User $author
  * @property Proposal $proposal
@@ -33,7 +33,7 @@ class Comment extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['proposal_id', 'author_id', 'content', 'date', 'edited_date'], 'required'],
+            [['proposal_id', 'author_id', 'content', 'date'], 'required'],
             [['proposal_id', 'author_id'], 'integer'],
             [['content'], 'string'],
             [['date', 'edited_date'], 'safe'],

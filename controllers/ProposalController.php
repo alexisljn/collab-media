@@ -54,9 +54,7 @@ class ProposalController extends MainController
 
             $manageCommentFormModel = new ManageCommentForm();
 
-
             return $this->render('proposal', [
-
                 'selectedProposal' => $selectedProposal,
                 'lastProposalContent' => $lastProposalContent,
                 'chronologicalStream' => $chronologicalStream,

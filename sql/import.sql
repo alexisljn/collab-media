@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
+-- version 5.0.1
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : database
--- Généré le :  ven. 28 fév. 2020 à 11:10
+-- Généré le : sam. 29 fév. 2020 à 09:54
 -- Version du serveur :  10.4.11-MariaDB-1:10.4.11+maria~bionic
--- Version de PHP :  7.2.19
+-- Version de PHP : 7.4.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de données :  `collabmedia`
+-- Base de données : `collabmedia`
 --
 
 -- --------------------------------------------------------
@@ -34,7 +34,7 @@ CREATE TABLE `comment` (
   `author_id` int(10) UNSIGNED NOT NULL,
   `content` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` datetime NOT NULL,
-  `edited_date` datetime NOT NULL
+  `edited_date` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

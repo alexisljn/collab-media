@@ -47,13 +47,11 @@ class ProposalController extends MainController
                 count($selectedProposal->proposalContentHistories)-1
             ];
 
-            $reviewsQuery = Review::find()->where(['proposal_id' => $selectedProposal->id]);
-
-            $approvalsCount = $reviewsQuery
+            $approvalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
                 ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
                 ->count();
 
-            $disapprovalsCount = $reviewsQuery
+            $disapprovalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
                 ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
                 ->count();
 

@@ -581,11 +581,22 @@ class ProposalController extends MainController
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
            $referrer = explode('/', Yii::$app->request->referrer);
-           $proposalId = $referrer[count($referrer) -1];
+           $proposalId = $referrer[count($referrer) - 1];
            $this->saveComment($model->content, $proposalId);
         }
 
         return $this->redirect('/proposal/my-proposals/'. $proposalId);
+    }
+
+    public function actionEditComment(string $key)
+    {
+        $commentDateFromUrl = \Datetime::createFromFormat('U', $key)
+            ->setTimezone(new \DateTimeZone('Europe/Paris'))
+            ->format('Y-m-d H:i:s');
+        $supposedCommentId = Yii::$app->request->post()['ManageCommentForm']['needle'];
+        $originalComment = $this->checkIfCommentExists($supposedCommentId);
+        dd($originalComment);
+
     }
 
     private function saveComment(string $commentInput, int $proposalId)
@@ -600,4 +611,16 @@ class ProposalController extends MainController
             throw new CannotSaveException($comment);
         }
     }
+
+    private function checkIfCommentExists($commentId) {
+        $notFoundException = NotFoundHttpException::class;
+
+        if(is_null($comment = Comment::findOne(['id' => $commentId]))) {
+            throw new $notFoundException();
+        }
+
+        return $comment;
+    }
+
+    private
 }

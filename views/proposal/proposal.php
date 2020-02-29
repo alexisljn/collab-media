@@ -56,20 +56,44 @@ use yii\widgets\ActiveForm; ?>
 <?php
 foreach ($chronologicalStream as $chronologicalItem) {
     if($chronologicalItem instanceof \app\models\databaseModels\Comment) { ?>
-        <div class="bg-primary">
+        <div class="bg-primary" style="margin-bottom: 1em;">
             <?php
             if ($chronologicalItem->author_id == \app\controllers\mainController\MainController::getCurrentUser()->id) { ?>
-                <a href="#" style="color: red;">Edit</a>
-            <?php }
-            ?>
-            <p>
-                <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
-                \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
-                $chronologicalItem->date ?>
-            </p>
-            <p>
-                <?= \yii\helpers\Html::encode($chronologicalItem->content) ?>
-            </p>
+                <a  href="#" id="edit-comment-link-<?=$chronologicalItem->id?>" style="color: red;">Edit</a>
+                <!-- FORM EDIT -->
+                <div id="edit-comment-<?=$chronologicalItem->id?>" style="display: none">
+                <?php $manageCommentForm = yii\widgets\ActiveForm::begin([
+                'id' => 'comment-form-' . $chronologicalItem->id,
+                'action' => '/proposal/edit-comment/' . \app\components\Util::getDateTimeFromDatabaseString($chronologicalItem->date)->format('U'),
+                ]);
+                ?>
+                <?= $manageCommentForm
+                    ->field($manageCommentFormModel, 'content')
+                    ->textarea([
+                        'id' => 'edit-comment-content-' . $chronologicalItem->id,
+                        'rows' => '8',
+                    ]);
+                ?>
+                <?= $manageCommentForm
+                    ->field($manageCommentFormModel, 'needle')
+                    ->hiddenInput(['id' => 'edit-comment-content-input-'. $chronologicalItem->id])
+                    ->label(false);
+                ?>
+                <?= yii\helpers\Html::submitButton('Edit'); ?>
+                <?php yii\widgets\ActiveForm::end(); ?>
+                </div>
+            <?php } d(\app\components\Util::getDateTimeFromDatabaseString($chronologicalItem->date)->format('U'));//dd(\app\components\Util::getDateTimeFromDatabaseString($selectedProposal->date)); ?>
+            <div id="comment-layout-<?=$chronologicalItem->id?>">
+                <p>
+                    <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
+                    \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
+                    $chronologicalItem->date ?>
+                </p>
+                <p id="comment-content-<?=$chronologicalItem->id?>">
+                    <?= \yii\helpers\Html::encode($chronologicalItem->content) ?>
+                </p>
+            </div>
+
         </div>
     <?php }
     elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) { ?>
@@ -125,7 +149,6 @@ $manageCommentForm = yii\widgets\ActiveForm::begin([
 
 <script type="text/javascript">
     $(() => {
-        const form = document.querySelector('#proposal-form');
         const editor = new tui.Editor({
             el: document.querySelector('.edit-section'),
             previewStyle: 'vertical',
@@ -138,8 +161,18 @@ $manageCommentForm = yii\widgets\ActiveForm::begin([
             $('.content-layout').css('display', 'none');
             editor.setMarkdown(`<?= $lastProposalContent->content ?>`);
         });
-        $(form).on("submit", function() {
+        $('#proposal-form').on("submit", () => {
             $("#proposal-form-content-input").val(editor.getMarkdown());
+        });
+        $("a[id^='edit-comment-link-']").on('click', (event) => {
+            const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
+            $('#edit-comment-'+commentId).css('display', 'block');
+            $('#comment-layout-'+commentId).css('display', 'none');
+            $('#edit-comment-content-'+commentId).val($('#comment-content-'+commentId).text().trim());
+        });
+        $("form[id^='comment-form-']").on('submit', (event) => {
+            const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
+            $("#edit-comment-content-input-"+commentId).val(commentId);
         })
     });
 </script>

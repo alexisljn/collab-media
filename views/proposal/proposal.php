@@ -57,6 +57,11 @@ use yii\widgets\ActiveForm; ?>
 foreach ($chronologicalStream as $chronologicalItem) {
     if($chronologicalItem instanceof \app\models\databaseModels\Comment) { ?>
         <div class="bg-primary">
+            <?php
+            if ($chronologicalItem->author_id == \app\controllers\mainController\MainController::getCurrentUser()->id) { ?>
+                <a href="#" style="color: red;">Edit</a>
+            <?php }
+            ?>
             <p>
                 <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
                 \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
@@ -115,7 +120,6 @@ $manageCommentForm = yii\widgets\ActiveForm::begin([
             'id' => 'proposal-comment-content-input',
             'rows' => '8',
         ]); ?>
-<?= $manageCommentForm->field($manageCommentFormModel, 'proposalId')->hiddenInput(['value' => $selectedProposal->id])->label(false) ?>
 <?= yii\helpers\Html::submitButton('Submit'); ?>
 <?php yii\widgets\ActiveForm::end(); ?>
 

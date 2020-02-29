@@ -580,10 +580,12 @@ class ProposalController extends MainController
         // NULL DATE = '' ou '0000-00-00 00:00:00'
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-           $this->saveComment($model->content, $model->proposalId);
+           $referrer = explode('/', Yii::$app->request->referrer);
+           $proposalId = $referrer[count($referrer) -1];
+           $this->saveComment($model->content, $proposalId);
         }
 
-        return $this->redirect('/proposal/my-proposals/'. $model->proposalId);
+        return $this->redirect('/proposal/my-proposals/'. $proposalId);
     }
 
     private function saveComment(string $commentInput, int $proposalId)

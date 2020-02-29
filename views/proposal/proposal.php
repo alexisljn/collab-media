@@ -62,6 +62,9 @@ foreach ($chronologicalStream as $chronologicalItem) {
                 \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
                 $chronologicalItem->date ?>
             </p>
+            <p>
+                <?= \yii\helpers\Html::encode($chronologicalItem->content) ?>
+            </p>
         </div>
     <?php }
     elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) { ?>
@@ -103,7 +106,7 @@ foreach ($chronologicalStream as $chronologicalItem) {
 <?php
 $manageCommentForm = yii\widgets\ActiveForm::begin([
     'id' => 'comment-form',
-    //'action' => '/proposal/edit-proposal/'. $selectedProposal->id
+    'action' => '/proposal/post-comment/',
 ]);
 ?>
 <?= $manageCommentForm
@@ -112,6 +115,7 @@ $manageCommentForm = yii\widgets\ActiveForm::begin([
             'id' => 'proposal-comment-content-input',
             'rows' => '8',
         ]); ?>
+<?= $manageCommentForm->field($manageCommentFormModel, 'proposalId')->hiddenInput(['value' => $selectedProposal->id])->label(false) ?>
 <?= yii\helpers\Html::submitButton('Submit'); ?>
 <?php yii\widgets\ActiveForm::end(); ?>
 

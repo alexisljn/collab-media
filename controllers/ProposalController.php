@@ -574,8 +574,28 @@ class ProposalController extends MainController
     }
 
 
-    public function postComment()
+    public function actionPostComment()
     {
+        $model = new ManageCommentForm();
+        // NULL DATE = '' ou '0000-00-00 00:00:00'
 
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+           $this->saveComment($model->content, $model->proposalId);
+        }
+
+        return $this->redirect('/proposal/my-proposals/'. $model->proposalId);
+    }
+
+    private function saveComment(string $commentInput, int $proposalId)
+    {
+        $comment = new Comment();
+        $comment->proposal_id = $proposalId;
+        $comment->content = $commentInput;
+        $comment->author_id = MainController::getCurrentUser()->id;
+        $comment->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if(!$comment->save()) {
+            throw new CannotSaveException($comment);
+        }
     }
 }

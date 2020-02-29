@@ -2,6 +2,8 @@
 /** @var \app\models\databaseModels\Proposal $selectedProposal */
 /** @var \app\models\databaseModels\ProposalContentHistory $lastProposalContent */
 /** @var \app\models\databaseModels\Review|\app\models\databaseModels\Comment|\app\models\databaseModels\ProposalContentHistory $chronologicalStream */
+/** @var \app\models\forms\ManageProposalForm $manageProposalFormModel */
+/** @var \app\models\forms\ManageCommentForm $manageCommentFormModel */
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
@@ -26,15 +28,15 @@ use yii\widgets\ActiveForm; ?>
 <!-- Edit Form -->
 <div style="display: none;" class="form-layout">
     <?php
-    $form = yii\widgets\ActiveForm::begin([
+    $manageProposalForm = yii\widgets\ActiveForm::begin([
         'id' => 'proposal-form',
         'action' => '/proposal/edit-proposal/'. $selectedProposal->id
     ]);
     ?>
-    <?= $form->field($model, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
-    <?= $form->field($model, 'content')->hiddenInput(['id' => 'proposal-form-content-input']); ?>
+    <?= $manageProposalForm->field($manageProposalFormModel, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
+    <?= $manageProposalForm->field($manageProposalFormModel, 'content')->hiddenInput(['id' => 'proposal-form-content-input']); ?>
     <div id="proposal-content" class="edit-section"></div>
-    <?= $form->field($model, 'relatedFile')->fileInput(); ?>
+    <?= $manageProposalForm->field($manageProposalFormModel, 'relatedFile')->fileInput(); ?>
     <?= yii\helpers\Html::submitButton('Edit'); ?>
     <?php yii\widgets\ActiveForm::end(); ?>
 </div>
@@ -95,8 +97,24 @@ foreach ($chronologicalStream as $chronologicalItem) {
     <?php
         }
     }
-}
+}?>
+
+<h3>Add a comment</h3>
+<?php
+$manageCommentForm = yii\widgets\ActiveForm::begin([
+    'id' => 'comment-form',
+    //'action' => '/proposal/edit-proposal/'. $selectedProposal->id
+]);
 ?>
+<?= $manageCommentForm
+    ->field($manageCommentFormModel, 'content')
+    ->textarea([
+            'id' => 'proposal-comment-content-input',
+            'rows' => '8',
+        ]); ?>
+<?= yii\helpers\Html::submitButton('Submit'); ?>
+<?php yii\widgets\ActiveForm::end(); ?>
+
 <script type="text/javascript">
     $(() => {
         const form = document.querySelector('#proposal-form');

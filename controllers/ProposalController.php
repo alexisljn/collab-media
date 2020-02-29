@@ -8,6 +8,7 @@ use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\ProposalFileHistory;
 use app\models\exceptions\CannotDeleteFileException;
+use app\models\forms\ManageCommentForm;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
 use app\models\databaseModels\File;
@@ -47,9 +48,11 @@ class ProposalController extends MainController
                 count($selectedProposal->proposalContentHistories)-1
             ];
 
-            $model = new ManageProposalForm();
-            $model->title = $selectedProposal->title;
-            $model->content = $lastProposalContent->content;
+            $manageProposalFormModel = new ManageProposalForm();
+            $manageProposalFormModel->title = $selectedProposal->title;
+            $manageProposalFormModel->content = $lastProposalContent->content;
+
+            $manageCommentFormModel = new ManageCommentForm();
 
 
             return $this->render('proposal', [
@@ -57,7 +60,8 @@ class ProposalController extends MainController
                 'selectedProposal' => $selectedProposal,
                 'lastProposalContent' => $lastProposalContent,
                 'chronologicalStream' => $chronologicalStream,
-                'model' => $model
+                'manageProposalFormModel' => $manageProposalFormModel,
+                'manageCommentFormModel' => $manageCommentFormModel
             ]);
         }
 
@@ -569,5 +573,11 @@ class ProposalController extends MainController
         if (!unlink('../uploaded-files/proposal-related-files/'. $filepath)) {
             throw new CannotDeleteFileException();
         }
+    }
+
+
+    public function postComment()
+    {
+
     }
 }

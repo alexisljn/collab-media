@@ -92,6 +92,28 @@ a.desc:after {
     font-size: 0.9em;
 }
 
+
+.proposal-timeline-text-element-container {
+    border: 1px solid #d4d4db;
+    border-radius: 5px;
+    padding: 20px;
+
+    box-shadow: 0 0 6px rgba(0,0,0,.04)
+}
+
+.proposal-timeline-text-element-container h1 {
+    font-size: 2em;
+}
+
+.proposal-timeline-text-element-container h2 {
+    font-size: 1.8em;
+}
+
+.proposal-timeline-text-element-container h3 {
+    font-size: 1.65em;
+}
+
+
 .proposal-content .proposal-sidebar {
     font-size: 0.9em;
     color: #555;

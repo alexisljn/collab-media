@@ -17,13 +17,14 @@ use yii\widgets\ActiveForm; ?>
 </div>
 
 <div class="row proposal-content">
-    <div class="col-9">
+    <div class="col-9 proposal-timeline">
         <!-- Proposal informations -->
         <?php if (!is_null($selectedProposal->social_media)) { ?>
             <p class="content-layout">Published on : <?= $selectedProposal->social ?></p>
         <?php } ?>
-        <div class="content-layout" id="original-content"><?= (new Parsedown())
-                ->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?></div>
+        <div class="proposal-timeline-text-element-container" id="proposal-content">
+            <?= (new Parsedown())->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?>
+        </div>
 
         <!-- Proposal History -->
 

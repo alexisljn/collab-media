@@ -23,7 +23,12 @@ use yii\widgets\ActiveForm; ?>
             <p class="content-layout">Published on : <?= $selectedProposal->social ?></p>
         <?php } ?>
         <div class="proposal-timeline-text-element-container" id="proposal-content">
-            <?= (new Parsedown())->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?>
+            <div class="proposal-timeline-text-element-content">
+                <?= (new Parsedown())->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?>
+            </div>
+            <div class="proposal-timeline-text-element-footer">
+                Some info here
+            </div>
         </div>
 
         <!-- Proposal History -->

@@ -9,7 +9,7 @@ use yii\base\Model;
 class ManageCommentForm extends Model
 {
     public $content;
-    public $needle;
+    public $id;
 
     public function rules()
     {

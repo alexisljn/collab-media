@@ -590,12 +590,17 @@ class ProposalController extends MainController
 
     public function actionEditComment(string $key)
     {
-        $commentDateFromUrl = \Datetime::createFromFormat('U', $key)
-            ->setTimezone(new \DateTimeZone('Europe/Paris'))
-            ->format('Y-m-d H:i:s');
-        $supposedCommentId = Yii::$app->request->post()['ManageCommentForm']['needle'];
-        $originalComment = $this->checkIfCommentExists($supposedCommentId);
-        dd($originalComment);
+        $model = new ManageCommentForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $supposedCommentId = $model->id;
+            $originalComment = $this->checkIfCommentExists($supposedCommentId);
+            $this->checkIfUserIsOwnerOfComment($originalComment);
+            $this->checkIfCommentIsFromCurrentProposal($originalComment);
+            $this->saveEditedComment($originalComment);
+           // dd($originalComment);
+        }
+
 
     }
 
@@ -606,6 +611,7 @@ class ProposalController extends MainController
         $comment->content = $commentInput;
         $comment->author_id = MainController::getCurrentUser()->id;
         $comment->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+        $comment->edited_date = $comment->date;
 
         if(!$comment->save()) {
             throw new CannotSaveException($comment);
@@ -622,5 +628,37 @@ class ProposalController extends MainController
         return $comment;
     }
 
-    private
+    private function checkIfUserIsOwnerOfComment(Comment $comment) {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if(MainController::getCurrentUser()->id != $comment->author_id) {
+            throw new $unauthorizedException();
+        }
+    }
+
+    private function checkIfCommentIsFromCurrentProposal(Comment $comment) {
+        $unauthorizedException = NotFoundHttpException::class;
+        $referrer = explode('/', Yii::$app->request->referrer);
+        $proposalId = $referrer[count($referrer) - 1];
+        $proposal = Proposal::findOne(['id' => $proposalId]);
+
+        foreach ($proposal->comments as $proposalComment) {
+
+            if($comment->id == $proposalComment->id) {
+                return;
+            }
+    }
+
+        throw new $unauthorizedException();
+    }
+
+    private function saveEditedComment(Comment $comment, $newCommentContent)
+    {
+        $comment->content = $newCommentContent;
+        $comment->edited_date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if ($comment->save()) {
+            throw new CannotSaveException($comment);
+        }
+    }
 }

@@ -182,19 +182,15 @@ $manageCommentForm = yii\widgets\ActiveForm::begin([
         });
         $("a[id^='edit-comment-link-']").on('click', (event) => {
             const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
-            $('#edit-comment-'+commentId).css('display', 'block');
-            $('#cancel-edit-link-'+commentId).css('display', 'block');
-            $('#edit-comment-link-'+commentId).css('display', 'none');
-            $('#comment-layout-'+commentId).css('display', 'none');
+            $('#edit-comment-'+commentId+', #cancel-edit-link-'+commentId).css('display', 'block');
+            $('#edit-comment-link-'+commentId+', #comment-layout-'+commentId).css('display', 'none');
             $('#edit-comment-content-'+commentId).val($('#comment-content-'+commentId).text().trim());
             event.preventDefault();
         });
         $("a[id^='cancel-edit-link-']").on('click', (event) => {
             const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
-            $('#edit-comment-'+commentId).css('display', 'none');
-            $('#cancel-edit-link-'+commentId).css('display', 'none');
-            $('#edit-comment-link-'+commentId).css('display', 'block');
-            $('#comment-layout-'+commentId).css('display', 'block');
+            $('#edit-comment-'+commentId+', #cancel-edit-link-'+commentId).css('display', 'none');
+            $('#edit-comment-link-'+commentId+', #comment-layout-'+commentId).css('display', 'block');
             event.preventDefault();
         });
         $("form[id^='comment-form-']").on('submit', (event) => {

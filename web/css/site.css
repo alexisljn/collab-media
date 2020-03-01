@@ -109,6 +109,7 @@ a.desc:after {
     border-top: 1px solid #d4d4db;
     padding: 10px 20px;
     color: #5a5a5e;
+    font-size: 0.9em;
 }
 
 .proposal-timeline-text-element-container h1 {

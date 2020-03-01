@@ -107,6 +107,8 @@ a.desc:after {
 .proposal-timeline-text-element-footer {
     background-color: #f6f8fA;
     border-top: 1px solid #d4d4db;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
     padding: 10px 20px;
     color: #5a5a5e;
     font-size: 0.9em;

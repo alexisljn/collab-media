@@ -1,0 +1,9 @@
+/** Overrides tui-editor CSS **/
+
+.tui-editor-contents h1 {
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.tui-editor-contents h2 {
+    border-bottom: none;
+}

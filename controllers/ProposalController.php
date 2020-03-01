@@ -577,31 +577,30 @@ class ProposalController extends MainController
     public function actionPostComment()
     {
         $model = new ManageCommentForm();
-        // NULL DATE = '' ou '0000-00-00 00:00:00'
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-           $referrer = explode('/', Yii::$app->request->referrer);
-           $proposalId = $referrer[count($referrer) - 1];
-           $this->saveComment($model->content, $proposalId);
+            $referrer = explode('/', Yii::$app->request->referrer);
+            $proposalId = $referrer[count($referrer) - 1];
+            $this->saveComment($model->content, $proposalId);
         }
 
         return $this->redirect('/proposal/my-proposals/'. $proposalId);
     }
 
-    public function actionEditComment(string $key)
+    public function actionEditComment()
     {
         $model = new ManageCommentForm();
+        $model->id = Yii::$app->request->post();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $supposedCommentId = $model->id;
             $originalComment = $this->checkIfCommentExists($supposedCommentId);
             $this->checkIfUserIsOwnerOfComment($originalComment);
             $this->checkIfCommentIsFromCurrentProposal($originalComment);
-            $this->saveEditedComment($originalComment);
-           // dd($originalComment);
+            $this->saveEditedComment($originalComment, $model->content);
         }
 
-
+        return $this->redirect('/proposal/my-proposals/' . $originalComment->proposal_id);
     }
 
     private function saveComment(string $commentInput, int $proposalId)
@@ -613,7 +612,7 @@ class ProposalController extends MainController
         $comment->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
         $comment->edited_date = $comment->date;
 
-        if(!$comment->save()) {
+        if (!$comment->save()) {
             throw new CannotSaveException($comment);
         }
     }
@@ -657,7 +656,7 @@ class ProposalController extends MainController
         $comment->content = $newCommentContent;
         $comment->edited_date = Util::getDateTimeFormattedForDatabase(new \DateTime());
 
-        if ($comment->save()) {
+        if (!$comment->save()) {
             throw new CannotSaveException($comment);
         }
     }

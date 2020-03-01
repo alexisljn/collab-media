@@ -590,8 +590,7 @@ class ProposalController extends MainController
     public function actionEditComment()
     {
         $model = new ManageCommentForm();
-        $model->id = Yii::$app->request->post();
-
+        $model->id = Yii::$app->request->post()['ManageCommentForm']['id'];
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $supposedCommentId = $model->id;
             $originalComment = $this->checkIfCommentExists($supposedCommentId);

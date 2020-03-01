@@ -60,9 +60,12 @@ foreach ($chronologicalStream as $chronologicalItem) {
         <div class="bg-primary" style="margin-bottom: 1em;">
             <?php
             if ($chronologicalItem->author_id == \app\controllers\mainController\MainController::getCurrentUser()->id) { ?>
-                <a  href="#edit-comment-link-<?=$chronologicalItem->id?>"
-                    id="edit-comment-link-<?=$chronologicalItem->id?>"
+                <a  href=""
+                    id="edit-comment-link-<?= $chronologicalItem->id ?>"
                     style="color: red;">Edit</a>
+                <a href=""
+                   id="cancel-edit-link-<?= $chronologicalItem->id ?>"
+                   style="display: none;color: red;">Cancel</a>
                 <!-- FORM EDIT -->
                 <div id="edit-comment-<?=$chronologicalItem->id?>" style="display: none">
                 <?php $manageCommentForm = yii\widgets\ActiveForm::begin([
@@ -75,7 +78,8 @@ foreach ($chronologicalStream as $chronologicalItem) {
                     ->textarea([
                         'id' => 'edit-comment-content-' . $chronologicalItem->id,
                         'rows' => '8',
-                    ]);
+                    ])
+                    ->label(false);
                 ?>
                 <?= $manageCommentForm
                     ->field($manageCommentFormModel, 'id')
@@ -179,8 +183,19 @@ $manageCommentForm = yii\widgets\ActiveForm::begin([
         $("a[id^='edit-comment-link-']").on('click', (event) => {
             const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
             $('#edit-comment-'+commentId).css('display', 'block');
+            $('#cancel-edit-link-'+commentId).css('display', 'block');
+            $('#edit-comment-link-'+commentId).css('display', 'none');
             $('#comment-layout-'+commentId).css('display', 'none');
             $('#edit-comment-content-'+commentId).val($('#comment-content-'+commentId).text().trim());
+            event.preventDefault();
+        });
+        $("a[id^='cancel-edit-link-']").on('click', (event) => {
+            const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
+            $('#edit-comment-'+commentId).css('display', 'none');
+            $('#cancel-edit-link-'+commentId).css('display', 'none');
+            $('#edit-comment-link-'+commentId).css('display', 'block');
+            $('#comment-layout-'+commentId).css('display', 'block');
+            event.preventDefault();
         });
         $("form[id^='comment-form-']").on('submit', (event) => {
             const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];

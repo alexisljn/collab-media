@@ -1,0 +1,6 @@
+{
+  "consumerKey": "YOUR API KEY",
+  "consumerSecret": "YOUR API SECRET KEY",
+  "accessToken": "YOUR ACCESS TOKEN",
+  "accessTokenSecret": "YOUR ACCESS TOKEN SECRET"
+}

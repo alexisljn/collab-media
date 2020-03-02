@@ -8,8 +8,12 @@ use app\models\exceptions\StaticClassNotInstantiableException;
 
 class Util
 {
-    public const UPLOADED_FILE_ALLOWED_EXTENSIONS = [
-        'png', 'jpg', 'jpeg', 'gif', 'mp3', 'mp4', 'mov', 'pdf', 'zip'
+    public const UPLOADED_FILE_RULES = [
+        'png' => '5000000',
+        'jpg' => '5000000',
+        'jpeg' => '5000000',
+        'gif' => '15000000',
+        'mp4' => '15000000',
     ];
 
     public function __construct()

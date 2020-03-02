@@ -17,6 +17,7 @@ use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
+use app\models\User;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
 use yii\web\NotFoundHttpException;
@@ -581,6 +582,8 @@ class ProposalController extends MainController
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $referrer = explode('/', Yii::$app->request->referrer);
             $proposalId = $referrer[count($referrer) - 1];
+            //$this
+            $this->canAUserCommentAProposal(Proposal::findOne());
             $this->saveComment($model->content, $proposalId);
         }
 
@@ -614,6 +617,15 @@ class ProposalController extends MainController
         if (!$comment->save()) {
             throw new CannotSaveException($comment);
         }
+    }
+
+    private function canAUserCommentAProposal()
+    {
+        if (MainController::getCurrentUser()->role != User::USER_ROLE_MEMBER) {
+            return;
+        }
+
+        $this->checkIfUserIsOwnerOfProposal();
     }
 
     private function checkIfCommentExists($commentId) {

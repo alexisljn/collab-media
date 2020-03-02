@@ -102,7 +102,6 @@ class DevController extends MainController
                 $comment->author_id = $usersWhoCanPostComment[random_int(0, count($usersWhoCanPostComment)-1)]->id;
                 $comment->content = self::getLorem(10, 50);
                 $comment->date = (\DateTime::createFromFormat('U', random_int($minDate, $maxDate)))->format('Y-m-d H:i:s');
-                $comment->edited_date = $comment->date;
 
                 if(!$comment->save()) {
                     throw new Exception('Cannot save comment');

@@ -8,6 +8,7 @@ use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\ProposalFileHistory;
 use app\models\exceptions\CannotDeleteFileException;
+use app\models\forms\ManageCommentForm;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
 use app\models\databaseModels\File;
@@ -16,6 +17,7 @@ use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
+use app\models\User;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
 use yii\web\NotFoundHttpException;
@@ -47,17 +49,18 @@ class ProposalController extends MainController
                 count($selectedProposal->proposalContentHistories)-1
             ];
 
-            $model = new ManageProposalForm();
-            $model->title = $selectedProposal->title;
-            $model->content = $lastProposalContent->content;
+            $manageProposalFormModel = new ManageProposalForm();
+            $manageProposalFormModel->title = $selectedProposal->title;
+            $manageProposalFormModel->content = $lastProposalContent->content;
 
+            $manageCommentFormModel = new ManageCommentForm();
 
             return $this->render('proposal', [
-
                 'selectedProposal' => $selectedProposal,
                 'lastProposalContent' => $lastProposalContent,
                 'chronologicalStream' => $chronologicalStream,
-                'model' => $model
+                'manageProposalFormModel' => $manageProposalFormModel,
+                'manageCommentFormModel' => $manageCommentFormModel
             ]);
         }
 
@@ -84,6 +87,7 @@ class ProposalController extends MainController
         if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
             return $selectedProposal;
         }
+
         throw new $notFoundException();
     }
 
@@ -568,6 +572,98 @@ class ProposalController extends MainController
     {
         if (!unlink('../uploaded-files/proposal-related-files/'. $filepath)) {
             throw new CannotDeleteFileException();
+        }
+    }
+
+
+    public function actionPostComment()
+    {
+        $model = new ManageCommentForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $proposalId = Yii::$app->request->get()['id'];
+            $this->canAUserCommentAProposal($this->checkIfProposalExists($proposalId)->submitter_id);
+            $this->saveComment($model->content, $proposalId);
+        }
+
+        return $this->redirect('/proposal/my-proposals/'. $proposalId);
+    }
+
+    public function actionEditComment()
+    {
+        $model = new ManageCommentForm();
+        $model->id = Yii::$app->request->post()['ManageCommentForm']['id'];
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $supposedCommentId = $model->id;
+            $originalComment = $this->checkIfCommentExists($supposedCommentId);
+            $this->checkIfUserIsOwnerOfComment($originalComment);
+            $this->checkIfCommentIsFromCurrentProposal($originalComment);
+            $this->canAUserCommentAProposal($this->checkIfProposalExists($originalComment->proposal_id)->submitter_id);
+            $this->saveEditedComment($originalComment, $model->content);
+        }
+
+        return $this->redirect('/proposal/my-proposals/' . $originalComment->proposal_id);
+    }
+
+    private function saveComment(string $commentInput, int $proposalId)
+    {
+        $comment = new Comment();
+        $comment->proposal_id = $proposalId;
+        $comment->content = $commentInput;
+        $comment->author_id = MainController::getCurrentUser()->id;
+        $comment->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if (!$comment->save()) {
+            throw new CannotSaveException($comment);
+        }
+    }
+
+    private function canAUserCommentAProposal($proposalSubmitterId)
+    {
+        if (MainController::getCurrentUser()->role != User::USER_ROLE_MEMBER) {
+            return;
+        }
+
+        $this->checkIfUserIsOwnerOfProposal($proposalSubmitterId);
+    }
+
+    private function checkIfCommentExists($commentId): Comment {
+        $notFoundException = NotFoundHttpException::class;
+
+        if(is_null($comment = Comment::findOne(['id' => $commentId]))) {
+            throw new $notFoundException();
+        }
+
+        return $comment;
+    }
+
+    private function checkIfUserIsOwnerOfComment(Comment $comment) {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if(MainController::getCurrentUser()->id != $comment->author_id) {
+            throw new $unauthorizedException();
+        }
+    }
+
+    private function checkIfCommentIsFromCurrentProposal(Comment $comment) {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        foreach ($comment->proposal->comments as $proposalComment) {
+
+            if($comment->id == $proposalComment->id) {
+                return;
+            }
+    }
+        throw new $unauthorizedException();
+    }
+
+    private function saveEditedComment(Comment $comment, $newCommentContent)
+    {
+        $comment->content = $newCommentContent;
+        $comment->edited_date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if (!$comment->save()) {
+            throw new CannotSaveException($comment);
         }
     }
 }

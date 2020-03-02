@@ -2,6 +2,8 @@
 /** @var \app\models\databaseModels\Proposal $selectedProposal */
 /** @var \app\models\databaseModels\ProposalContentHistory $lastProposalContent */
 /** @var \app\models\databaseModels\Review|\app\models\databaseModels\Comment|\app\models\databaseModels\ProposalContentHistory $chronologicalStream */
+/** @var \app\models\forms\ManageProposalForm $manageProposalFormModel */
+/** @var \app\models\forms\ManageCommentForm $manageCommentFormModel */
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
@@ -18,23 +20,24 @@ use yii\widgets\ActiveForm; ?>
 <?php if (!is_null($selectedProposal->social_media)) { ?>
     <p class="content-layout">Published on : <?= $selectedProposal->social ?></p>
 <?php } ?>
-<div class="content-layout" id="original-content"><?= (new Parsedown())
-        ->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?></div>
+<div class="content-layout" id="original-content">
+    <?= (new Parsedown())->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?>
+</div>
 
 <!-- Proposal History -->
 
 <!-- Edit Form -->
 <div style="display: none;" class="form-layout">
     <?php
-    $form = yii\widgets\ActiveForm::begin([
+    $manageProposalForm = yii\widgets\ActiveForm::begin([
         'id' => 'proposal-form',
         'action' => '/proposal/edit-proposal/'. $selectedProposal->id
     ]);
     ?>
-    <?= $form->field($model, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
-    <?= $form->field($model, 'content')->hiddenInput(['id' => 'proposal-form-content-input']); ?>
+    <?= $manageProposalForm->field($manageProposalFormModel, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
+    <?= $manageProposalForm->field($manageProposalFormModel, 'content')->hiddenInput(['id' => 'proposal-form-content-input']); ?>
     <div id="proposal-content" class="edit-section"></div>
-    <?= $form->field($model, 'relatedFile')->fileInput(); ?>
+    <?= $manageProposalForm->field($manageProposalFormModel, 'relatedFile')->fileInput(); ?>
     <?= yii\helpers\Html::submitButton('Edit'); ?>
     <?php yii\widgets\ActiveForm::end(); ?>
 </div>
@@ -54,12 +57,59 @@ use yii\widgets\ActiveForm; ?>
 <?php
 foreach ($chronologicalStream as $chronologicalItem) {
     if($chronologicalItem instanceof \app\models\databaseModels\Comment) { ?>
-        <div class="bg-primary">
-            <p>
-                <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
-                \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
-                $chronologicalItem->date ?>
-            </p>
+        <div class="bg-primary" style="margin-bottom: 1em;">
+            <?php
+            if ($chronologicalItem->author_id == \app\controllers\mainController\MainController::getCurrentUser()->id) { ?>
+                <a  href=""
+                    id="edit-comment-link-<?= $chronologicalItem->id ?>"
+                    style="color: red;">Edit</a>
+                <a href=""
+                   id="cancel-edit-link-<?= $chronologicalItem->id ?>"
+                   style="display: none;color: red;">Cancel</a>
+                <!-- FORM EDIT -->
+                <div id="edit-comment-<?=$chronologicalItem->id?>" style="display: none">
+                <?php $manageCommentForm = yii\widgets\ActiveForm::begin([
+                'id' => 'comment-form-' . $chronologicalItem->id,
+                'action' => '/proposal/edit-comment/',
+                ]);
+                ?>
+                <?= $manageCommentForm
+                    ->field($manageCommentFormModel, 'content')
+                    ->textarea([
+                        'id' => 'edit-comment-content-' . $chronologicalItem->id,
+                        'rows' => '8',
+                    ])
+                    ->label(false);
+                ?>
+                <?= $manageCommentForm
+                    ->field($manageCommentFormModel, 'id')
+                    ->hiddenInput(['id' => 'edit-comment-id-input-'. $chronologicalItem->id])
+                    ->label(false);
+                ?>
+                <?= yii\helpers\Html::submitButton('Edit'); ?>
+                <?php yii\widgets\ActiveForm::end(); ?>
+                </div>
+            <?php } ?>
+            <div id="comment-layout-<?=$chronologicalItem->id?>">
+                <?php
+                if (!is_null($chronologicalItem->edited_date)) { ?>
+                    <p>
+                        <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
+                        \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' edited this comment on ' .
+                        $chronologicalItem->edited_date ?>
+                    </p>
+                <?php } else { ?>
+                    <p>
+                        <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
+                        \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
+                        $chronologicalItem->date ?>
+                    </p>
+                <?php } ?>
+                <p id="comment-content-<?=$chronologicalItem->id?>">
+                    <?= \yii\helpers\Html::encode($chronologicalItem->content) ?>
+                </p>
+            </div>
+
         </div>
     <?php }
     elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) { ?>
@@ -95,11 +145,26 @@ foreach ($chronologicalStream as $chronologicalItem) {
     <?php
         }
     }
-}
+}?>
+
+<h3>Add a comment</h3>
+<?php
+$manageCommentForm = yii\widgets\ActiveForm::begin([
+    'id' => 'comment-form',
+    'action' => '/proposal/post-comment/'. $selectedProposal->id,
+]);
 ?>
+<?= $manageCommentForm
+    ->field($manageCommentFormModel, 'content')
+    ->textarea([
+            'id' => 'proposal-comment-content-input',
+            'rows' => '8',
+        ]); ?>
+<?= yii\helpers\Html::submitButton('Submit'); ?>
+<?php yii\widgets\ActiveForm::end(); ?>
+
 <script type="text/javascript">
     $(() => {
-        const form = document.querySelector('#proposal-form');
         const editor = new tui.Editor({
             el: document.querySelector('.edit-section'),
             previewStyle: 'vertical',
@@ -112,8 +177,25 @@ foreach ($chronologicalStream as $chronologicalItem) {
             $('.content-layout').css('display', 'none');
             editor.setMarkdown(`<?= $lastProposalContent->content ?>`);
         });
-        $(form).on("submit", function() {
+        $('#proposal-form').on("submit", () => {
             $("#proposal-form-content-input").val(editor.getMarkdown());
+        });
+        $("a[id^='edit-comment-link-']").on('click', (event) => {
+            const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
+            $('#edit-comment-'+commentId+', #cancel-edit-link-'+commentId).css('display', 'block');
+            $('#edit-comment-link-'+commentId+', #comment-layout-'+commentId).css('display', 'none');
+            $('#edit-comment-content-'+commentId).val($('#comment-content-'+commentId).text().trim());
+            event.preventDefault();
+        });
+        $("a[id^='cancel-edit-link-']").on('click', (event) => {
+            const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
+            $('#edit-comment-'+commentId+', #cancel-edit-link-'+commentId).css('display', 'none');
+            $('#edit-comment-link-'+commentId+', #comment-layout-'+commentId).css('display', 'block');
+            event.preventDefault();
+        });
+        $("form[id^='comment-form-']").on('submit', (event) => {
+            const commentId = event.target.id.split('-')[event.target.id.split('-').length -1];
+            $("#edit-comment-id-input-"+commentId).val(commentId);
         })
     });
 </script>

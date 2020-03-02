@@ -582,8 +582,7 @@ class ProposalController extends MainController
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $referrer = explode('/', Yii::$app->request->referrer);
             $proposalId = $referrer[count($referrer) - 1];
-            //$this
-            $this->canAUserCommentAProposal(Proposal::findOne());
+            $this->canAUserCommentAProposal($this->checkIfProposalExists($proposalId)->submitter_id);
             $this->saveComment($model->content, $proposalId);
         }
 
@@ -612,20 +611,19 @@ class ProposalController extends MainController
         $comment->content = $commentInput;
         $comment->author_id = MainController::getCurrentUser()->id;
         $comment->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
-        $comment->edited_date = $comment->date;
 
         if (!$comment->save()) {
             throw new CannotSaveException($comment);
         }
     }
 
-    private function canAUserCommentAProposal()
+    private function canAUserCommentAProposal($proposalSubmitterId)
     {
         if (MainController::getCurrentUser()->role != User::USER_ROLE_MEMBER) {
             return;
         }
 
-        $this->checkIfUserIsOwnerOfProposal();
+        $this->checkIfUserIsOwnerOfProposal($proposalSubmitterId);
     }
 
     private function checkIfCommentExists($commentId) {

@@ -92,7 +92,7 @@ foreach ($chronologicalStream as $chronologicalItem) {
             <?php } ?>
             <div id="comment-layout-<?=$chronologicalItem->id?>">
                 <?php
-                if ($chronologicalItem->date != $chronologicalItem->edited_date) { ?>
+                if (!is_null($chronologicalItem->edited_date)) { ?>
                     <p>
                         <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
                         \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' edited this comment on ' .

@@ -146,6 +146,10 @@ a.desc:after {
     color: #333;
 }
 
+#proposal-content-history-modal:not(.visible) {
+    display: none;
+}
+
 .rating-viewer-counts-approvals {
     float: left;
     color: #1bab1b;
@@ -225,4 +229,62 @@ a.desc:after {
 
 .no-padding {
     padding: 0;
+}
+
+
+.modal-container {
+    background-color: rgba(0, 0, 0, 0.3);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 100;
+    overflow: auto;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 800px;
+    max-height: calc(100vh - 40px);
+    overflow: auto;
+    margin: auto;
+    background-color: white;
+    border-radius: 5px;
+    padding: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    box-shadow: 0 0 5px 3px rgba(0, 0, 0, 0.05);
+}
+
+.modal-content h1 {
+    margin-top: 0;
+    font-size: 1.3em;
+    border-bottom: none;
+}
+
+.modal-close-button {
+    display: table-row;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    border: 0;
+    background-color: transparent;
+    color: #777
+}
+
+.modal-close-button:hover {
+    color: inherit;
+}
+
+.modal-content-separator {
+    background-color: #e3e3e3;
+    width: 50%;
+    height: 1px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
 }

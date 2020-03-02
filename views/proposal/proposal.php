@@ -9,6 +9,23 @@ use app\models\Proposal;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
 
+<div id="proposal-content-history-modal" class="modal-container">
+    <div class="modal-content">
+        <button id="proposal-content-history-button-close" class="modal-close-button"><i class="fas fa-times" style="font-size: 1.3em"></i></button>
+        <h1>Editions history</h1>
+
+        <?php foreach ($chronologicalStream as $oldProposalContent) {
+            if ($oldProposalContent instanceof \app\models\databaseModels\ProposalContentHistory && $oldProposalContent->date != $lastProposalContent->date) { ?>
+                <div class="bg-success">
+                    <p>Previous version  of <?=' '. $oldProposalContent->date ?></p>
+                    <p><?= (new Parsedown())
+                            ->text(\yii\helpers\Html::encode($oldProposalContent->content)) ?></p>
+                </div>
+            <?php }
+        } ?>
+    </div>
+</div>
+
 <!-- Proposal informations -->
 <div class="row">
     <div class="col-12">
@@ -26,12 +43,24 @@ use yii\widgets\ActiveForm; ?>
             <div class="proposal-timeline-text-element-content">
                 <?= (new Parsedown())->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?>
             </div>
-            <div class="proposal-timeline-text-element-footer">
-                Some info here
-            </div>
-        </div>
 
-        <!-- Proposal History -->
+            <?php
+            $displayProposalContentFooter = false;
+
+            if($selectedProposal->date !== $lastProposalContent->date) {
+                $displayProposalContentFooter = true;
+            }
+
+            if($displayProposalContentFooter) {
+                ?>
+                <div class="proposal-timeline-text-element-footer">
+                    <div style="float: right">Edited at <?= $lastProposalContent->date ?> – <a id="proposal-content-show-history-link" href="#">View history</a></div>
+                    <div class="clear"></div>
+                </div>
+                <?php
+            }
+            ?>
+        </div>
 
         <!-- Edit Form -->
         <div style="display: none;" class="form-layout">
@@ -48,16 +77,6 @@ use yii\widgets\ActiveForm; ?>
             <?= yii\helpers\Html::submitButton('Edit'); ?>
             <?php yii\widgets\ActiveForm::end(); ?>
         </div>
-
-        <?php foreach ($chronologicalStream as $oldProposalContent) {
-            if ($oldProposalContent instanceof \app\models\databaseModels\ProposalContentHistory && $oldProposalContent->date != $lastProposalContent->date) { ?>
-                <div class="bg-success">
-                    <p>Previous version  of <?=' '. $oldProposalContent->date ?></p>
-                    <p><?= (new Parsedown())
-                            ->text(\yii\helpers\Html::encode($oldProposalContent->content)) ?></p>
-                </div>
-            <?php }
-        } ?>
 
         <!-- Chronological Stream -->
 
@@ -185,7 +204,7 @@ use yii\widgets\ActiveForm; ?>
     </aside>
 </div>
 
-<script type="text/javascript">
+<script type="text/javascript" id="edit-form-script">
     $(() => {
         const form = document.querySelector('#proposal-form');
         const editor = new tui.Editor({
@@ -203,5 +222,32 @@ use yii\widgets\ActiveForm; ?>
         $(form).on("submit", function() {
             $("#proposal-form-content-input").val(editor.getMarkdown());
         })
+    });
+</script>
+
+
+<script type="text/javascript" id="content-history-modal-script">
+    $(() => {
+        const modalContainer = $('#proposal-content-history-modal');
+        const body = $(document.body);
+
+        const displayModal = () => {
+            modalContainer.addClass('visible');
+            body.addClass('modal-open');
+        };
+
+        const hideModal = () => {
+            modalContainer.removeClass('visible');
+            body.removeClass('modal-open');
+        };
+
+        $('#proposal-content-show-history-link').on('click', (e) => {
+            e.preventDefault();
+            displayModal();
+        });
+
+        $('#proposal-content-history-button-close').on('click', () => {
+            hideModal();
+        });
     });
 </script>

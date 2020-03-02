@@ -49,7 +49,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return $proposal->getReviews()->where(['status' => 'rejected'])->count();
+                return $proposal->getReviews()->where(['status' => 'disapproved'])->count();
             }
         ]
     ]
@@ -66,7 +66,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="#">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="my-proposals/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -88,7 +88,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return $proposal->getReviews()->where(['status' => 'rejected'])->count();
+                return $proposal->getReviews()->where(['status' => 'disapproved'])->count();
             }
         ]
     ]

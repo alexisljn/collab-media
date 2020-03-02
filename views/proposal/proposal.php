@@ -15,11 +15,23 @@ use yii\widgets\ActiveForm; ?>
         <h1>Editions history</h1>
 
         <?php foreach ($chronologicalStream as $oldProposalContent) {
-            if ($oldProposalContent instanceof \app\models\databaseModels\ProposalContentHistory && $oldProposalContent->date != $lastProposalContent->date) { ?>
-                <div class="bg-success">
-                    <p>Previous version  of <?=' '. $oldProposalContent->date ?></p>
-                    <p><?= (new Parsedown())
-                            ->text(\yii\helpers\Html::encode($oldProposalContent->content)) ?></p>
+            if ($oldProposalContent instanceof \app\models\databaseModels\ProposalContentHistory) {
+                ?>
+                <div class="proposal-content-history-element-container">
+                    <p class="proposal-content-history-element-date">
+                        <?= $oldProposalContent->date ?>
+                        <?php
+                        if ($oldProposalContent->date === $lastProposalContent->date) {
+                            ?>
+                            <strong>(current)</strong>
+                            <?php
+                        }
+                        ?>
+                    </p>
+                    <div class="proposal-content-text">
+                        <?= (new Parsedown())
+                            ->text(\yii\helpers\Html::encode($oldProposalContent->content)) ?>
+                    </div>
                 </div>
             <?php }
         } ?>

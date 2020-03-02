@@ -114,16 +114,19 @@ a.desc:after {
     font-size: 0.9em;
 }
 
-.proposal-timeline-text-element-container h1 {
-    font-size: 2em;
+.proposal-timeline-text-element-container h1,
+.proposal-content-text h1 {
+    font-size: 2em !important;
 }
 
-.proposal-timeline-text-element-container h2 {
-    font-size: 1.8em;
+.proposal-timeline-text-element-container h2,
+.proposal-content-text h2 {
+    font-size: 1.8em !important;
 }
 
-.proposal-timeline-text-element-container h3 {
-    font-size: 1.65em;
+.proposal-timeline-text-element-container h3,
+.proposal-content-text h3 {
+    font-size: 1.65em !important;
 }
 
 
@@ -148,6 +151,18 @@ a.desc:after {
 
 #proposal-content-history-modal:not(.visible) {
     display: none;
+}
+
+.proposal-content-history-element-container {
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-top: 1px solid #e8e8e8;
+    padding-top: 5px;
+}
+
+.proposal-content-history-element-date {
+    color: #555;
+    font-size: 0.95em;
 }
 
 .rating-viewer-counts-approvals {

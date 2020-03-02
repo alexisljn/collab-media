@@ -151,7 +151,7 @@ foreach ($chronologicalStream as $chronologicalItem) {
 <?php
 $manageCommentForm = yii\widgets\ActiveForm::begin([
     'id' => 'comment-form',
-    'action' => '/proposal/post-comment/',
+    'action' => '/proposal/post-comment/'. $selectedProposal->id,
 ]);
 ?>
 <?= $manageCommentForm

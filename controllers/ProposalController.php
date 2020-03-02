@@ -581,8 +581,7 @@ class ProposalController extends MainController
         $model = new ManageCommentForm();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
-            $referrer = explode('/', Yii::$app->request->referrer);
-            $proposalId = $referrer[count($referrer) - 1];
+            $proposalId = Yii::$app->request->get()['id'];
             $this->canAUserCommentAProposal($this->checkIfProposalExists($proposalId)->submitter_id);
             $this->saveComment($model->content, $proposalId);
         }
@@ -648,11 +647,8 @@ class ProposalController extends MainController
 
     private function checkIfCommentIsFromCurrentProposal(Comment $comment) {
         $unauthorizedException = NotFoundHttpException::class;
-        $referrer = explode('/', Yii::$app->request->referrer);
-        $proposalId = $referrer[count($referrer) - 1];
-        $proposal = Proposal::findOne(['id' => $proposalId]);
 
-        foreach ($proposal->comments as $proposalComment) {
+        foreach ($comment->proposal->comments as $proposalComment) {
 
             if($comment->id == $proposalComment->id) {
                 return;

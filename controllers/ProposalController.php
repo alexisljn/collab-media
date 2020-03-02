@@ -87,7 +87,7 @@ class ProposalController extends MainController
         if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
             return $selectedProposal;
         }
-        dd('ici');
+
         throw new $notFoundException();
     }
 

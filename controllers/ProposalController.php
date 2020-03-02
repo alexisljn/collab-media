@@ -87,6 +87,7 @@ class ProposalController extends MainController
         if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
             return $selectedProposal;
         }
+        dd('ici');
         throw new $notFoundException();
     }
 
@@ -598,6 +599,7 @@ class ProposalController extends MainController
             $originalComment = $this->checkIfCommentExists($supposedCommentId);
             $this->checkIfUserIsOwnerOfComment($originalComment);
             $this->checkIfCommentIsFromCurrentProposal($originalComment);
+            $this->canAUserCommentAProposal($this->checkIfProposalExists($originalComment->proposal_id)->submitter_id);
             $this->saveEditedComment($originalComment, $model->content);
         }
 
@@ -626,7 +628,7 @@ class ProposalController extends MainController
         $this->checkIfUserIsOwnerOfProposal($proposalSubmitterId);
     }
 
-    private function checkIfCommentExists($commentId) {
+    private function checkIfCommentExists($commentId): Comment {
         $notFoundException = NotFoundHttpException::class;
 
         if(is_null($comment = Comment::findOne(['id' => $commentId]))) {
@@ -656,7 +658,6 @@ class ProposalController extends MainController
                 return;
             }
     }
-
         throw new $unauthorizedException();
     }
 

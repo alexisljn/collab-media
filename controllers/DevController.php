@@ -7,6 +7,7 @@ namespace app\controllers;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\Comment;
 use app\models\databaseModels\Proposal;
+use app\models\databaseModels\ProposalApprovementSetting;
 use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\databaseModels\User;
@@ -33,11 +34,21 @@ class DevController extends MainController
         Comment::deleteAll();
         ProposalContentHistory::deleteAll();
         Proposal::deleteAll();
+        ProposalApprovementSetting::deleteAll();
 
         $now = (new \DateTime())->format('U');
         $sixMonthsAgo = (\DateTime::createFromFormat('Y-m-d H:i:s', '2019-06-01 00:00:00'))->format('U');
 
         $userIds = User::find()->select('id')->column();
+
+        $proposalApprovementSetting = new ProposalApprovementSetting();
+        $proposalApprovementSetting->id = 'main';
+        $proposalApprovementSetting->required_review = 3;
+        $proposalApprovementSetting->approvement_percent = 50;
+
+        if(!$proposalApprovementSetting->save()) {
+            throw new Exception('Cannot save Proposal Approvement Setting');
+        }
 
         /* GENERATION PROPOSALS ET PROPOSAL CONTENT */
 

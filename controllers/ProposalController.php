@@ -666,4 +666,39 @@ class ProposalController extends MainController
             throw new CannotSaveException($comment);
         }
     }
+
+    public function actionManageProposals(int $id = null)
+    {
+        //  Propositions approuvés non publiées, proposition pas encore approuvées non publiées
+        // tri par nombre de reviews
+       $prop1 = new ActiveDataProvider([
+           'query' => Proposal::find()->innerJoinWith('review')->where(['>=', Review::, 10], [])
+       ])
+
+        /* $reviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
+            'query' => Proposal::find()
+                ->where([
+                    'in',
+                    'id',
+                    (new Query())
+                        ->select('proposal_id')
+                        ->from('review')
+                        ->where(['reviewer_id' => self::getCurrentUser()->id])
+                        ->column()
+                ])
+                ->andWhere(['status' => 'pending']),
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'historySort',
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+    }*/
 }

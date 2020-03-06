@@ -17,6 +17,7 @@ use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
+use app\models\ProposalApprovementSetting;
 use app\models\User;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
@@ -34,6 +35,7 @@ class ProposalController extends MainController
      */
     public function actionMyProposals(int $id = null): string
     {
+
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
@@ -682,8 +684,8 @@ class ProposalController extends MainController
         //  Propositions approuvés non publiées, proposition pas encore approuvées non publiées
         // tri par nombre de reviews
        $prop1 = new ActiveDataProvider([
-           'query' => Proposal::find()->innerJoinWith('review')->where(['>=', Review::, 10], [])
-       ])
+           'query' => Proposal::find()->innerJoinWith('review')
+       ]);
 
         /* $reviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -709,6 +711,6 @@ class ProposalController extends MainController
                     'title' => SORT_ASC
                 ]
             ]
-        ]);
-    }*/
+        ]);*/
+    }
 }

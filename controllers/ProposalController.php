@@ -39,41 +39,9 @@ class ProposalController extends MainController
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-            $chronologicalStream = $this->generateChronologicalStream
-            (
-                $selectedProposal->comments,
-                $selectedProposal->reviews,
-                $selectedProposal->proposalContentHistories,
-                $selectedProposal->proposalFileHistories,
+            $displayElements = $this->buildOneProposalDisplayElements($selectedProposal);
 
-            );
-            $lastProposalContent = $selectedProposal->proposalContentHistories[
-                count($selectedProposal->proposalContentHistories)-1
-            ];
-
-            $approvalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
-                ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
-                ->count();
-
-            $disapprovalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
-                ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
-                ->count();
-
-            $manageProposalFormModel = new ManageProposalForm();
-            $manageProposalFormModel->title = $selectedProposal->title;
-            $manageProposalFormModel->content = $lastProposalContent->content;
-
-            $manageCommentFormModel = new ManageCommentForm();
-
-            return $this->render('proposal', [
-                'selectedProposal' => $selectedProposal,
-                'lastProposalContent' => $lastProposalContent,
-                'chronologicalStream' => $chronologicalStream,
-                'approvalsCount' => $approvalsCount,
-                'disapprovalsCount' => $disapprovalsCount,
-                'manageProposalFormModel' => $manageProposalFormModel,
-                'manageCommentFormModel' => $manageCommentFormModel
-            ]);
+            return $this->render('proposal', $displayElements);
         }
 
         $myPendingProposals = $this->getMyPendingProposals();
@@ -83,6 +51,45 @@ class ProposalController extends MainController
             'myPendingProposals' => $myPendingProposals,
             'myNotPendingProposals' => $myNotPendingProposals
         ]);
+    }
+
+    private function buildOneProposalDisplayElements(Proposal $selectedProposal)
+    {
+        $chronologicalStream = $this->generateChronologicalStream
+        (
+            $selectedProposal->comments,
+            $selectedProposal->reviews,
+            $selectedProposal->proposalContentHistories,
+            $selectedProposal->proposalFileHistories,
+
+            );
+        $lastProposalContent = $selectedProposal->proposalContentHistories[
+        count($selectedProposal->proposalContentHistories)-1
+        ];
+
+        $approvalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
+            ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
+            ->count();
+
+        $disapprovalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
+            ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
+            ->count();
+
+        $manageProposalFormModel = new ManageProposalForm();
+        $manageProposalFormModel->title = $selectedProposal->title;
+        $manageProposalFormModel->content = $lastProposalContent->content;
+
+        $manageCommentFormModel = new ManageCommentForm();
+
+        return [
+            'selectedProposal' => $selectedProposal,
+            'lastProposalContent' => $lastProposalContent,
+            'chronologicalStream' => $chronologicalStream,
+            'approvalsCount' => $approvalsCount,
+            'disapprovalsCount' => $disapprovalsCount,
+            'manageProposalFormModel' => $manageProposalFormModel,
+            'manageCommentFormModel' => $manageCommentFormModel
+        ];
     }
 
     /**
@@ -277,7 +284,7 @@ class ProposalController extends MainController
                 ]
             ]
         ]);
-        //dd($noReviewedAndNoPublishedProposalsForAReviewer);
+
         return $noReviewedAndNoPublishedProposalsForAReviewer;
     }
 
@@ -679,10 +686,17 @@ class ProposalController extends MainController
         }
     }
 
-    public function actionManageProposals(int $id = null)
+    public function actionManageProposals($id = null)
     {
-        //  Propositions approuvés non publiées, proposition pas encore approuvées non publiées
-        // tri par nombre de reviews
+        /** @TODO tri par nombre de reviews */
+        /** @TODO manage one proposal */
+        if (!is_null($id)) {
+            $selectedProposal = $this->checkIfProposalExists($id);
+            $displayElements = $this->buildOneProposalDisplayElements($selectedProposal);
+
+            return $this->render('proposal', $displayElements);
+        }
+
 
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);

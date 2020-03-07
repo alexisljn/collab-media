@@ -39,9 +39,9 @@ class ProposalController extends MainController
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-            $displayElements = $this->buildOneProposalDisplayElements($selectedProposal);
+            $displayItems = $this->buildOneProposalDisplayItems($selectedProposal);
 
-            return $this->render('proposal', $displayElements);
+            return $this->render('proposal', $displayItems);
         }
 
         $myPendingProposals = $this->getMyPendingProposals();
@@ -53,7 +53,14 @@ class ProposalController extends MainController
         ]);
     }
 
-    private function buildOneProposalDisplayElements(Proposal $selectedProposal)
+    /**
+     * Build needed Items to be displayed in single
+     * proposal consultation.
+     *
+     * @param Proposal $selectedProposal
+     * @return array
+     */
+    private function buildOneProposalDisplayItems(Proposal $selectedProposal)
     {
         $chronologicalStream = $this->generateChronologicalStream
         (
@@ -504,7 +511,6 @@ class ProposalController extends MainController
         $lastProposalContent = $editedProposal->proposalContentHistories[
             count($editedProposal->proposalContentHistories)-1];
         $model = New ManageProposalForm();
-        $postRequest = Yii::$app->request->post();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $transaction = Yii::$app->db->beginTransaction();
@@ -594,7 +600,13 @@ class ProposalController extends MainController
         }
     }
 
-
+    /**
+     * Verify if user can comment a proposal
+     * then call the saveComment method
+     *
+     * @return yii\web\Response
+     * @throws CannotSaveException
+     */
     public function actionPostComment()
     {
         $model = new ManageCommentForm();
@@ -608,7 +620,15 @@ class ProposalController extends MainController
         return $this->redirect('/proposal/my-proposals/'. $proposalId);
     }
 
-    public function actionEditComment()
+    /**
+     * Create a form populated by user's input then
+     * it checks if user is allowed to edit a comment
+     * and save it if true.
+     *
+     * @return yii\web\Response
+     * @throws CannotSaveException
+     */
+    public function actionEditComment(int $id)
     {
         $model = new ManageCommentForm();
         $model->id = Yii::$app->request->post()['ManageCommentForm']['id'];
@@ -616,7 +636,7 @@ class ProposalController extends MainController
             $supposedCommentId = $model->id;
             $originalComment = $this->checkIfCommentExists($supposedCommentId);
             $this->checkIfUserIsOwnerOfComment($originalComment);
-            $this->checkIfCommentIsFromCurrentProposal($originalComment);
+            $this->checkIfCommentIsFromCurrentProposal($originalComment, $id);
             $this->canAUserCommentAProposal($this->checkIfProposalExists($originalComment->proposal_id)->submitter_id);
             $this->saveEditedComment($originalComment, $model->content);
         }
@@ -624,6 +644,13 @@ class ProposalController extends MainController
         return $this->redirect('/proposal/my-proposals/' . $originalComment->proposal_id);
     }
 
+    /**
+     * Create a new comment in DB.
+     *
+     * @param string $commentInput
+     * @param int $proposalId
+     * @throws CannotSaveException
+     */
     private function saveComment(string $commentInput, int $proposalId)
     {
         $comment = new Comment();
@@ -637,7 +664,13 @@ class ProposalController extends MainController
         }
     }
 
-    private function canAUserCommentAProposal($proposalSubmitterId)
+    /**
+     * Checks if a User can comment a proposal.
+     * Reviewer, publisher or admin can comment everywhere.
+     *
+     * @param int $proposalSubmitterId
+     */
+    private function canAUserCommentAProposal(int $proposalSubmitterId)
     {
         if (MainController::getCurrentUser()->role != User::USER_ROLE_MEMBER) {
             return;
@@ -646,7 +679,13 @@ class ProposalController extends MainController
         $this->checkIfUserIsOwnerOfProposal($proposalSubmitterId);
     }
 
-    private function checkIfCommentExists($commentId): Comment {
+    /**
+     * Check if a comment exists in DB.
+     *
+     * @param int $commentId
+     * @return Comment
+     */
+    private function checkIfCommentExists(int $commentId): Comment {
         $notFoundException = NotFoundHttpException::class;
 
         if(is_null($comment = Comment::findOne(['id' => $commentId]))) {
@@ -656,26 +695,49 @@ class ProposalController extends MainController
         return $comment;
     }
 
+    /**
+     * Check if User is owner of a comment.
+     * An admin can edit any comment.
+     *
+     * @param Comment $comment
+     */
     private function checkIfUserIsOwnerOfComment(Comment $comment) {
         $unauthorizedException = NotFoundHttpException::class;
+
+        if (MainController::getCurrentUser()->role == User::USER_ROLE_ADMIN) {
+            return;
+        }
 
         if(MainController::getCurrentUser()->id != $comment->author_id) {
             throw new $unauthorizedException();
         }
     }
 
-    private function checkIfCommentIsFromCurrentProposal(Comment $comment) {
+    /**
+     * Check if a comment is part of one proposal's comments.
+     * It checks if the user doesn't try to edit a comment coming
+     * from another proposal
+     *
+     * @param Comment $comment
+     */
+    private function checkIfCommentIsFromCurrentProposal(Comment $comment, int $proposalId) {
         $unauthorizedException = NotFoundHttpException::class;
 
-        foreach ($comment->proposal->comments as $proposalComment) {
-
-            if($comment->id == $proposalComment->id) {
+            if($comment->proposal->id == $proposalId) {
                 return;
             }
-    }
+
         throw new $unauthorizedException();
     }
 
+    /**
+     * Populate the edited comment of its new content
+     * then save it in DB.
+     *
+     * @param Comment $comment
+     * @param $newCommentContent
+     * @throws CannotSaveException
+     */
     private function saveEditedComment(Comment $comment, $newCommentContent)
     {
         $comment->content = $newCommentContent;
@@ -686,26 +748,31 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Display proposals for a Publisher
+     * or single proposal
+     *
+     * @param null $id
+     * @return string
+     */
     public function actionManageProposals($id = null)
     {
         /** @TODO tri par nombre de reviews */
-        /** @TODO manage one proposal */
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
-            $displayElements = $this->buildOneProposalDisplayElements($selectedProposal);
+            $displayItems = $this->buildOneProposalDisplayItems($selectedProposal);
 
-            return $this->render('proposal', $displayElements);
+            return $this->render('proposal', $displayItems);
         }
-
 
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
         $notApprovedProposals = $this->getNotApprovedProposals($approvedProposalsQuery);
 
-       return $this->render('manage-proposals', [
+        return $this->render('manage-proposals', [
            'approvedProposals' => $approvedProposals,
            'notApprovedProposals' => $notApprovedProposals
-       ]);
+        ]);
     }
 
     private function buildApprovedProposalsQuery()

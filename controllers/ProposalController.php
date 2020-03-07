@@ -277,7 +277,7 @@ class ProposalController extends MainController
                 ]
             ]
         ]);
-
+        //dd($noReviewedAndNoPublishedProposalsForAReviewer);
         return $noReviewedAndNoPublishedProposalsForAReviewer;
     }
 
@@ -683,34 +683,47 @@ class ProposalController extends MainController
     {
         //  Propositions approuvés non publiées, proposition pas encore approuvées non publiées
         // tri par nombre de reviews
-       $prop1 = new ActiveDataProvider([
-           'query' => Proposal::find()->innerJoinWith('review')
+
+        $approvedProposals = new ActiveDataProvider([
+            'query' => Proposal::find()
+                ->select('proposal.*')
+                ->where('1 = CASE 
+                WHEN 
+                    ((((SELECT COUNT(*) FROM review 
+                        WHERE review.status = \'approved\' AND review.proposal_id = proposal.id)
+                        /
+                        (SELECT COUNT(*) FROM review
+                        WHERE review.proposal_id = proposal.id))
+                    *100)  
+                    >= ' . yii\helpers\Html::encode(ProposalApprovementSetting::getApprovementPercent()). ') 
+                    THEN 1 
+                ELSE 0 
+                END')
+                ->andWhere(['status' => ['pending']])
+                ->andWhere('1 = CASE
+                WHEN
+                    ((SELECT COUNT(*) FROM review
+                    WHERE review.proposal_id = proposal.id)
+                    >= ' . yii\helpers\Html::encode(ProposalApprovementSetting::getRequiredNumberOfReview()) . ')
+                    THEN 1
+                ELSE 0
+                END'),
+           'pagination' => [
+               'pageSize' => 20,
+               'defaultPageSize' => 20
+           ],
+           'sort' => [
+               'sortParam' => 'approvedSort',
+               'attributes' => ['date', 'title'],
+               'defaultOrder' => [
+                   'date' => SORT_DESC,
+                   'title' => SORT_ASC
+               ]
+           ]
        ]);
 
-        /* $reviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
-            'query' => Proposal::find()
-                ->where([
-                    'in',
-                    'id',
-                    (new Query())
-                        ->select('proposal_id')
-                        ->from('review')
-                        ->where(['reviewer_id' => self::getCurrentUser()->id])
-                        ->column()
-                ])
-                ->andWhere(['status' => 'pending']),
-            'pagination' => [
-                'pageSize' => 20,
-                'defaultPageSize' => 20
-            ],
-            'sort' => [
-                'sortParam' => 'historySort',
-                'attributes' => ['date', 'title'],
-                'defaultOrder' => [
-                    'date' => SORT_DESC,
-                    'title' => SORT_ASC
-                ]
-            ]
-        ]);*/
+       return $this->render('manage-proposals', [
+       'approvedProposals' => $approvedProposals
+       ]);
     }
 }

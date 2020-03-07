@@ -1,6 +1,6 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $approvedProposals  */
-/**  @var \yii\data\ActiveDataProvider $notapprovedProposals*/
+/**  @var \yii\data\ActiveDataProvider $notApprovedProposals*/
 ?>
 <strong>Reviewer's approved proposals</strong>
 <?= yii\grid\GridView::widget([

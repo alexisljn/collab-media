@@ -684,10 +684,21 @@ class ProposalController extends MainController
         //  Propositions approuvés non publiées, proposition pas encore approuvées non publiées
         // tri par nombre de reviews
 
-        $approvedProposals = new ActiveDataProvider([
-            'query' => Proposal::find()
-                ->select('proposal.*')
-                ->where('1 = CASE 
+        $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
+        $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
+        $notApprovedProposals = $this->getNotApprovedProposals($approvedProposalsQuery);
+
+       return $this->render('manage-proposals', [
+           'approvedProposals' => $approvedProposals,
+           'notApprovedProposals' => $notApprovedProposals
+       ]);
+    }
+
+    private function buildApprovedProposalsQuery()
+    {
+        $approvedProposalsQuery = Proposal::find()
+            ->select('proposal.*')
+            ->where('1 = CASE 
                 WHEN 
                     ((((SELECT COUNT(*) FROM review 
                         WHERE review.status = \'approved\' AND review.proposal_id = proposal.id)
@@ -699,31 +710,69 @@ class ProposalController extends MainController
                     THEN 1 
                 ELSE 0 
                 END')
-                ->andWhere(['status' => ['pending']])
-                ->andWhere('1 = CASE
+            ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING])
+            ->andWhere('1 = CASE
                 WHEN
                     ((SELECT COUNT(*) FROM review
                     WHERE review.proposal_id = proposal.id)
                     >= ' . yii\helpers\Html::encode(ProposalApprovementSetting::getRequiredNumberOfReview()) . ')
                     THEN 1
                 ELSE 0
-                END'),
-           'pagination' => [
-               'pageSize' => 20,
-               'defaultPageSize' => 20
-           ],
-           'sort' => [
-               'sortParam' => 'approvedSort',
-               'attributes' => ['date', 'title'],
-               'defaultOrder' => [
-                   'date' => SORT_DESC,
-                   'title' => SORT_ASC
-               ]
-           ]
-       ]);
+                END');
 
-       return $this->render('manage-proposals', [
-       'approvedProposals' => $approvedProposals
-       ]);
+        return $approvedProposalsQuery;
+    }
+
+    private function buildApprovedProposalsActiveDataProvider(yii\db\ActiveQuery $approvedProposalsQuery)
+    {
+        $approvedProposals = new ActiveDataProvider([
+            'query' => $approvedProposalsQuery,
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'approvedSort',
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+
+        return $approvedProposals;
+    }
+
+    private function getNotApprovedProposals(yii\db\ActiveQuery$approvedProposalsQuery)
+    {
+        $approvedProposals = $approvedProposalsQuery->all();
+        $approvedProposalsId = array();
+
+        foreach ($approvedProposals as $approvedProposal) {
+                array_push($approvedProposalsId, $approvedProposal->id);
+        }
+
+        $notApprovedProposals = new ActiveDataProvider([
+            'query' => Proposal::find()
+                ->where([
+                    'not in', 'id', $approvedProposalsId
+                ])
+                ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING]),
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'approvedSort',
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+
+        return $notApprovedProposals;
     }
 }

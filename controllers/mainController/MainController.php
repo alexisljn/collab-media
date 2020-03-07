@@ -108,6 +108,24 @@ class MainController extends Controller
                 ],
             ],
             [
+                'title' => 'Publisher',
+                'url' => '/proposal/manage-proposals',
+                'roleNeeded' => User::USER_ROLE_PUBLISHER,
+                'activeActions' => [
+                    'proposal' => ['manage-proposals']
+                ],
+                'children' => [
+                    [
+                        'title' => 'Manage proposals',
+                        'url' => '/proposal/manage-proposals',
+                        'roleNeeded' => User::USER_ROLE_PUBLISHER,
+                        'activeActions' => [
+                            'proposal' => ['manage-proposals']
+                        ],
+                    ]
+                ]
+            ],
+            [
                 'title' => 'Manage',
                 'url' => '/management/accounts',
                 'roleNeeded' => User::USER_ROLE_ADMIN,

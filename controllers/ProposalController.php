@@ -757,7 +757,6 @@ class ProposalController extends MainController
      */
     public function actionManageProposals($id = null)
     {
-        /** @TODO tri par nombre de reviews */
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $displayItems = $this->buildOneProposalDisplayItems($selectedProposal);
@@ -777,8 +776,8 @@ class ProposalController extends MainController
 
     private function buildApprovedProposalsQuery()
     {
-        $approvedProposalsQuery = Proposal::find()
-            ->select('proposal.*')
+        return \app\models\Proposal::find()
+            ->select('proposal.*, (SELECT COUNT(*) FROM review WHERE review.proposal_id = proposal.id) as count_reviews')
             ->where('1 = CASE 
                 WHEN 
                     ((((SELECT COUNT(*) FROM review 
@@ -791,7 +790,7 @@ class ProposalController extends MainController
                     THEN 1 
                 ELSE 0 
                 END')
-            ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING])
+            ->andWhere(['proposal.status' => \app\models\Proposal::STATUS_PENDING])
             ->andWhere('1 = CASE
                 WHEN
                     ((SELECT COUNT(*) FROM review
@@ -800,13 +799,11 @@ class ProposalController extends MainController
                     THEN 1
                 ELSE 0
                 END');
-
-        return $approvedProposalsQuery;
     }
 
     private function buildApprovedProposalsActiveDataProvider(yii\db\ActiveQuery $approvedProposalsQuery)
     {
-        $approvedProposals = new ActiveDataProvider([
+        return new ActiveDataProvider([
             'query' => $approvedProposalsQuery,
             'pagination' => [
                 'pageSize' => 20,
@@ -814,15 +811,14 @@ class ProposalController extends MainController
             ],
             'sort' => [
                 'sortParam' => 'approvedSort',
-                'attributes' => ['date', 'title'],
+                'attributes' => ['count_reviews', 'date', 'title'],
                 'defaultOrder' => [
+                    'count_reviews' => SORT_DESC,
                     'date' => SORT_DESC,
                     'title' => SORT_ASC
                 ]
             ]
         ]);
-
-        return $approvedProposals;
     }
 
     private function getNotApprovedProposals(yii\db\ActiveQuery$approvedProposalsQuery)
@@ -834,8 +830,9 @@ class ProposalController extends MainController
                 array_push($approvedProposalsId, $approvedProposal->id);
         }
 
-        $notApprovedProposals = new ActiveDataProvider([
-            'query' => Proposal::find()
+        return new ActiveDataProvider([
+            'query' => \app\models\Proposal::find()
+                ->select('proposal.*, (SELECT COUNT(*) FROM review WHERE review.proposal_id = proposal.id) as count_reviews')
                 ->where([
                     'not in', 'id', $approvedProposalsId
                 ])
@@ -845,15 +842,14 @@ class ProposalController extends MainController
                 'defaultPageSize' => 20
             ],
             'sort' => [
-                'sortParam' => 'approvedSort',
-                'attributes' => ['date', 'title'],
+                'sortParam' => 'notApprovedSort',
+                'attributes' => ['count_reviews', 'date', 'title'],
                 'defaultOrder' => [
+                    'count_reviews' => SORT_DESC,
                     'date' => SORT_DESC,
                     'title' => SORT_ASC
                 ]
             ]
         ]);
-
-        return $notApprovedProposals;
     }
 }

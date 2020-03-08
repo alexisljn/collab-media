@@ -12,7 +12,7 @@
             'format' => 'raw',
             'value' => function($proposal)
             {
-                /** @var \app\models\databaseModels\Proposal $proposal */
+                /** @var \app\models\Proposal $proposal */
                 /** @TODO link manage-proposal/id */
                 return '<a href="/proposal/manage-proposals/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
@@ -25,6 +25,11 @@
         [
             'attribute' => 'status',
             'label' => 'Status',
+            'format' => 'raw',
+        ],
+        [
+            'attribute' => 'count_reviews',
+            'label' => 'Reviews',
             'format' => 'raw',
         ]
     ]
@@ -54,6 +59,11 @@
             'attribute' => 'status',
             'label' => 'Status',
             'format' => 'raw',
+        ],
+        [
+            'attribute' => 'count_reviews',
+            'label' => 'Reviews',
+            'format' => 'raw'
         ]
     ]
 ]);

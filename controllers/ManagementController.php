@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
 
+use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\SocialMediaPermission;
@@ -9,6 +10,7 @@ use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
 use app\models\forms\ModifySocialMediaInformationsForm;
 use app\models\forms\ModifySocialMediaPermissionForm;
+use PHPMailer\PHPMailer\Exception;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
 use yii\web\NotFoundHttpException;
@@ -166,6 +168,7 @@ class ManagementController extends MainController
      *
      * @return string
      * @throws CannotSaveException
+     * @throws Exception
      */
     public function actionCreateAccount()
     {
@@ -184,6 +187,7 @@ class ManagementController extends MainController
      *
      * @param CreateAccountForm $form
      * @throws CannotSaveException
+     * @throws Exception
      */
     private function createAccount(CreateAccountForm $form)
     {
@@ -196,10 +200,13 @@ class ManagementController extends MainController
         $user->is_active = true;
         $user->role = $form->role;
 
+        $token = $this->createUserToken();
+
         if (!$user->save()) {
 
             throw new CannotSaveException($user);
         }
+        $this->mailToUserPasswordCreation($user);
         $this->redirect("/management/accounts/" . $user->id);
 
     }
@@ -283,5 +290,36 @@ class ManagementController extends MainController
             throw new CannotSaveException($socialMedia);
         }
     }
-}
-?>
+
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \PHPMailer\PHPMailer\Exception
+     */
+    private function mailToUserPasswordCreation(User $user)
+    {
+        $mail = Util::getConfiguredMailerForMailhog();
+        $mail->addAddress($user->email);
+        $mail->isHTML(false);
+        $mail->CharSet = 'UTF-8';
+
+        $mail->Subject = "Account's creation for " . $user->firstname . " " . $user->lastname;
+        $mail->Body = 'Click on the following link to create your password :' ;
+
+        try {
+            if(!$mail->send()) {
+                return false;
+            }
+        } catch(Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function createUserToken()
+    {
+        $token = Util::getRandomString(32);
+    }
+}?>

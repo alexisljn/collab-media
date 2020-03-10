@@ -39,13 +39,13 @@ class ProposalController extends MainController
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-            $displayItems = $this->buildOneProposalDisplayItems($selectedProposal);
+            $viewItems = $this->buildOneProposalViewItems($selectedProposal);
 
-            return $this->render('proposal', $displayItems);
+            return $this->render('proposal', $viewItems);
         }
 
-        $myPendingProposals = $this->getMyPendingProposals();
-        $myNotPendingProposals = $this->getMyNotPendingProposals();
+        $myPendingProposals = $this->buildMyPendingProposalsActiveDataProvider();
+        $myNotPendingProposals = $this->buildMyNotPendingProposalsActiveDataProvider();
 
         return $this->render('my-proposals',[
             'myPendingProposals' => $myPendingProposals,
@@ -60,7 +60,7 @@ class ProposalController extends MainController
      * @param Proposal $selectedProposal
      * @return array
      */
-    private function buildOneProposalDisplayItems(Proposal $selectedProposal)
+    private function buildOneProposalViewItems(Proposal $selectedProposal)
     {
         $chronologicalStream = $this->generateChronologicalStream
         (
@@ -69,23 +69,19 @@ class ProposalController extends MainController
             $selectedProposal->proposalContentHistories,
             $selectedProposal->proposalFileHistories,
 
-            );
+        );
         $lastProposalContent = $selectedProposal->proposalContentHistories[
-        count($selectedProposal->proposalContentHistories)-1
+            count($selectedProposal->proposalContentHistories)-1
         ];
-
         $approvalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
             ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
             ->count();
-
         $disapprovalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
             ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
             ->count();
-
         $manageProposalFormModel = new ManageProposalForm();
         $manageProposalFormModel->title = $selectedProposal->title;
         $manageProposalFormModel->content = $lastProposalContent->content;
-
         $manageCommentFormModel = new ManageCommentForm();
 
         return [
@@ -183,7 +179,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getMyPendingProposals(): ActiveDataProvider
+    private function buildMyPendingProposalsActiveDataProvider(): ActiveDataProvider
     {
         $myPendingProposals = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -216,7 +212,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getMyNotPendingProposals(): ActiveDataProvider
+    private function buildMyNotPendingProposalsActiveDataProvider(): ActiveDataProvider
     {
         $myReviewedProposals = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -242,8 +238,8 @@ class ProposalController extends MainController
      */
     public function actionReviewerPendingProposals(): string
     {
-        $noReviewedProposalsByAReviewerDataProvider = $this->getNoReviewedAndNoPublishedProposalsForAReviewer();
-        $reviewedProposalsByAReviewerDataProvider = $this->getReviewedAndNoPublishedProposalsForAReviewer();
+        $noReviewedProposalsByAReviewerDataProvider = $this->buildNoReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider();
+        $reviewedProposalsByAReviewerDataProvider = $this->buildReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider();
 
         return $this->render('reviewer-pending-proposals', [
             'noReviewedProposalsByAReviewerDataProvider' => $noReviewedProposalsByAReviewerDataProvider,
@@ -256,7 +252,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getNoReviewedAndNoPublishedProposalsForAReviewer(): ActiveDataProvider
+    private function buildNoReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider(): ActiveDataProvider
     {
         $noReviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -300,7 +296,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getReviewedAndNoPublishedProposalsForAReviewer(): ActiveDataProvider
+    private function buildReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider(): ActiveDataProvider
     {
         $reviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -685,7 +681,8 @@ class ProposalController extends MainController
      * @param int $commentId
      * @return Comment
      */
-    private function checkIfCommentExists(int $commentId): Comment {
+    private function checkIfCommentExists(int $commentId): Comment
+    {
         $notFoundException = NotFoundHttpException::class;
 
         if(is_null($comment = Comment::findOne(['id' => $commentId]))) {
@@ -701,10 +698,11 @@ class ProposalController extends MainController
      *
      * @param Comment $comment
      */
-    private function checkIfUserIsOwnerOfComment(Comment $comment) {
+    private function checkIfUserIsOwnerOfComment(Comment $comment)
+    {
         $unauthorizedException = NotFoundHttpException::class;
 
-        if (MainController::getCurrentUser()->role == User::USER_ROLE_ADMIN) {
+        if (MainController::getCurrentUser()->role === User::USER_ROLE_ADMIN) {
             return;
         }
 
@@ -720,7 +718,8 @@ class ProposalController extends MainController
      *
      * @param Comment $comment
      */
-    private function checkIfCommentIsFromCurrentProposal(Comment $comment, int $proposalId) {
+    private function checkIfCommentIsFromCurrentProposal(Comment $comment, int $proposalId)
+    {
         $unauthorizedException = NotFoundHttpException::class;
 
             if($comment->proposal->id == $proposalId) {
@@ -759,14 +758,14 @@ class ProposalController extends MainController
     {
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
-            $displayItems = $this->buildOneProposalDisplayItems($selectedProposal);
+            $viewItems = $this->buildOneProposalViewItems($selectedProposal);
 
-            return $this->render('proposal', $displayItems);
+            return $this->render('proposal', $viewItems);
         }
 
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
-        $notApprovedProposals = $this->getNotApprovedProposals($approvedProposalsQuery);
+        $notApprovedProposals = $this->buildNotApprovedProposalsActiveDataProvider($approvedProposalsQuery);
 
         return $this->render('manage-proposals', [
            'approvedProposals' => $approvedProposals,
@@ -774,6 +773,13 @@ class ProposalController extends MainController
         ]);
     }
 
+    /**
+     * Build the query for retreive approved proposals
+     * and returns it without execution, to pass
+     * it into an ActiveDataProvider
+     *
+     * @return yii\db\ActiveQuery
+     */
     private function buildApprovedProposalsQuery()
     {
         return \app\models\Proposal::find()
@@ -801,6 +807,13 @@ class ProposalController extends MainController
                 END');
     }
 
+    /**
+     * Returns an ActiveDataProvider for the
+     * approved proposals.
+     *
+     * @param yii\db\ActiveQuery $approvedProposalsQuery
+     * @return ActiveDataProvider
+     */
     private function buildApprovedProposalsActiveDataProvider(yii\db\ActiveQuery $approvedProposalsQuery)
     {
         return new ActiveDataProvider([
@@ -821,11 +834,19 @@ class ProposalController extends MainController
         ]);
     }
 
-    private function getNotApprovedProposals(yii\db\ActiveQuery$approvedProposalsQuery)
+    /**
+     * Returns an ActiveDataProvider for the not
+     * approved proposals by using the approvedProposalsQuery
+     *
+     * @param yii\db\ActiveQuery $approvedProposalsQuery
+     * @return ActiveDataProvider
+     */
+    private function buildNotApprovedProposalsActiveDataProvider(yii\db\ActiveQuery$approvedProposalsQuery)
     {
         $approvedProposals = $approvedProposalsQuery->all();
         $approvedProposalsId = array();
 
+        /** @var Proposal $approvedProposal */
         foreach ($approvedProposals as $approvedProposal) {
                 array_push($approvedProposalsId, $approvedProposal->id);
         }

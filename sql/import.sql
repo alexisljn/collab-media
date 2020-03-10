@@ -892,35 +892,36 @@ CREATE TABLE `user` (
   `password_hash` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `role` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_validated` bit(1) NOT NULL COMMENT 'true if user validated his account by choosing his password',
-  `is_active` bit(1) NOT NULL COMMENT 'true if account is active by admin'
+  `is_active` bit(1) NOT NULL COMMENT 'true if account is active by admin',
+  `token` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Déchargement des données de la table `user`
 --
 
-INSERT INTO `user` (`id`, `firstname`, `lastname`, `email`, `password_hash`, `role`, `is_validated`, `is_active`) VALUES
-(1, 'User', 'One', 'user1@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(2, 'User', 'Two', 'user2@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(3, 'User', 'Three', 'user3@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(4, 'User', 'Four', 'user4@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(5, 'User', 'Five', 'user5@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(6, 'User', 'Six', 'user6@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(7, 'User', 'Seven', 'user7@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(8, 'User', 'Height', 'user8@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(9, 'User', 'Nine', 'user9@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(10, 'User', 'Ten', 'user10@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(11, 'User', 'Eleven', 'user11@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(12, 'User', 'Twelve', 'user12@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1'),
-(13, 'Reviewer', 'One', 'reviewer1@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1'),
-(14, 'Reviewer', 'Two', 'reviewer2@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1'),
-(15, 'Reviewer', 'Three', 'reviewer3@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1'),
-(16, 'Reviewer', 'Four', 'reviewer4@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1'),
-(17, 'Reviewer', 'Five', 'reviewer5@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1'),
-(18, 'Publisher', 'One', 'publisher1@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'publisher', b'1', b'1'),
-(19, 'Publisher', 'Two', 'publisher2@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'publisher', b'1', b'1'),
-(20, 'Publisher', 'Three', 'publisher3@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'publisher', b'1', b'1'),
-(21, 'Admin', 'Admin', 'admin@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'admin', b'1', b'1');
+INSERT INTO `user` (`id`, `firstname`, `lastname`, `email`, `password_hash`, `role`, `is_validated`, `is_active`, `token`) VALUES
+(1, 'User', 'One', 'user1@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'nYWUJnrJqmMnhmV2vVlY'),
+(2, 'User', 'Two', 'user2@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'gealvHvh4obVPgnNRJLg'),
+(3, 'User', 'Three', 'user3@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'fBHkOJuXBxBxQfFJuQJV'),
+(4, 'User', 'Four', 'user4@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'AIWMbBTgoZ8YdWKr8atI'),
+(5, 'User', 'Five', 'user5@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'XKFPXxaPIfKmJ0Lg80N2'),
+(6, 'User', 'Six', 'user6@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'JhRlqCqAzWN7ycSaab0N'),
+(7, 'User', 'Seven', 'user7@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'hsxtM789G6IV1rrBqkrp'),
+(8, 'User', 'Height', 'user8@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'yEoH3UmuBT9bAYj908Dv'),
+(9, 'User', 'Nine', 'user9@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'jRZJss9Q5S3D8Fjmng2r'),
+(10, 'User', 'Ten', 'user10@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'vLISr1CXK1kjnuEBlYTM'),
+(11, 'User', 'Eleven', 'user11@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'gKeLHjy2aFUHLmIukEvd'),
+(12, 'User', 'Twelve', 'user12@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'user', b'1', b'1', 'Ht1k8GfWBks3xGcaAqZ4'),
+(13, 'Reviewer', 'One', 'reviewer1@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1', '9QDn54xFqkZfuROaG16s'),
+(14, 'Reviewer', 'Two', 'reviewer2@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1', '1ihwnwZAq7vTyOzA2FfE'),
+(15, 'Reviewer', 'Three', 'reviewer3@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1', 'F9s6UCjb2jggZw1aXs7L'),
+(16, 'Reviewer', 'Four', 'reviewer4@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1', 'Wb66vsZ6VrAB2QG9EUIl'),
+(17, 'Reviewer', 'Five', 'reviewer5@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'reviewer', b'1', b'1', 'V4VXL1xQPDpuhqFDHHUX'),
+(18, 'Publisher', 'One', 'publisher1@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'publisher', b'1', b'1', 'Q8EqAqSw2bGTIAfto2Bp'),
+(19, 'Publisher', 'Two', 'publisher2@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'publisher', b'1', b'1', '917hKInXCKUU4ZGsS2mo'),
+(20, 'Publisher', 'Three', 'publisher3@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'publisher', b'1', b'1', 'ZbkWhElQti1mbLN96wP2'),
+(21, 'Admin', 'Admin', 'admin@example.com', '$2y$12$6aCGJP/DVYCYxtID87.DEuPjrvFWZOtuU2oGWLzNyCxdq9ODEkcDe', 'admin', b'1', b'1', '732QjW54V6RBGOsntdTI');
 
 --
 -- Index pour les tables déchargées

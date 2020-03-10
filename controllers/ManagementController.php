@@ -5,6 +5,7 @@ use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\SocialMediaPermission;
+use app\models\exceptions\CannotCreateTokenException;
 use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
@@ -188,6 +189,7 @@ class ManagementController extends MainController
      * @param CreateAccountForm $form
      * @throws CannotSaveException
      * @throws Exception
+     * @throws \Exception
      */
     private function createAccount(CreateAccountForm $form)
     {
@@ -199,11 +201,20 @@ class ManagementController extends MainController
         $user->is_validated = false;
         $user->is_active = true;
         $user->role = $form->role;
+        $token_try = 0;
 
-        $token = $this->createUserToken();
+        do {
+            $token = $this->createUserToken();
+            $token_try++;
+        } while (!is_null(User::findOne(['token' => $token])) AND $token_try < 10);
+
+        if($token_try == 10) {
+            throw new CannotCreateTokenException();
+        }
+
+        $user->token = $token;
 
         if (!$user->save()) {
-
             throw new CannotSaveException($user);
         }
         $this->mailToUserPasswordCreation($user);
@@ -304,7 +315,7 @@ class ManagementController extends MainController
         $mail->CharSet = 'UTF-8';
 
         $mail->Subject = "Account's creation for " . $user->firstname . " " . $user->lastname;
-        $mail->Body = 'Click on the following link to create your password :' ;
+        $mail->Body = 'Click on the following link to create your password : http://127.0.0.1:8000/site/validate-account/' . $user->token ;
 
         try {
             if(!$mail->send()) {
@@ -320,6 +331,6 @@ class ManagementController extends MainController
      */
     private function createUserToken()
     {
-        $token = Util::getRandomString(32);
+        return Util::getRandomString(32);
     }
 }?>

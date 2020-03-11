@@ -5,6 +5,7 @@ namespace app\components;
 
 
 use app\models\exceptions\StaticClassNotInstantiableException;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class Util
 {
@@ -15,6 +16,10 @@ class Util
         'gif' => '15000000',
         'mp4' => '15000000',
     ];
+    public const RANDOM_STRING_ALPHABET_LOWERCASE = 'abcdefghijklmnopqrstuvwxyz';
+    public const RANDOM_STRING_ALPHABET_UPPERCASE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    public const RANDOM_STRING_NUMERIC = "0123456789";
+    public const RANDOM_STRING_ALPHANUMERIC_ALL_CASE = self::RANDOM_STRING_ALPHABET_LOWERCASE . self::RANDOM_STRING_ALPHABET_UPPERCASE . self::RANDOM_STRING_NUMERIC;
 
     public function __construct()
     {
@@ -54,5 +59,39 @@ class Util
         }
 
         return $object;
+    }
+
+    /**
+     * @param bool $enableExceptions
+     * @return PHPMailer
+     * @throws \PHPMailer\PHPMailer\Exception
+     */
+    public static function getConfiguredMailerForMailhog(bool $enableExceptions = true): PHPMailer
+    {
+        $phpMailer = new PHPMailer($enableExceptions);
+
+        $phpMailer->Host = 'mailhog';
+        $phpMailer->isSMTP();
+        $phpMailer->SMTPAuth = false;
+        $phpMailer->Port = '1025';
+
+        $phpMailer->setFrom('no-reply@collab-media.com');
+
+        return $phpMailer;
+    }
+
+    /**
+     * @param $length
+     * @param string $characters
+     * @return string
+     * @throws \Exception
+     */
+    public static function getRandomString($length, $characters = self::RANDOM_STRING_ALPHANUMERIC_ALL_CASE)
+    {
+        $string = '';
+        for($i = 0; $i < $length; ++$i) {
+            $string .= $characters[random_int(0, mb_strlen($characters)-1)];
+        }
+        return $string;
     }
 }

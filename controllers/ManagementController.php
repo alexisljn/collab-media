@@ -1,14 +1,17 @@
 <?php
 namespace app\controllers;
 
+use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\SocialMediaPermission;
+use app\models\exceptions\CannotCreateTokenException;
 use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
 use app\models\forms\ModifySocialMediaInformationsForm;
 use app\models\forms\ModifySocialMediaPermissionForm;
+use PHPMailer\PHPMailer\Exception;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
 use yii\web\NotFoundHttpException;
@@ -172,7 +175,7 @@ class ManagementController extends MainController
         $form = new CreateAccountForm();
 
         if($form->load($_POST) && $form->validate()) {
-            $this->createAccount($form);
+                $this->createAccount($form);
         }
         return $this->render('create-account', [
             'model'=>$form,
@@ -184,6 +187,9 @@ class ManagementController extends MainController
      *
      * @param CreateAccountForm $form
      * @throws CannotSaveException
+     * @throws \PHPMailer\PHPMailer\Exception
+     * @throws CannotCreateTokenException
+     * @throws \Exception
      */
     private function createAccount(CreateAccountForm $form)
     {
@@ -195,11 +201,24 @@ class ManagementController extends MainController
         $user->is_validated = false;
         $user->is_active = true;
         $user->role = $form->role;
+        $token_try = 0;
+
+        do {
+            $token = $this->createUserToken();
+            $token_try++;
+        } while (!is_null(User::findOne(['token' => $token])) AND $token_try < 10);
+
+        if($token_try == 10) {
+            throw new CannotCreateTokenException();
+        }
+
+        $user->token = $token;
 
         if (!$user->save()) {
 
             throw new CannotSaveException($user);
         }
+        $this->mailToUserPasswordCreation($user);
         $this->redirect("/management/accounts/" . $user->id);
 
     }
@@ -282,6 +301,38 @@ class ManagementController extends MainController
         if(!$socialMedia->save()){
             throw new CannotSaveException($socialMedia);
         }
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \PHPMailer\PHPMailer\Exception
+     */
+    private function mailToUserPasswordCreation(User $user)
+    {
+        $mail = Util::getConfiguredMailerForMailhog();
+        $mail->addAddress($user->email);
+        $mail->isHTML(false);
+        $mail->CharSet = 'UTF-8';
+
+        $mail->Subject = "Account's creation for " . $user->firstname . " " . $user->lastname;
+        $mail->Body = 'Click on the following link to create your password : http://127.0.0.1:8000/site/validate-account/' . $user->token ;
+
+        try {
+            if(!$mail->send()) {
+                return false;
+            }
+        } catch(Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * @throws \Exception
+     */
+    private function createUserToken()
+    {
+        return Util::getRandomString(32);
     }
 }
 ?>

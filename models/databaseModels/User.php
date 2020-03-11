@@ -15,6 +15,7 @@ use Yii;
  * @property string $role
  * @property bool $is_validated true if user validated his account by choosing his password
  * @property bool $is_active true if account is active by admin
+ * @property string|null $token
  *
  * @property Comment[] $comments
  * @property Proposal[] $proposals
@@ -43,7 +44,7 @@ class User extends \yii\db\ActiveRecord
             [['firstname', 'role'], 'string', 'max' => 32],
             [['lastname'], 'string', 'max' => 64],
             [['email', 'password_hash'], 'string', 'max' => 255],
-            [['email'], 'unique'],
+            [['email', 'token'], 'unique'],
         ];
     }
 
@@ -61,6 +62,7 @@ class User extends \yii\db\ActiveRecord
             'role' => 'Role',
             'is_validated' => 'Is Validated',
             'is_active' => 'Is Active',
+            'token' => 'User Token',
         ];
     }
 

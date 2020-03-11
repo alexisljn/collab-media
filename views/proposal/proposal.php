@@ -109,7 +109,7 @@ use yii\widgets\ActiveForm; ?>
                             <?php
                             $manageCommentForm = yii\widgets\ActiveForm::begin([
                                 'id' => 'comment-form-' . $chronologicalItem->id,
-                                'action' => '/proposal/edit-comment/',
+                                'action' => '/proposal/edit-comment/'. $selectedProposal->id,
                             ]);
                             ?>
                             <?= $manageCommentForm

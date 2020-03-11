@@ -17,6 +17,7 @@ use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
+use app\models\ProposalApprovementSetting;
 use app\models\User;
 use yii\data\ActiveDataProvider;
 use yii\db\Query;
@@ -34,53 +35,64 @@ class ProposalController extends MainController
      */
     public function actionMyProposals(int $id = null): string
     {
+
         if (!is_null($id)) {
             $selectedProposal = $this->checkIfProposalExists($id);
             $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-            $chronologicalStream = $this->generateChronologicalStream
-            (
-                $selectedProposal->comments,
-                $selectedProposal->reviews,
-                $selectedProposal->proposalContentHistories,
-                $selectedProposal->proposalFileHistories,
+            $viewItems = $this->buildOneProposalViewItems($selectedProposal);
 
-            );
-            $lastProposalContent = $selectedProposal->proposalContentHistories[
-                count($selectedProposal->proposalContentHistories)-1
-            ];
-
-            $approvalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
-                ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
-                ->count();
-
-            $disapprovalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
-                ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
-                ->count();
-
-            $manageProposalFormModel = new ManageProposalForm();
-            $manageProposalFormModel->title = $selectedProposal->title;
-            $manageProposalFormModel->content = $lastProposalContent->content;
-
-            $manageCommentFormModel = new ManageCommentForm();
-
-            return $this->render('proposal', [
-                'selectedProposal' => $selectedProposal,
-                'lastProposalContent' => $lastProposalContent,
-                'chronologicalStream' => $chronologicalStream,
-                'approvalsCount' => $approvalsCount,
-                'disapprovalsCount' => $disapprovalsCount,
-                'manageProposalFormModel' => $manageProposalFormModel,
-                'manageCommentFormModel' => $manageCommentFormModel
-            ]);
+            return $this->render('proposal', $viewItems);
         }
 
-        $myPendingProposals = $this->getMyPendingProposals();
-        $myNotPendingProposals = $this->getMyNotPendingProposals();
+        $myPendingProposals = $this->buildMyPendingProposalsActiveDataProvider();
+        $myNotPendingProposals = $this->buildMyNotPendingProposalsActiveDataProvider();
 
         return $this->render('my-proposals',[
             'myPendingProposals' => $myPendingProposals,
             'myNotPendingProposals' => $myNotPendingProposals
         ]);
+    }
+
+    /**
+     * Build needed Items to be displayed in single
+     * proposal consultation.
+     *
+     * @param Proposal $selectedProposal
+     * @return array
+     */
+    private function buildOneProposalViewItems(Proposal $selectedProposal)
+    {
+        $chronologicalStream = $this->generateChronologicalStream
+        (
+            $selectedProposal->comments,
+            $selectedProposal->reviews,
+            $selectedProposal->proposalContentHistories,
+            $selectedProposal->proposalFileHistories,
+
+        );
+        $lastProposalContent = $selectedProposal->proposalContentHistories[
+            count($selectedProposal->proposalContentHistories)-1
+        ];
+        $approvalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
+            ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
+            ->count();
+        $disapprovalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
+            ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
+            ->count();
+        $manageProposalFormModel = new ManageProposalForm();
+        $manageProposalFormModel->title = $selectedProposal->title;
+        $manageProposalFormModel->content = $lastProposalContent->content;
+        $manageCommentFormModel = new ManageCommentForm();
+
+        return [
+            'selectedProposal' => $selectedProposal,
+            'lastProposalContent' => $lastProposalContent,
+            'chronologicalStream' => $chronologicalStream,
+            'approvalsCount' => $approvalsCount,
+            'disapprovalsCount' => $disapprovalsCount,
+            'manageProposalFormModel' => $manageProposalFormModel,
+            'manageCommentFormModel' => $manageCommentFormModel
+        ];
     }
 
     /**
@@ -167,7 +179,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getMyPendingProposals(): ActiveDataProvider
+    private function buildMyPendingProposalsActiveDataProvider(): ActiveDataProvider
     {
         $myPendingProposals = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -200,7 +212,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getMyNotPendingProposals(): ActiveDataProvider
+    private function buildMyNotPendingProposalsActiveDataProvider(): ActiveDataProvider
     {
         $myReviewedProposals = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -226,8 +238,8 @@ class ProposalController extends MainController
      */
     public function actionReviewerPendingProposals(): string
     {
-        $noReviewedProposalsByAReviewerDataProvider = $this->getNoReviewedAndNoPublishedProposalsForAReviewer();
-        $reviewedProposalsByAReviewerDataProvider = $this->getReviewedAndNoPublishedProposalsForAReviewer();
+        $noReviewedProposalsByAReviewerDataProvider = $this->buildNoReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider();
+        $reviewedProposalsByAReviewerDataProvider = $this->buildReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider();
 
         return $this->render('reviewer-pending-proposals', [
             'noReviewedProposalsByAReviewerDataProvider' => $noReviewedProposalsByAReviewerDataProvider,
@@ -240,7 +252,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getNoReviewedAndNoPublishedProposalsForAReviewer(): ActiveDataProvider
+    private function buildNoReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider(): ActiveDataProvider
     {
         $noReviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -284,7 +296,7 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function getReviewedAndNoPublishedProposalsForAReviewer(): ActiveDataProvider
+    private function buildReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider(): ActiveDataProvider
     {
         $reviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
             'query' => Proposal::find()
@@ -495,7 +507,6 @@ class ProposalController extends MainController
         $lastProposalContent = $editedProposal->proposalContentHistories[
             count($editedProposal->proposalContentHistories)-1];
         $model = New ManageProposalForm();
-        $postRequest = Yii::$app->request->post();
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $transaction = Yii::$app->db->beginTransaction();
@@ -585,7 +596,13 @@ class ProposalController extends MainController
         }
     }
 
-
+    /**
+     * Verify if user can comment a proposal
+     * then call the saveComment method
+     *
+     * @return yii\web\Response
+     * @throws CannotSaveException
+     */
     public function actionPostComment()
     {
         $model = new ManageCommentForm();
@@ -599,7 +616,15 @@ class ProposalController extends MainController
         return $this->redirect('/proposal/my-proposals/'. $proposalId);
     }
 
-    public function actionEditComment()
+    /**
+     * Create a form populated by user's input then
+     * it checks if user is allowed to edit a comment
+     * and save it if true.
+     *
+     * @return yii\web\Response
+     * @throws CannotSaveException
+     */
+    public function actionEditComment(int $id)
     {
         $model = new ManageCommentForm();
         $model->id = Yii::$app->request->post()['ManageCommentForm']['id'];
@@ -607,7 +632,7 @@ class ProposalController extends MainController
             $supposedCommentId = $model->id;
             $originalComment = $this->checkIfCommentExists($supposedCommentId);
             $this->checkIfUserIsOwnerOfComment($originalComment);
-            $this->checkIfCommentIsFromCurrentProposal($originalComment);
+            $this->checkIfCommentIsFromCurrentProposal($originalComment, $id);
             $this->canAUserCommentAProposal($this->checkIfProposalExists($originalComment->proposal_id)->submitter_id);
             $this->saveEditedComment($originalComment, $model->content);
         }
@@ -615,6 +640,13 @@ class ProposalController extends MainController
         return $this->redirect('/proposal/my-proposals/' . $originalComment->proposal_id);
     }
 
+    /**
+     * Create a new comment in DB.
+     *
+     * @param string $commentInput
+     * @param int $proposalId
+     * @throws CannotSaveException
+     */
     private function saveComment(string $commentInput, int $proposalId)
     {
         $comment = new Comment();
@@ -628,7 +660,13 @@ class ProposalController extends MainController
         }
     }
 
-    private function canAUserCommentAProposal($proposalSubmitterId)
+    /**
+     * Checks if a User can comment a proposal.
+     * Reviewer, publisher or admin can comment everywhere.
+     *
+     * @param int $proposalSubmitterId
+     */
+    private function canAUserCommentAProposal(int $proposalSubmitterId)
     {
         if (MainController::getCurrentUser()->role != User::USER_ROLE_MEMBER) {
             return;
@@ -637,7 +675,14 @@ class ProposalController extends MainController
         $this->checkIfUserIsOwnerOfProposal($proposalSubmitterId);
     }
 
-    private function checkIfCommentExists($commentId): Comment {
+    /**
+     * Check if a comment exists in DB.
+     *
+     * @param int $commentId
+     * @return Comment
+     */
+    private function checkIfCommentExists(int $commentId): Comment
+    {
         $notFoundException = NotFoundHttpException::class;
 
         if(is_null($comment = Comment::findOne(['id' => $commentId]))) {
@@ -647,26 +692,51 @@ class ProposalController extends MainController
         return $comment;
     }
 
-    private function checkIfUserIsOwnerOfComment(Comment $comment) {
+    /**
+     * Check if User is owner of a comment.
+     * An admin can edit any comment.
+     *
+     * @param Comment $comment
+     */
+    private function checkIfUserIsOwnerOfComment(Comment $comment)
+    {
         $unauthorizedException = NotFoundHttpException::class;
+
+        if (MainController::getCurrentUser()->role === User::USER_ROLE_ADMIN) {
+            return;
+        }
 
         if(MainController::getCurrentUser()->id != $comment->author_id) {
             throw new $unauthorizedException();
         }
     }
 
-    private function checkIfCommentIsFromCurrentProposal(Comment $comment) {
+    /**
+     * Check if a comment is part of one proposal's comments.
+     * It checks if the user doesn't try to edit a comment coming
+     * from another proposal
+     *
+     * @param Comment $comment
+     */
+    private function checkIfCommentIsFromCurrentProposal(Comment $comment, int $proposalId)
+    {
         $unauthorizedException = NotFoundHttpException::class;
 
-        foreach ($comment->proposal->comments as $proposalComment) {
-
-            if($comment->id == $proposalComment->id) {
+            if($comment->proposal->id == $proposalId) {
                 return;
             }
-    }
+
         throw new $unauthorizedException();
     }
 
+    /**
+     * Populate the edited comment of its new content
+     * then save it in DB.
+     *
+     * @param Comment $comment
+     * @param $newCommentContent
+     * @throws CannotSaveException
+     */
     private function saveEditedComment(Comment $comment, $newCommentContent)
     {
         $comment->content = $newCommentContent;
@@ -675,5 +745,132 @@ class ProposalController extends MainController
         if (!$comment->save()) {
             throw new CannotSaveException($comment);
         }
+    }
+
+    /**
+     * Display proposals for a Publisher
+     * or single proposal
+     *
+     * @param null $id
+     * @return string
+     */
+    public function actionManageProposals($id = null)
+    {
+        if (!is_null($id)) {
+            $selectedProposal = $this->checkIfProposalExists($id);
+            $viewItems = $this->buildOneProposalViewItems($selectedProposal);
+
+            return $this->render('proposal', $viewItems);
+        }
+
+        $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
+        $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
+        $notApprovedProposals = $this->buildNotApprovedProposalsActiveDataProvider($approvedProposalsQuery);
+
+        return $this->render('manage-proposals', [
+           'approvedProposals' => $approvedProposals,
+           'notApprovedProposals' => $notApprovedProposals
+        ]);
+    }
+
+    /**
+     * Build the query for retreive approved proposals
+     * and returns it without execution, to pass
+     * it into an ActiveDataProvider
+     *
+     * @return yii\db\ActiveQuery
+     */
+    private function buildApprovedProposalsQuery()
+    {
+        return \app\models\Proposal::find()
+            ->select('proposal.*, (SELECT COUNT(*) FROM review WHERE review.proposal_id = proposal.id) as count_reviews')
+            ->where('1 = CASE 
+                WHEN 
+                    ((((SELECT COUNT(*) FROM review 
+                        WHERE review.status = \'approved\' AND review.proposal_id = proposal.id)
+                        /
+                        (SELECT COUNT(*) FROM review
+                        WHERE review.proposal_id = proposal.id))
+                    *100)  
+                    >= ' . yii\helpers\Html::encode(ProposalApprovementSetting::getApprovementPercent()). ') 
+                    THEN 1 
+                ELSE 0 
+                END')
+            ->andWhere(['proposal.status' => \app\models\Proposal::STATUS_PENDING])
+            ->andWhere('1 = CASE
+                WHEN
+                    ((SELECT COUNT(*) FROM review
+                    WHERE review.proposal_id = proposal.id)
+                    >= ' . yii\helpers\Html::encode(ProposalApprovementSetting::getRequiredNumberOfReview()) . ')
+                    THEN 1
+                ELSE 0
+                END');
+    }
+
+    /**
+     * Returns an ActiveDataProvider for the
+     * approved proposals.
+     *
+     * @param yii\db\ActiveQuery $approvedProposalsQuery
+     * @return ActiveDataProvider
+     */
+    private function buildApprovedProposalsActiveDataProvider(yii\db\ActiveQuery $approvedProposalsQuery)
+    {
+        return new ActiveDataProvider([
+            'query' => $approvedProposalsQuery,
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'approvedSort',
+                'attributes' => ['count_reviews', 'date', 'title'],
+                'defaultOrder' => [
+                    'count_reviews' => SORT_DESC,
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * Returns an ActiveDataProvider for the not
+     * approved proposals by using the approvedProposalsQuery
+     *
+     * @param yii\db\ActiveQuery $approvedProposalsQuery
+     * @return ActiveDataProvider
+     */
+    private function buildNotApprovedProposalsActiveDataProvider(yii\db\ActiveQuery$approvedProposalsQuery)
+    {
+        $approvedProposals = $approvedProposalsQuery->all();
+        $approvedProposalsId = array();
+
+        /** @var Proposal $approvedProposal */
+        foreach ($approvedProposals as $approvedProposal) {
+                array_push($approvedProposalsId, $approvedProposal->id);
+        }
+
+        return new ActiveDataProvider([
+            'query' => \app\models\Proposal::find()
+                ->select('proposal.*, (SELECT COUNT(*) FROM review WHERE review.proposal_id = proposal.id) as count_reviews')
+                ->where([
+                    'not in', 'id', $approvedProposalsId
+                ])
+                ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING]),
+            'pagination' => [
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'notApprovedSort',
+                'attributes' => ['count_reviews', 'date', 'title'],
+                'defaultOrder' => [
+                    'count_reviews' => SORT_DESC,
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
     }
 }

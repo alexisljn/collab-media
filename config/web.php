@@ -66,6 +66,8 @@ $config = [
                 'proposal/my-proposals/<id:\d+>' => 'proposal/my-proposals',
                 'proposal/edit-proposal/<id:\d+>' => 'proposal/edit-proposal',
                 'proposal/post-comment/<id:\d+>' => 'proposal/post-comment',
+                'proposal/edit-comment/<id:\d+>' => 'proposal/edit-comment',
+                'proposal/manage-proposals/<id:\d+>' => 'proposal/manage-proposals',
                 'management/accounts/<id:\d+>'   => 'management/accounts',
                 'management/social-media/<id:\w+>' => 'management/social-media',
             ],

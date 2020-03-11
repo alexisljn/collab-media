@@ -51,6 +51,7 @@ class MainController extends Controller
             'edit-proposal' => User::USER_ROLE_MEMBER,
             'post-comment' => User::USER_ROLE_MEMBER,
             'edit-comment' => User::USER_ROLE_MEMBER,
+            'manage-proposals' => User::USER_ROLE_PUBLISHER,
         ],
         'management' => [
             'accounts' => User::USER_ROLE_ADMIN,
@@ -105,6 +106,24 @@ class MainController extends Controller
                         ],
                     ],
                 ],
+            ],
+            [
+                'title' => 'Publisher',
+                'url' => '/proposal/manage-proposals',
+                'roleNeeded' => User::USER_ROLE_PUBLISHER,
+                'activeActions' => [
+                    'proposal' => ['manage-proposals']
+                ],
+                'children' => [
+                    [
+                        'title' => 'Manage proposals',
+                        'url' => '/proposal/manage-proposals',
+                        'roleNeeded' => User::USER_ROLE_PUBLISHER,
+                        'activeActions' => [
+                            'proposal' => ['manage-proposals']
+                        ],
+                    ]
+                ]
             ],
             [
                 'title' => 'Manage',

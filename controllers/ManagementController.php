@@ -176,7 +176,7 @@ class ManagementController extends MainController
         $form = new CreateAccountForm();
 
         if($form->load($_POST) && $form->validate()) {
-                $this->createAccount($form);
+            $this->createAccount($form);
         }
         return $this->render('create-account', [
             'model'=>$form,

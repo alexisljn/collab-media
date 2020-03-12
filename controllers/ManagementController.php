@@ -6,6 +6,7 @@ use app\controllers\mainController\MainController;
 use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\SocialMediaPermission;
 use app\models\exceptions\CannotCreateTokenException;
+use app\models\exceptions\CannotSendMailException;
 use app\models\forms\CreateAccountForm;
 use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
@@ -201,14 +202,14 @@ class ManagementController extends MainController
         $user->is_validated = false;
         $user->is_active = true;
         $user->role = $form->role;
-        $token_try = 0;
+        $tokenTry = 0;
 
         do {
             $token = $this->createUserToken();
-            $token_try++;
-        } while (!is_null(User::findOne(['token' => $token])) AND $token_try < 10);
+            $tokenTry++;
+        } while (!is_null(User::findOne(['token' => $token])) AND $tokenTry < 10);
 
-        if($token_try == 10) {
+        if($tokenTry == 10 OR !is_null(User::findOne(['token' => $token]))) {
             throw new CannotCreateTokenException();
         }
 
@@ -307,6 +308,7 @@ class ManagementController extends MainController
      * @param User $user
      * @return bool
      * @throws \PHPMailer\PHPMailer\Exception
+     * @throws CannotSendMailException
      */
     private function mailToUserPasswordCreation(User $user)
     {
@@ -315,15 +317,11 @@ class ManagementController extends MainController
         $mail->isHTML(false);
         $mail->CharSet = 'UTF-8';
 
-        $mail->Subject = "Account's creation for " . $user->firstname . " " . $user->lastname;
+        $mail->Subject = "Activate your Collab'media account";
         $mail->Body = 'Click on the following link to create your password : http://127.0.0.1:8000/site/validate-account/' . $user->token ;
 
-        try {
-            if(!$mail->send()) {
-                return false;
-            }
-        } catch(Exception $e) {
-            return false;
+        if(!$mail->send()) {
+            throw new CannotSendMailException();
         }
     }
 

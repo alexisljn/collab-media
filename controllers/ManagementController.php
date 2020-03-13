@@ -205,18 +205,16 @@ class ManagementController extends MainController
         $tokenTry = 0;
 
         do {
+            if($tokenTry === 10) {
+                throw new CannotCreateTokenException();
+            }
             $token = $this->createUserToken();
             $tokenTry++;
-        } while (!is_null(User::findOne(['token' => $token])) AND $tokenTry < 10);
-
-        if($tokenTry == 10 OR !is_null(User::findOne(['token' => $token]))) {
-            throw new CannotCreateTokenException();
-        }
+        } while (!is_null(User::findOne(['token' => $token])));
 
         $user->token = $token;
 
         if (!$user->save()) {
-
             throw new CannotSaveException($user);
         }
         $this->mailToUserPasswordCreation($user);

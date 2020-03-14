@@ -6,11 +6,12 @@
 /** @var int $disapprovalsCount */
 /** @var \app\models\forms\ManageProposalForm $manageProposalFormModel */
 /** @var \app\models\forms\ManageCommentForm $manageCommentFormModel */
+/** @var bool|\app\models\Review $potentialReview */
 
 use app\models\Proposal;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
-
+<div id="work"></div>
 <div id="proposal-content-history-modal" class="modal-container">
     <div class="modal-content">
         <button id="proposal-content-history-button-close" class="modal-close-button"><i class="fas fa-times" style="font-size: 1.3em"></i></button>
@@ -93,7 +94,7 @@ use yii\widgets\ActiveForm; ?>
         </div>
 
         <!-- Chronological Stream -->
-
+        <div id="chronological-stream">
         <?php
         foreach ($chronologicalStream as $chronologicalItem) {
             if ($chronologicalItem instanceof \app\models\databaseModels\Comment) {
@@ -157,7 +158,8 @@ use yii\widgets\ActiveForm; ?>
                     </div>
                 </div>
                 <?php
-            } elseif ($chronologicalItem instanceof \app\models\databaseModels\Review) {
+            } elseif ($chronologicalItem instanceof \app\models\databaseModels\Review
+                && $chronologicalItem->status != \app\models\Review::REVIEW_STATUS_CANCELLED) {
                 ?>
                 <div class="bg-secondary">
                     <p>
@@ -195,7 +197,7 @@ use yii\widgets\ActiveForm; ?>
             }
         }
         ?>
-
+        </div>
         <h3>Add a comment</h3>
         <?php
         $manageCommentForm = yii\widgets\ActiveForm::begin([
@@ -221,7 +223,7 @@ use yii\widgets\ActiveForm; ?>
         <div class="proposal-sidebar-divider"></div>
         <div class="proposal-sidebar-block">
 <!--        TODO Display this block only if the current user is the proposal submitter AND if the proposal is still pending -->
-            <button id="edit-link" class="btn btn-block btn-sm">Edit</button>
+            <button id="edit-link" class="btn btn-block btn-sm btn-not-outline">Edit</button>
         </div>
         <div class="proposal-sidebar-divider"></div>
         <div class="proposal-sidebar-block">
@@ -286,6 +288,23 @@ use yii\widgets\ActiveForm; ?>
                 </div>
             </div>
         </div>
+        <?php if (!is_null($potentialReview)) { ?>
+        <div class="proposal-sidebar-divider"></div>
+        <div class="proposal-sidebar-block">
+            <div class="row">
+                <div class="col-6 text-center">
+                    <button id="vote-up" type="button" class="btn btn-outline-success">
+                        <i class="fas fa-thumbs-up"></i>
+                    </button>
+                </div>
+                <div class="col-6 text-center">
+                    <button id="vote-down" type="button" class="btn btn-outline-danger">
+                        <i class="fas fa-thumbs-down"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
     </aside>
 </div>
 
@@ -355,4 +374,59 @@ use yii\widgets\ActiveForm; ?>
             hideModal();
         });
     });
+</script>
+
+<script type="text/javascript" id="vote-review-script">
+    $(() => {
+        let reviewStatus = '<?= $potentialReview->status ?>';
+        let reviewId = undefined;
+        $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_APPROVED?>');
+        $('#vote-down').data('status', '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>');
+
+        if (reviewStatus.length > 0) {
+            reviewId = '<?= $potentialReview->id ?>';
+
+            switch (reviewStatus) {
+                case '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>':
+                    $('#vote-up').removeClass('btn-outline-success').addClass('btn-success');
+                    $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
+                    break;
+                case '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>':
+                    $('#vote-down').removeClass('btn-outline-danger').addClass('btn-danger');
+                    $('#vote-down').data('status', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
+                    break;
+            }
+        }
+
+        $('#vote-up').on('click', () => {
+            // CHANGER LES STATUS A CHAQUE CLIC
+            if (reviewStatus === '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>') {
+                //$('#vote-up').removeClass('btn-success').addClass('btn-outline-success');
+                $('#vote-down').removeClass('btn-danger').addClass('btn-outline-danger');
+                $('#vote-up').removeClass('btn-outline-success').addClass('btn-success');
+            } else {
+                $('#vote-up').toggleClass('btn-outline-success').toggleClass('btn-success');
+            }
+            $.post('/proposal/post-review',
+                {
+                proposalId: <?= $selectedProposal->id ?>,
+                reviewId: reviewId,
+                reviewStatus: $('#vote-up').data('status')
+                },
+                (response) => {
+                    let ratingBar = $(response).find('div.rating-viewer-container').html();
+                    let chronologicalStream = $(response).find('div#chronological-stream').html();
+                    $('div.rating-viewer-container').html(ratingBar);
+                    $('div#chronological-stream').html(chronologicalStream);
+                    if($('#vote-up').data('status') === '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>') {
+                        $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>')
+                    } else {
+                        $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>');
+                    }
+                     //$("#work").html(t);
+                }
+            )
+        })
+
+    })
 </script>

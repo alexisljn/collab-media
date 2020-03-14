@@ -222,7 +222,7 @@ a.desc:after {
     text-transform: capitalize ;
 }
 
-.btn:not(.btn-outline) {
+.btn-not-outline {
     background-color: #eff3f6;
     background-image: linear-gradient(-180deg,#fafbfc,#eff3f6 90%);
     border: 1px solid rgba(27,31,35,.2);
@@ -232,7 +232,7 @@ a.desc:after {
     padding: 3px 10px;
 }
 
-.btn:not(.btn-outline):hover {
+.btn-not-outline:hover {
     background-color: #e6ebf1;
     background-image: linear-gradient(-180deg,#f0f3f6,#e6ebf1 90%);
     /*background-position: -.5em;*/

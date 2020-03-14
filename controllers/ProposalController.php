@@ -17,6 +17,7 @@ use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
+use app\models\forms\PostReviewForm;
 use app\models\ProposalApprovementSetting;
 use app\models\User;
 use yii\data\ActiveDataProvider;
@@ -100,13 +101,13 @@ class ProposalController extends MainController
      * If false it throws an exception.
      *
      * @param int $id
-     * @return Proposal|null
+     * @return \app\models\Proposal|null
      */
-    private function checkIfProposalExists(int $id): ?Proposal
+    private function checkIfProposalExists(int $id): ?\app\models\Proposal
     {
         $notFoundException = NotFoundHttpException::class;
 
-        if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
+        if (!is_null($selectedProposal = \app\models\Proposal::findOne(['id' => $id]))) {
             return $selectedProposal;
         }
 
@@ -873,4 +874,130 @@ class ProposalController extends MainController
             ]
         ]);
     }
+
+    public function actionReviewProposal(int $id)
+    {
+        /** @var \app\models\Proposal $selectedProposal */
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $viewItems = $this->buildOneProposalViewItems($selectedProposal);
+
+        $potentialReview = $this->getPotentialReviewOfAReviewer($selectedProposal, MainController::getCurrentUser()->id);
+        $viewItems['potentialReview'] = $potentialReview;
+
+        return $this->render('proposal', $viewItems);
+    }
+
+    private function getPotentialReviewOfAReviewer(\app\models\Proposal $proposal, $reviewerId)
+    {
+
+        foreach ($proposal->reviews as $review) {
+
+            if ($review->reviewer_id === $reviewerId) {
+                return $review;
+            }
+        }
+
+        return false;
+    }
+
+    public function actionPostReview()
+    {
+       $selectedReview = null;
+       $reviewStatus = Yii::$app->request->post()['reviewStatus'];
+       $proposalId = Yii::$app->request->post()['proposalId'];
+
+        if (!is_null(Yii::$app->request->post()['reviewId'])) {
+            $selectedReview = $this->checkIfReviewExists(Yii::$app->request->post()['reviewId']);
+            $this->checkIfUserIsOwnerOfReview($selectedReview, MainController::getCurrentUser()->id);
+            $this->checkIfReviewIsFromCurrentProposal($selectedReview, $proposalId);
+        }
+
+        $this->saveReview($selectedReview, $reviewStatus, MainController::getCurrentUser()->id, $proposalId);
+        //dd(Yii::$app->request->post());
+        $htmlContent = $this->actionReviewProposal($proposalId);
+        return $htmlContent;
+        //dd($htmlContent);
+        //$toto = new \DOMDocument();
+       // dd(Yii::$app->charset );
+        //$toto->loadHTML('<p>tototototo</p>');
+    }
+
+    /**
+     * Check if Review exists then returns it if true.
+     *
+     * @param $reviewId
+     * @return \app\models\Review
+     */
+    private function checkIfReviewExists($reviewId): \app\models\Review
+    {
+        $notFoundException = NotFoundHttpException::class;
+
+        if (!is_null($selectedReview = \app\models\Review::findOne(['id' => $reviewId]))) {
+            return $selectedReview;
+        }
+
+        throw new $notFoundException();
+    }
+
+    /**
+     * Check if a user is owner of a Review
+     *
+     * @param \app\models\Review $review
+     * @param $userId
+     */
+    private function checkIfUserIsOwnerOfReview(\app\models\Review $review, $userId)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if ($review->reviewer_id !== $userId) {
+            throw new $unauthorizedException();
+        }
+    }
+
+    /**
+     * Check if Review is from current Proposal
+     *
+     * @param \app\models\Review $review
+     * @param $proposalId
+     */
+    private function checkIfReviewIsFromCurrentProposal(\app\models\Review $review, $proposalId)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if ($review->proposal_id !== (int) $proposalId)
+        {
+            throw new $unauthorizedException();
+        }
+    }
+
+
+    private function saveReview(?\app\models\Review $currentReview, $reviewStatus, $reviewerId, $proposalId)
+    {
+        if (!is_null($currentReview)) {
+
+            $this->saveEditedReview($currentReview, $reviewStatus);
+            return;
+        }
+
+        $review = new \app\models\Review();
+        $review->reviewer_id = $reviewerId;
+        $review->proposal_id = $proposalId;
+        $review->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+        $review->status = $reviewStatus;
+
+        if (!$review->save()) {
+            throw new CannotSaveException($review);
+        }
+    }
+
+    private function saveEditedReview(\app\models\Review $review, $reviewStatus)
+    {
+        $review->status = $reviewStatus;
+        $review->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if (!$review->save()) {
+            throw new CannotSaveException($review);
+        }
+    }
+
 }

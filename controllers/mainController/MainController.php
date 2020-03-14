@@ -46,12 +46,15 @@ class MainController extends Controller
         ],
         'proposal' => [
             'my-proposals' => User::USER_ROLE_MEMBER,
-            'reviewer-pending-proposals' => User::USER_ROLE_REVIEWER,
             'create-proposal' => User::USER_ROLE_MEMBER,
             'edit-proposal' => User::USER_ROLE_MEMBER,
             'post-comment' => User::USER_ROLE_MEMBER,
             'edit-comment' => User::USER_ROLE_MEMBER,
+            'reviewer-pending-proposals' => User::USER_ROLE_REVIEWER,
+            'review-proposal' => User::USER_ROLE_REVIEWER,
+            'post-review' => User::USER_ROLE_REVIEWER,
             'manage-proposals' => User::USER_ROLE_PUBLISHER,
+
         ],
         'management' => [
             'accounts' => User::USER_ROLE_ADMIN,

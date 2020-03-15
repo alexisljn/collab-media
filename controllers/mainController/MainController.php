@@ -174,6 +174,7 @@ class MainController extends Controller
     {
         parent::init();
         self::logoutUserIfPasswordChanged();
+        self::logoutUserIfDisabled();
     }
 
     /**
@@ -321,6 +322,17 @@ class MainController extends Controller
         }
 
         if($_SESSION['userPasswordHash'] !== self::getCurrentUser()->password_hash) {
+            \Yii::$app->user->logout();
+        }
+    }
+
+    private function logoutUserIfDisabled()
+    {
+        if(\Yii::$app->user->isGuest) {
+            return;
+        }
+
+        if(!self::getCurrentUser()->is_active) {
             \Yii::$app->user->logout();
         }
     }

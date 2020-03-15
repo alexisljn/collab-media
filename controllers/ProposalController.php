@@ -874,6 +874,12 @@ class ProposalController extends MainController
         ]);
     }
 
+    /**
+     * Display single proposal page with reviewer options.
+     *
+     * @param int $id
+     * @return string
+     */
     public function actionReviewProposal(int $id)
     {
         /** @var \app\models\Proposal $selectedProposal */
@@ -882,23 +888,38 @@ class ProposalController extends MainController
 
         $potentialReview = $this->getPotentialReviewOfAReviewer($selectedProposal, MainController::getCurrentUser()->id);
         $viewItems['potentialReview'] = $potentialReview;
-
         return $this->render('proposal', $viewItems);
     }
 
+    /**
+     * Returns the current review of a user for a proposal
+     * or false if he hasn't reviewed it yet.
+     *
+     * @param \app\models\Proposal $proposal
+     * @param $reviewerId
+     * @return Review|array|bool|yii\db\ActiveRecord|null
+     */
     private function getPotentialReviewOfAReviewer(\app\models\Proposal $proposal, $reviewerId)
     {
 
-        foreach ($proposal->reviews as $review) {
+        if (!is_null($review = Review::find()
+            ->where(['proposal_id' => $proposal->id])
+            ->andWhere(['reviewer_id' => $reviewerId])
+            ->one())) {
 
-            if ($review->reviewer_id === $reviewerId) {
-                return $review;
-            }
+            return $review;
         }
 
         return false;
     }
 
+    /**
+     * Call method to save Review in DB
+     * and call method to generate view items refresh.
+     *
+     * @return false|string
+     * @throws CannotSaveException
+     */
     public function actionPostReview()
     {
        $selectedReview = null;
@@ -911,9 +932,11 @@ class ProposalController extends MainController
             $this->checkIfReviewIsFromCurrentProposal($selectedReview, $proposalId);
         }
 
-        $this->saveReview($selectedReview, $reviewStatus, MainController::getCurrentUser()->id, $proposalId);
+        $review = $this->saveReview($selectedReview, $reviewStatus, MainController::getCurrentUser()->id, $proposalId);
+        $ajaxResponse = array('reviewId' => $review->id, 'html' => $this->actionReviewProposal($proposalId));
+        $ajaxResponse = json_encode($ajaxResponse);
 
-        return $this->actionReviewProposal($proposalId);
+        return $ajaxResponse;
     }
 
     /**
@@ -973,14 +996,17 @@ class ProposalController extends MainController
      * @param $reviewStatus
      * @param $reviewerId
      * @param $proposalId
+     * @return \app\models\Review
      * @throws CannotSaveException
      */
     private function saveReview(?\app\models\Review $currentReview, $reviewStatus, $reviewerId, $proposalId)
     {
+        //return dd($currentReview);
+
         if (!is_null($currentReview)) {
 
-            $this->saveEditedReview($currentReview, $reviewStatus);
-            return;
+            $editedReview = $this->saveEditedReview($currentReview, $reviewStatus);
+            return $editedReview;
         }
 
         $review = new \app\models\Review();
@@ -992,6 +1018,8 @@ class ProposalController extends MainController
         if (!$review->save()) {
             throw new CannotSaveException($review);
         }
+
+        return $review;
     }
 
     /**
@@ -999,6 +1027,7 @@ class ProposalController extends MainController
      *
      * @param \app\models\Review $review
      * @param $reviewStatus
+     * @return \app\models\Review
      * @throws CannotSaveException
      */
     private function saveEditedReview(\app\models\Review $review, $reviewStatus)
@@ -1009,6 +1038,8 @@ class ProposalController extends MainController
         if (!$review->save()) {
             throw new CannotSaveException($review);
         }
+
+        return $review;
     }
 
 }

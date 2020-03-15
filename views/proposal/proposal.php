@@ -11,7 +11,7 @@
 use app\models\Proposal;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
-
+<div id="work"></div>
 <div id="proposal-content-history-modal" class="modal-container">
     <div class="modal-content">
         <button id="proposal-content-history-button-close" class="modal-close-button"><i class="fas fa-times" style="font-size: 1.3em"></i></button>
@@ -388,7 +388,7 @@ use yii\widgets\ActiveForm; ?>
 
         if (reviewStatus.length > 0) {
             reviewId = '<?= $potentialReview->id ?>';
-
+            console.log(reviewId);
             switch (reviewStatus) {
                 case '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>':
                     thumbsUp
@@ -421,8 +421,10 @@ use yii\widgets\ActiveForm; ?>
                 reviewStatus: thumbsUp.data('statusOnChange')
                 },
                 (response) => {
-                    let ratingBar = $(response).find('div.rating-viewer-container').html();
-                    let chronologicalStream = $(response).find('div#chronological-stream').html();
+                    response = JSON.parse(response);
+                    reviewId = response.reviewId;
+                    let ratingBar = $(response.html).find('div.rating-viewer-container').html();
+                    let chronologicalStream = $(response.html).find('div#chronological-stream').html();
                     $('div.rating-viewer-container').html(ratingBar);
                     $('div#chronological-stream').html(chronologicalStream);
 
@@ -453,8 +455,10 @@ use yii\widgets\ActiveForm; ?>
                     reviewStatus: thumbsDown.data('statusOnChange')
                 },
                 (response) => {
-                    let ratingBar = $(response).find('div.rating-viewer-container').html();
-                    let chronologicalStream = $(response).find('div#chronological-stream').html();
+                    response = JSON.parse(response);
+                    reviewId = response.reviewId;
+                    let ratingBar = $(response.html).find('div.rating-viewer-container').html();
+                    let chronologicalStream = $(response.html).find('div#chronological-stream').html();
                     $('div.rating-viewer-container').html(ratingBar);
                     $('div#chronological-stream').html(chronologicalStream);
 

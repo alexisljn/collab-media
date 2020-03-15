@@ -388,7 +388,7 @@ use yii\widgets\ActiveForm; ?>
 
         if (reviewStatus.length > 0) {
             reviewId = '<?= $potentialReview->id ?>';
-            console.log(reviewId);
+
             switch (reviewStatus) {
                 case '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>':
                     thumbsUp

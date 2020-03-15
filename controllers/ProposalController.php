@@ -100,13 +100,13 @@ class ProposalController extends MainController
      * If false it throws an exception.
      *
      * @param int $id
-     * @return Proposal|null
+     * @return \app\models\Proposal|null
      */
-    private function checkIfProposalExists(int $id): ?Proposal
+    private function checkIfProposalExists(int $id): ?\app\models\Proposal
     {
         $notFoundException = NotFoundHttpException::class;
 
-        if (!is_null($selectedProposal = Proposal::findOne(['id' => $id]))) {
+        if (!is_null($selectedProposal = \app\models\Proposal::findOne(['id' => $id]))) {
             return $selectedProposal;
         }
 
@@ -873,4 +873,173 @@ class ProposalController extends MainController
             ]
         ]);
     }
+
+    /**
+     * Display single proposal page with reviewer options.
+     *
+     * @param int $id
+     * @return string
+     */
+    public function actionReviewProposal(int $id)
+    {
+        /** @var \app\models\Proposal $selectedProposal */
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $viewItems = $this->buildOneProposalViewItems($selectedProposal);
+
+        $potentialReview = $this->getPotentialReviewOfAReviewer($selectedProposal, MainController::getCurrentUser()->id);
+        $viewItems['potentialReview'] = $potentialReview;
+        return $this->render('proposal', $viewItems);
+    }
+
+    /**
+     * Returns the current review of a user for a proposal
+     * or false if he hasn't reviewed it yet.
+     *
+     * @param \app\models\Proposal $proposal
+     * @param $reviewerId
+     * @return Review|array|bool|yii\db\ActiveRecord|null
+     */
+    private function getPotentialReviewOfAReviewer(\app\models\Proposal $proposal, $reviewerId)
+    {
+
+        if (!is_null($review = Review::find()
+            ->where(['proposal_id' => $proposal->id])
+            ->andWhere(['reviewer_id' => $reviewerId])
+            ->one())) {
+
+            return $review;
+        }
+
+        return false;
+    }
+
+    /**
+     * Call method to save Review in DB
+     * and call method to generate view items refresh.
+     *
+     * @return false|string
+     * @throws CannotSaveException
+     */
+    public function actionPostReview()
+    {
+       $selectedReview = null;
+       $reviewStatus = Yii::$app->request->post()['reviewStatus'];
+       $proposalId = Yii::$app->request->post()['proposalId'];
+
+        if (!is_null(Yii::$app->request->post()['reviewId'])) {
+            $selectedReview = $this->checkIfReviewExists(Yii::$app->request->post()['reviewId']);
+            $this->checkIfUserIsOwnerOfReview($selectedReview, MainController::getCurrentUser()->id);
+            $this->checkIfReviewIsFromCurrentProposal($selectedReview, $proposalId);
+        }
+
+        $review = $this->saveReview($selectedReview, $reviewStatus, MainController::getCurrentUser()->id, $proposalId);
+        $ajaxResponse = array('reviewId' => $review->id, 'html' => $this->actionReviewProposal($proposalId));
+        $ajaxResponse = json_encode($ajaxResponse);
+
+        return $ajaxResponse;
+    }
+
+    /**
+     * Check if Review exists then returns it if true.
+     *
+     * @param $reviewId
+     * @return \app\models\Review
+     */
+    private function checkIfReviewExists($reviewId): \app\models\Review
+    {
+        $notFoundException = NotFoundHttpException::class;
+
+        if (!is_null($selectedReview = \app\models\Review::findOne(['id' => $reviewId]))) {
+            return $selectedReview;
+        }
+
+        throw new $notFoundException();
+    }
+
+    /**
+     * Check if a user is owner of a Review
+     *
+     * @param \app\models\Review $review
+     * @param $userId
+     */
+    private function checkIfUserIsOwnerOfReview(\app\models\Review $review, $userId)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if ($review->reviewer_id !== $userId) {
+            throw new $unauthorizedException();
+        }
+    }
+
+    /**
+     * Check if Review is from current Proposal
+     *
+     * @param \app\models\Review $review
+     * @param $proposalId
+     */
+    private function checkIfReviewIsFromCurrentProposal(\app\models\Review $review, $proposalId)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if ($review->proposal_id !== (int) $proposalId)
+        {
+            throw new $unauthorizedException();
+        }
+    }
+
+    /**
+     * Save in DB new Review or use
+     * saveEditedReview() if Review is
+     * already existing.
+     *
+     * @param \app\models\Review|null $currentReview
+     * @param $reviewStatus
+     * @param $reviewerId
+     * @param $proposalId
+     * @return \app\models\Review
+     * @throws CannotSaveException
+     */
+    private function saveReview(?\app\models\Review $currentReview, $reviewStatus, $reviewerId, $proposalId)
+    {
+        //return dd($currentReview);
+
+        if (!is_null($currentReview)) {
+
+            $editedReview = $this->saveEditedReview($currentReview, $reviewStatus);
+            return $editedReview;
+        }
+
+        $review = new \app\models\Review();
+        $review->reviewer_id = $reviewerId;
+        $review->proposal_id = $proposalId;
+        $review->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+        $review->status = $reviewStatus;
+
+        if (!$review->save()) {
+            throw new CannotSaveException($review);
+        }
+
+        return $review;
+    }
+
+    /**
+     * Save in DB the edited Review.
+     *
+     * @param \app\models\Review $review
+     * @param $reviewStatus
+     * @return \app\models\Review
+     * @throws CannotSaveException
+     */
+    private function saveEditedReview(\app\models\Review $review, $reviewStatus)
+    {
+        $review->status = $reviewStatus;
+        $review->date = Util::getDateTimeFormattedForDatabase(new \DateTime());
+
+        if (!$review->save()) {
+            throw new CannotSaveException($review);
+        }
+
+        return $review;
+    }
+
 }

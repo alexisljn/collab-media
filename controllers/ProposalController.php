@@ -913,13 +913,8 @@ class ProposalController extends MainController
         }
 
         $this->saveReview($selectedReview, $reviewStatus, MainController::getCurrentUser()->id, $proposalId);
-        //dd(Yii::$app->request->post());
-        $htmlContent = $this->actionReviewProposal($proposalId);
-        return $htmlContent;
-        //dd($htmlContent);
-        //$toto = new \DOMDocument();
-       // dd(Yii::$app->charset );
-        //$toto->loadHTML('<p>tototototo</p>');
+
+        return $this->actionReviewProposal($proposalId);
     }
 
     /**
@@ -970,7 +965,17 @@ class ProposalController extends MainController
         }
     }
 
-
+    /**
+     * Save in DB new Review or use
+     * saveEditedReview() if Review is
+     * already existing.
+     *
+     * @param \app\models\Review|null $currentReview
+     * @param $reviewStatus
+     * @param $reviewerId
+     * @param $proposalId
+     * @throws CannotSaveException
+     */
     private function saveReview(?\app\models\Review $currentReview, $reviewStatus, $reviewerId, $proposalId)
     {
         if (!is_null($currentReview)) {
@@ -990,6 +995,13 @@ class ProposalController extends MainController
         }
     }
 
+    /**
+     * Save in DB the edited Review.
+     *
+     * @param \app\models\Review $review
+     * @param $reviewStatus
+     * @throws CannotSaveException
+     */
     private function saveEditedReview(\app\models\Review $review, $reviewStatus)
     {
         $review->status = $reviewStatus;

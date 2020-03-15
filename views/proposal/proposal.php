@@ -293,12 +293,12 @@ use yii\widgets\ActiveForm; ?>
         <div class="proposal-sidebar-block">
             <div class="row">
                 <div class="col-6 text-center">
-                    <button id="vote-up" type="button" class="btn btn-outline-success">
+                    <button id="vote-up" type="button" class="btn btn-lg btn-outline-success">
                         <i class="fas fa-thumbs-up"></i>
                     </button>
                 </div>
                 <div class="col-6 text-center">
-                    <button id="vote-down" type="button" class="btn btn-outline-danger">
+                    <button id="vote-down" type="button" class="btn btn-lg btn-outline-danger">
                         <i class="fas fa-thumbs-down"></i>
                     </button>
                 </div>
@@ -380,53 +380,94 @@ use yii\widgets\ActiveForm; ?>
     $(() => {
         let reviewStatus = '<?= $potentialReview->status ?>';
         let reviewId = undefined;
-        $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_APPROVED?>');
-        $('#vote-down').data('status', '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>');
+        let thumbsUp = $('#vote-up');
+        let thumbsDown = $('#vote-down');
+
+        thumbsUp.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_APPROVED?>');
+        thumbsDown.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>');
 
         if (reviewStatus.length > 0) {
             reviewId = '<?= $potentialReview->id ?>';
 
             switch (reviewStatus) {
                 case '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>':
-                    $('#vote-up').removeClass('btn-outline-success').addClass('btn-success');
-                    $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
+                    thumbsUp
+                        .removeClass('btn-outline-success')
+                        .addClass('btn-success')
+                        .data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
                     break;
                 case '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>':
-                    $('#vote-down').removeClass('btn-outline-danger').addClass('btn-danger');
-                    $('#vote-down').data('status', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
+                    thumbsDown
+                        .removeClass('btn-outline-danger')
+                        .addClass('btn-danger')
+                        .data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
                     break;
             }
         }
 
-        $('#vote-up').on('click', () => {
-            // CHANGER LES STATUS A CHAQUE CLIC
+        thumbsUp.on('click', () => {
+            thumbsUp.toggleClass('btn-outline-success').toggleClass('btn-success');
+
             if (reviewStatus === '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>') {
-                //$('#vote-up').removeClass('btn-success').addClass('btn-outline-success');
-                $('#vote-down').removeClass('btn-danger').addClass('btn-outline-danger');
-                $('#vote-up').removeClass('btn-outline-success').addClass('btn-success');
-            } else {
-                $('#vote-up').toggleClass('btn-outline-success').toggleClass('btn-success');
+                thumbsDown.removeClass('btn-danger').addClass('btn-outline-danger');
             }
+
+            reviewStatus = thumbsUp.data('statusOnChange');
+
             $.post('/proposal/post-review',
                 {
                 proposalId: <?= $selectedProposal->id ?>,
                 reviewId: reviewId,
-                reviewStatus: $('#vote-up').data('status')
+                reviewStatus: thumbsUp.data('statusOnChange')
                 },
                 (response) => {
                     let ratingBar = $(response).find('div.rating-viewer-container').html();
                     let chronologicalStream = $(response).find('div#chronological-stream').html();
                     $('div.rating-viewer-container').html(ratingBar);
                     $('div#chronological-stream').html(chronologicalStream);
-                    if($('#vote-up').data('status') === '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>') {
-                        $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>')
+
+                    if (thumbsUp.data('statusOnChange') === '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>') {
+                        thumbsUp.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
                     } else {
-                        $('#vote-up').data('status', '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>');
+                        thumbsUp.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>');
                     }
-                     //$("#work").html(t);
+
+                    thumbsDown.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>');
                 }
             )
-        })
+        });
 
+        thumbsDown.on('click', () => {
+            thumbsDown.toggleClass('btn-outline-danger').toggleClass('btn-danger');
+
+            if (reviewStatus === '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>') {
+                $('#vote-up').removeClass('btn-success').addClass('btn-outline-success');
+            }
+
+            reviewStatus = thumbsDown.data('statusOnChange');
+
+            $.post('/proposal/post-review',
+                {
+                    proposalId: <?= $selectedProposal->id ?>,
+                    reviewId: reviewId,
+                    reviewStatus: thumbsDown.data('statusOnChange')
+                },
+                (response) => {
+                    let ratingBar = $(response).find('div.rating-viewer-container').html();
+                    let chronologicalStream = $(response).find('div#chronological-stream').html();
+                    $('div.rating-viewer-container').html(ratingBar);
+                    $('div#chronological-stream').html(chronologicalStream);
+
+
+                    if (thumbsDown.data('statusOnChange') === '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>') {
+                        thumbsDown.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_CANCELLED ?>');
+                    } else {
+                        thumbsDown.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_DISAPPROVED ?>');
+                    }
+
+                    thumbsUp.data('statusOnChange', '<?= \app\models\Review::REVIEW_STATUS_APPROVED ?>');
+                }
+            )
+        });
     })
 </script>

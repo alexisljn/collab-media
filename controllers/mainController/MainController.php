@@ -174,6 +174,7 @@ class MainController extends Controller
     {
         parent::init();
         self::logoutUserIfPasswordChanged();
+        self::logoutUserIfDisabled();
     }
 
     /**

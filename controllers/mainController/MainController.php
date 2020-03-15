@@ -324,4 +324,15 @@ class MainController extends Controller
             \Yii::$app->user->logout();
         }
     }
+
+    private function logoutUserIfDisabled()
+    {
+        if(\Yii::$app->user->isGuest) {
+            return;
+        }
+
+        if(!self::getCurrentUser()->is_active) {
+            \Yii::$app->user->logout();
+        }
+    }
 }

@@ -11,7 +11,7 @@
 use app\models\Proposal;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
-<div id="work"></div>
+
 <div id="proposal-content-history-modal" class="modal-container">
     <div class="modal-content">
         <button id="proposal-content-history-button-close" class="modal-close-button"><i class="fas fa-times" style="font-size: 1.3em"></i></button>

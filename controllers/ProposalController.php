@@ -30,20 +30,10 @@ class ProposalController extends MainController
      * Returns all proposals submitted by a member or a single proposal if
      * an Id was specified in url.
      *
-     * @param null|int $id
      * @return string
      */
-    public function actionMyProposals(int $id = null): string
+    public function actionMyProposals(): string
     {
-
-        if (!is_null($id)) {
-            $selectedProposal = $this->checkIfProposalExists($id);
-            $this->checkIfUserIsOwnerOfProposal($selectedProposal->submitter->id);
-            $viewItems = $this->buildOneProposalViewItems($selectedProposal);
-
-            return $this->render('proposal', $viewItems);
-        }
-
         $myPendingProposals = $this->buildMyPendingProposalsActiveDataProvider();
         $myNotPendingProposals = $this->buildMyNotPendingProposalsActiveDataProvider();
 
@@ -51,6 +41,24 @@ class ProposalController extends MainController
             'myPendingProposals' => $myPendingProposals,
             'myNotPendingProposals' => $myNotPendingProposals
         ]);
+    }
+
+    public function actionProposal(int $id)
+    {
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $viewItems = $this->buildOneProposalViewItems($selectedProposal);
+
+        switch (MainController::getCurrentUser()->role) {
+            case User::USER_ROLE_MEMBER:
+                $this->checkIfUserCanSeeProposal($selectedProposal->submitter_id);
+                break;
+            case User::USER_ROLE_REVIEWER:
+                break;
+             /** @TODO USER_ROLE_PUBLISHER & ADMIN */
+
+        }
+
+        return $this->render('proposal', $viewItems);
     }
 
     /**
@@ -79,20 +87,35 @@ class ProposalController extends MainController
         $disapprovalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
             ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])
             ->count();
+
         $manageProposalFormModel = new ManageProposalForm();
         $manageProposalFormModel->title = $selectedProposal->title;
         $manageProposalFormModel->content = $lastProposalContent->content;
         $manageCommentFormModel = new ManageCommentForm();
+        $canEditProposal = $this->canEditProposal($selectedProposal);
 
-        return [
+        $viewItems = [
             'selectedProposal' => $selectedProposal,
             'lastProposalContent' => $lastProposalContent,
             'chronologicalStream' => $chronologicalStream,
             'approvalsCount' => $approvalsCount,
             'disapprovalsCount' => $disapprovalsCount,
             'manageProposalFormModel' => $manageProposalFormModel,
-            'manageCommentFormModel' => $manageCommentFormModel
+            'manageCommentFormModel' => $manageCommentFormModel,
+            'canEditProposal' => $canEditProposal,
         ];
+
+
+        if ($this->checkIfReviewerCanReviewProposal($selectedProposal->submitter_id)) {
+            $potentialReview = $this->getPotentialReviewOfAReviewer
+            (
+                $selectedProposal,
+                MainController::getCurrentUser()->id
+            );
+            $viewItems['potentialReview'] = $potentialReview;
+        }
+
+        return $viewItems;
     }
 
     /**
@@ -114,17 +137,18 @@ class ProposalController extends MainController
     }
 
     /**
-     * Check if User is owner of the proposal.
+     * Check if User can see the proposal.
      * If true it returns nothing letting the process continue.
      * If false it throws an exception
      *
      * @param int $submitterId
      */
-    private function checkIfUserIsOwnerOfProposal(int $submitterId)
+    private function checkIfUserCanSeeProposal(int $submitterId)
     {
         $unauthorizedException = NotFoundHttpException::class;
 
-        if($submitterId == self::getCurrentUser()->id) {
+        if($submitterId == self::getCurrentUser()->id
+            || MainController::getCurrentUser()->role != User::USER_ROLE_MEMBER) {
             return;
         }
 
@@ -216,7 +240,7 @@ class ProposalController extends MainController
     {
         $myReviewedProposals = new ActiveDataProvider([
             'query' => Proposal::find()
-                ->where(['not',['status' => 'pending']])
+                ->where(['not',['status' => \app\models\Proposal::STATUS_PENDING]])
                 ->andWhere(['submitter_id' => self::getCurrentUser()->id]),
             'pagination' => [
                 'pageSize' => 20,
@@ -354,11 +378,11 @@ class ProposalController extends MainController
                 }
 
                 $transaction->commit();
-                return $this->redirect('/proposal/my-proposals/' . $proposal->id);
+
+                return $this->redirect('/proposal/proposal/' . $proposal->id);
             } catch (CannotHandleUploadedFileException $cannotHandleUploadedFileException) {
                 $transaction->rollBack();
                 return $this->render('create-proposal', ['model' => $model, 'error' => 'Invalid file']);
-
             } catch(\Throwable $e) {
                 $transaction->rollBack();
                 throw $e;
@@ -536,18 +560,28 @@ class ProposalController extends MainController
                 }
 
                 $transaction->commit();
-                return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
+
+                return $this->redirect('/proposal/proposal/' . $editedProposal->id);
             } catch (CannotHandleUploadedFileException $cannotHandleUploadedFileException) {
                 $transaction->rollBack();
-                return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
-
+                return $this->redirect('/proposal/proposal/' . $editedProposal->id);
             } catch(\Throwable $e) {
                 $transaction->rollBack();
                 throw $e;
             }
         } else {
-            return $this->redirect('/proposal/my-proposals/' . $editedProposal->id);
+            return $this->redirect('/proposal/proposal/' . $editedProposal->id);
         }
+    }
+
+    private function canEditProposal(Proposal $proposal)
+    {
+        if (MainController::getCurrentUser()->id === $proposal->submitter_id
+            && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -609,11 +643,11 @@ class ProposalController extends MainController
 
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $proposalId = Yii::$app->request->get()['id'];
-            $this->canAUserCommentAProposal($this->checkIfProposalExists($proposalId)->submitter_id);
+            $this->checkIfUserCanSeeProposal($this->checkIfProposalExists($proposalId)->submitter_id);
             $this->saveComment($model->content, $proposalId);
         }
 
-        return $this->redirect('/proposal/my-proposals/'. $proposalId);
+        return $this->redirect('/proposal/proposal/'. $proposalId);
     }
 
     /**
@@ -633,12 +667,13 @@ class ProposalController extends MainController
             $originalComment = $this->checkIfCommentExists($supposedCommentId);
             $this->checkIfUserIsOwnerOfComment($originalComment);
             $this->checkIfCommentIsFromCurrentProposal($originalComment, $id);
-            $this->canAUserCommentAProposal($this->checkIfProposalExists($originalComment->proposal_id)->submitter_id);
+            $this->checkIfUserCanSeeProposal($this->checkIfProposalExists($originalComment->proposal_id)->submitter_id);
             $this->saveEditedComment($originalComment, $model->content);
         }
 
-        return $this->redirect('/proposal/my-proposals/' . $originalComment->proposal_id);
+        return $this->redirect('/proposal/proposal/' . $originalComment->proposal_id);
     }
+
 
     /**
      * Create a new comment in DB.
@@ -658,21 +693,6 @@ class ProposalController extends MainController
         if (!$comment->save()) {
             throw new CannotSaveException($comment);
         }
-    }
-
-    /**
-     * Checks if a User can comment a proposal.
-     * Reviewer, publisher or admin can comment everywhere.
-     *
-     * @param int $proposalSubmitterId
-     */
-    private function canAUserCommentAProposal(int $proposalSubmitterId)
-    {
-        if (MainController::getCurrentUser()->role != User::USER_ROLE_MEMBER) {
-            return;
-        }
-
-        $this->checkIfUserIsOwnerOfProposal($proposalSubmitterId);
     }
 
     /**
@@ -751,18 +771,10 @@ class ProposalController extends MainController
      * Display proposals for a Publisher
      * or single proposal
      *
-     * @param null $id
      * @return string
      */
-    public function actionManageProposals($id = null)
+    public function actionManageProposals()
     {
-        if (!is_null($id)) {
-            $selectedProposal = $this->checkIfProposalExists($id);
-            $viewItems = $this->buildOneProposalViewItems($selectedProposal);
-
-            return $this->render('proposal', $viewItems);
-        }
-
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
         $notApprovedProposals = $this->buildNotApprovedProposalsActiveDataProvider($approvedProposalsQuery);
@@ -874,21 +886,13 @@ class ProposalController extends MainController
         ]);
     }
 
-    /**
-     * Display single proposal page with reviewer options.
-     *
-     * @param int $id
-     * @return string
-     */
-    public function actionReviewProposal(int $id)
-    {
-        /** @var \app\models\Proposal $selectedProposal */
-        $selectedProposal = $this->checkIfProposalExists($id);
-        $viewItems = $this->buildOneProposalViewItems($selectedProposal);
+    private function checkIfReviewerCanReviewProposal($proposalSubmitterId) {
 
-        $potentialReview = $this->getPotentialReviewOfAReviewer($selectedProposal, MainController::getCurrentUser()->id);
-        $viewItems['potentialReview'] = $potentialReview;
-        return $this->render('proposal', $viewItems);
+        if (MainController::getCurrentUser()->id !== $proposalSubmitterId) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -933,7 +937,7 @@ class ProposalController extends MainController
         }
 
         $review = $this->saveReview($selectedReview, $reviewStatus, MainController::getCurrentUser()->id, $proposalId);
-        $ajaxResponse = array('reviewId' => $review->id, 'html' => $this->actionReviewProposal($proposalId));
+        $ajaxResponse = array('reviewId' => $review->id, 'html' => $this->actionProposal($proposalId));
         $ajaxResponse = json_encode($ajaxResponse);
 
         return $ajaxResponse;

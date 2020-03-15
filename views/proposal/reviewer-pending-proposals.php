@@ -18,7 +18,7 @@
 
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="/proposal/review-proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -80,7 +80,7 @@
 
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="/proposal/review-proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [

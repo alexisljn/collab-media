@@ -7,6 +7,7 @@
 /** @var \app\models\forms\ManageProposalForm $manageProposalFormModel */
 /** @var \app\models\forms\ManageCommentForm $manageCommentFormModel */
 /** @var bool|\app\models\Review $potentialReview */
+/** @var bool $canEditProposal */
 
 use app\models\Proposal;
 use yii\helpers\Html;
@@ -52,7 +53,7 @@ use yii\widgets\ActiveForm; ?>
     <div class="col-9 proposal-timeline">
         <!-- Proposal informations -->
         <?php if (!is_null($selectedProposal->social_media)) { ?>
-            <p class="content-layout">Published on : <?= $selectedProposal->social ?></p>
+            <p class="content-layout">Published on : <?= $selectedProposal->social_media ?></p>
         <?php } ?>
         <div class="proposal-timeline-text-element-container" id="proposal-content">
             <div class="proposal-timeline-text-element-content">
@@ -221,11 +222,12 @@ use yii\widgets\ActiveForm; ?>
             Created by <strong><?= Html::encode($selectedProposal->submitter->firstname . ' ' . $selectedProposal->submitter->lastname) ?></strong>
         </div>
         <div class="proposal-sidebar-divider"></div>
+        <?php if ($canEditProposal) { ?>
         <div class="proposal-sidebar-block">
-<!--        TODO Display this block only if the current user is the proposal submitter AND if the proposal is still pending -->
             <button id="edit-link" class="btn btn-block btn-sm btn-not-outline">Edit</button>
         </div>
         <div class="proposal-sidebar-divider"></div>
+        <?php } ?>
         <div class="proposal-sidebar-block">
             Status:
             <?php

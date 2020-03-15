@@ -917,7 +917,7 @@ CREATE TABLE `user` (
   `role` varchar(32) COLLATE utf8mb4_unicode_ci NOT NULL,
   `is_validated` bit(1) NOT NULL COMMENT 'true if user validated his account by choosing his password',
   `is_active` bit(1) NOT NULL COMMENT 'true if account is active by admin',
-  `token` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `token` varchar(32) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --

@@ -69,12 +69,10 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
-                'proposal/my-proposals/<id:\d+>' => 'proposal/my-proposals',
+                'proposal/proposal/<id:\d+>' => 'proposal/proposal',
                 'proposal/edit-proposal/<id:\d+>' => 'proposal/edit-proposal',
                 'proposal/post-comment/<id:\d+>' => 'proposal/post-comment',
                 'proposal/edit-comment/<id:\d+>' => 'proposal/edit-comment',
-                'proposal/manage-proposals/<id:\d+>' => 'proposal/manage-proposals',
-                'proposal/review-proposal/<id:\d+>' => 'proposal/review-proposal',
                 'management/accounts/<id:\d+>'   => 'management/accounts',
                 'management/social-media/<id:\w+>' => 'management/social-media',
             ],

@@ -16,7 +16,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="my-proposals/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -66,7 +66,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="my-proposals/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [

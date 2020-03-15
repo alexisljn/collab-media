@@ -14,7 +14,7 @@
             {
                 /** @var \app\models\Proposal $proposal */
                 /** @TODO link manage-proposal/id */
-                return '<a href="/proposal/manage-proposals/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -47,7 +47,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
                 /** @TODO link manage-proposal/id */
-                return '<a href="/proposal/manage-proposals/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [

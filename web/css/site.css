@@ -92,26 +92,69 @@ a.desc:after {
     font-size: 0.9em;
 }
 
+.proposal-edit-form-container {
+    padding-bottom: 20px;
+}
+
+.proposal-edit-section {
+    margin-bottom: 20px;
+}
 
 .proposal-timeline-text-element-container {
+
     border: 1px solid #d4d4db;
     border-radius: 5px;
 
-    box-shadow: 0 0 6px rgba(0,0,0,.04)
+    box-shadow: 0 0 6px rgba(0, 0, 0, .04);
+}
+
+.proposal-timeline-notification-element-container {
+    display: flex;
+    padding: 10px 0;
+}
+
+.proposal-timeline-text-element-container:not(#proposal-content),
+.proposal-timeline-notification-element-container {
+    position: relative;
+    margin-top: 30px;
+}
+
+.proposal-timeline-text-element-container:not(#proposal-content):before,
+.proposal-timeline-notification-element-container:before {
+    position: absolute;
+
+    content: " ";
+    display: block;
+    width: 3px;
+    height: 30px;
+    background-color: #d4d4db;
+    top: 0;
+    left: 20px;
+    transform: translateY(calc(-100% - 1px));
 }
 
 .proposal-timeline-text-element-content {
     padding: 20px;
 }
 
+.proposal-timeline-text-element-header,
 .proposal-timeline-text-element-footer {
     background-color: #f6f8fA;
-    border-top: 1px solid #d4d4db;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
     padding: 10px 20px;
     color: #5a5a5e;
     font-size: 0.9em;
+}
+
+.proposal-timeline-text-element-header {
+    border-bottom: 1px solid #d4d4db;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.proposal-timeline-text-element-footer {
+    border-top: 1px solid #d4d4db;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .proposal-timeline-text-element-container h1,
@@ -127,6 +170,21 @@ a.desc:after {
 .proposal-timeline-text-element-container h3,
 .proposal-content-text h3 {
     font-size: 1.65em !important;
+}
+
+.proposal-timeline-notification-element-icon {
+    width: 50px;
+    font-size: 1.3em;
+    padding-left: 12px;
+    color: #777;
+}
+
+.proposal-timeline-notification-element-content {
+    flex: 1
+}
+
+.proposal-add-comment-container {
+    margin-top: 20px;
 }
 
 

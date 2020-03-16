@@ -45,10 +45,16 @@ AppAsset::register($this);
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <?= MainController::$headerNavbar->getHTML() ?>
-                <form method="post" action="/site/logout" class="form-inline my-2 my-lg-0">
-                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
-                    <button class="btn btn-outline btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
-                </form>
+                <?php
+                if(!Yii::$app->user->isGuest) {
+                    ?>
+                    <form method="post" action="/site/logout" class="form-inline my-2 my-lg-0">
+                        <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
+                        <button class="btn btn-outline btn-outline-danger my-2 my-sm-0" type="submit">Logout</button>
+                    </form>
+                    <?php
+                }
+                ?>
             </div>
         </nav>
     </header>

@@ -1,50 +1,69 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $approvedProposals  */
-/**  @var \yii\data\ActiveDataProvider $notApprovedProposals*/
+/** @var \yii\data\ActiveDataProvider $notApprovedProposals*/
+/** @var int $proposalsCount */
+/** @var int $publishedProposalsCount  */
+/** @var int $pendingProposalsCount */
+/** @var int $rejectedProposalsCount */
+/** @var int $proposalsReviewedByUserCount */
+/** @var int $proposalsCreatedByUserCount */
+/** @var int $userProposalsPublishedCount */
 ?>
 
-<div class="row">
-    <div class="col-3">
+<div class="row margin-bottom">
+    <div class="col-lg-3 col-md-6">
         <div class="card bg-dashboard-proposals-count">
             <div class="card-body">
-                <p class="h1-dashboard-card"></>
+                <p class="h1-dashboard-card"><?= $proposalsCount ?></p>
                 <div class="card-divider"></div>
-                <p class="content-dashboard-card"><i class="fas fa-flag " style="margin-right: 10px;"></i>Proposals's total</p>
+                <p class="content-dashboard-card"><i class="fas fa-flag" style="margin-right: 10px;"></i>Proposals</p>
             </div>
         </div>
     </div>
-    <div class="col-4">
+    <div class="col-lg-3 col-md-6">
         <div class="card bg-dashboard-proposals-published-count">
             <div class="card-body">
-                <h1>45</h1>
-               <p>Published proposal's total</p>
+                <p class="h1-dashboard-card"><?= $publishedProposalsCount ?></p>
+                <div class="card-divider"></div>
+                <p class="content-dashboard-card"><i class="fas fa-check" style="margin-right: 10px;"></i>Published proposals</p>
             </div>
         </div>
     </div>
-    <div class="col-4">
+    <div class="col-lg-3 col-md-6">
         <div class="card bg-dashboard-proposals-pending-count">
             <div class="card-body">
-                This is some text within a card body.
+                <p class="h1-dashboard-card"><?= $pendingProposalsCount ?></p>
+                <div class="card-divider"></div>
+                <p class="content-dashboard-card"><i class="fas fa-hourglass-half" style="margin-right: 10px;"></i>Pending proposals</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <div class="card bg-dashboard-proposals-rejected-count">
+            <div class="card-body">
+                <p class="h1-dashboard-card"><?= $rejectedProposalsCount ?></p>
+                <div class="card-divider"></div>
+                <p class="content-dashboard-card"><i class="fas fa-times" style="margin-right: 10px;"></i>Rejected proposals</p>
             </div>
         </div>
     </div>
 </div>
-<div class="row">
-    <div class="col-4">
-        <div class="card bg-dashboard-proposals-rejected-count">
-            <div class="card-body">
-                This is some text within a card body.
-            </div>
+ <div class="row margin-bottom">
+    <div class="col-lg-4 col-md-12">
+        <div class="reviewed-proposals-minicard">
+            <span class="text-minicard">Proposals reviewed by you</span> <span class="number-minicard"><?= $proposalsReviewedByUserCount ?></span>
         </div>
     </div>
-    <div class="col-4">
-        <div class="card bg-dashboard-proposals-reviewed-by-user-count">
-            <div class="card-body">
-                This is some text within a card body.
-            </div>
-        </div>
-    </div>
-
+     <div class="col-lg-4 col-md-12">
+         <div class="created-proposals-minicard">
+             <span class="text-minicard">Proposals created by you</span> <span class="number-minicard"><?= $proposalsCreatedByUserCount ?></span>
+         </div>
+     </div>
+     <div class="col-lg-4 col-md-12">
+         <div class="published-proposals-minicard">
+             <span class="text-minicard">Your proposals published</span> <span class="number-minicard"><?= $userProposalsPublishedCount ?></span>
+         </div>
+     </div>
 </div>
 
 <strong>Reviewer's approved proposals</strong>

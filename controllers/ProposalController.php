@@ -793,6 +793,13 @@ class ProposalController extends MainController
             ->where(['reviewer_id' => MainController::getCurrentUser()->id])
             ->count();
         //dd($proposalsReviewedByUserCount);
+        $proposalsCreatedByUserCount = Proposal::find()
+            ->where(['submitter_id' => MainController::getCurrentUser()->id])
+            ->count();
+        $userProposalsPublishedCount = Proposal::find()
+            ->where(['submitter_id' => MainController::getCurrentUser()->id])
+            ->andWhere(['status' => \app\models\Proposal::STATUS_PUBLISHED])
+            ->count();
 
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
@@ -804,6 +811,8 @@ class ProposalController extends MainController
             'pendingProposalsCount' => $pendingProposalsCount,
             'rejectedProposalsCount' => $rejectedProposalsCount,
             'proposalsReviewedByUserCount' => $proposalsReviewedByUserCount,
+            'proposalsCreatedByUserCount' => $proposalsCreatedByUserCount,
+            'userProposalsPublishedCount' => $userProposalsPublishedCount,
             'approvedProposals' => $approvedProposals,
             'notApprovedProposals' => $notApprovedProposals
         ]);

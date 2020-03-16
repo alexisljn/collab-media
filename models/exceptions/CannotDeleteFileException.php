@@ -4,7 +4,7 @@
 namespace app\models\exceptions;
 
 
-class CannotDeleteFileException extends \Exception
+class CannotDeleteFileException extends FileException
 {
 
 }

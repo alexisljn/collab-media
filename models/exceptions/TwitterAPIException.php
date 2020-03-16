@@ -4,7 +4,7 @@
 namespace app\models\exceptions;
 
 
-class CannotTweetException extends \Exception
+class TwitterAPIException extends \Exception
 {
 
 }

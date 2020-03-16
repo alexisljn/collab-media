@@ -35,7 +35,7 @@ use yii\widgets\ActiveForm; ?>
                     </p>
                     <div class="proposal-content-text">
                         <?= (new Parsedown())
-                            ->text(\yii\helpers\Html::encode($oldProposalContent->content)) ?>
+                            ->text(Html::encode($oldProposalContent->content)) ?>
                     </div>
                 </div>
             <?php }
@@ -46,7 +46,7 @@ use yii\widgets\ActiveForm; ?>
 <!-- Proposal informations -->
 <div class="row">
     <div class="col-12">
-        <h1><?= \yii\helpers\Html::encode($selectedProposal->title) ?></h1>
+        <h1><?= Html::encode($selectedProposal->title) ?></h1>
     </div>
 </div>
 
@@ -58,7 +58,7 @@ use yii\widgets\ActiveForm; ?>
         <?php } ?>
         <div class="proposal-timeline-text-element-container" id="proposal-content">
             <div class="proposal-timeline-text-element-content">
-                <?= (new Parsedown())->text(\yii\helpers\Html::encode($lastProposalContent->content)) ?>
+                <?= (new Parsedown())->text(Html::encode($lastProposalContent->content)) ?>
             </div>
 
             <?php
@@ -153,7 +153,7 @@ use yii\widgets\ActiveForm; ?>
                                         ->hiddenInput(['id' => 'edit-comment-id-input-' . $chronologicalItem->id])
                                         ->label(false);
                                     ?>
-                                    <?= yii\helpers\Html::submitButton('Edit'); ?>
+                                    <?= yii\helpers\Html::submitButton('Edit', ['class' => 'btn btn-not-outline']); ?>
                                     <?php yii\widgets\ActiveForm::end(); ?>
                                 </div>
                                 <?php
@@ -161,7 +161,7 @@ use yii\widgets\ActiveForm; ?>
                             ?>
                             <div id="comment-layout-<?= $chronologicalItem->id ?>">
                                 <p id="comment-content-<?= $chronologicalItem->id ?>">
-                                    <?= nl2br(\yii\helpers\Html::encode($chronologicalItem->content)) ?>
+                                    <?= nl2br(Html::encode($chronologicalItem->content)) ?>
                                 </p>
                             </div>
                         </div>
@@ -170,12 +170,43 @@ use yii\widgets\ActiveForm; ?>
                 } elseif ($chronologicalItem instanceof \app\models\databaseModels\Review
                     && $chronologicalItem->status != \app\models\Review::REVIEW_STATUS_CANCELLED) {
                     ?>
-                    <div class="bg-secondary">
-                        <p>
-                            <?= \yii\helpers\Html::encode($chronologicalItem->reviewer->firstname) . ' ' .
-                            \yii\helpers\Html::encode($chronologicalItem->reviewer->lastname) . ' - ' .
-                            $chronologicalItem->date . ' ' . $chronologicalItem->status . ' ' ?>this proposal.
-                        </p>
+                    <div class="proposal-timeline-notification-element-container">
+                        <div class="proposal-timeline-notification-element-icon">
+                            <?php
+                            switch($chronologicalItem->status) {
+                                case \app\models\Review::REVIEW_STATUS_APPROVED:
+                                    ?>
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <?php
+                                    break;
+                                case \app\models\Review::REVIEW_STATUS_DISAPPROVED:
+                                    ?>
+                                    <i class="fas fa-thumbs-down"></i>
+                                    <?php
+                                    break;
+                            }
+                            ?>
+                        </div>
+                        <div class="proposal-timeline-notification-element-content">
+                            <?= $chronologicalItem->date ?>
+                            –
+                            <?= Html::encode($chronologicalItem->reviewer->firstname . ' ' . $chronologicalItem->reviewer->lastname) ?>
+                            <?php
+                            switch($chronologicalItem->status) {
+                                case \app\models\Review::REVIEW_STATUS_APPROVED:
+                                    ?>
+                                    approved
+                                    <?php
+                                    break;
+                                case \app\models\Review::REVIEW_STATUS_DISAPPROVED:
+                                    ?>
+                                    disapproved
+                                    <?php
+                                    break;
+                            }
+                            ?>
+                            this proposal
+                        </div>
                     </div>
                     <?php
                 } elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalContentHistory) {
@@ -183,8 +214,8 @@ use yii\widgets\ActiveForm; ?>
                         ?>
                         <div class="bg-danger">
                             <p>
-                                <?= \yii\helpers\Html::encode($selectedProposal->submitter->firstname) . ' ' .
-                                \yii\helpers\Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
+                                <?= Html::encode($selectedProposal->submitter->firstname) . ' ' .
+                                Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
                                 edited this proposal on <?= ' ' . $chronologicalItem->date ?>
                             </p>
                         </div>
@@ -195,8 +226,8 @@ use yii\widgets\ActiveForm; ?>
                         ?>
                         <div class="bg-warning">
                             <p>
-                                <?= \yii\helpers\Html::encode($selectedProposal->submitter->firstname) . ' ' .
-                                \yii\helpers\Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
+                                <?= Html::encode($selectedProposal->submitter->firstname) . ' ' .
+                                Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
                                 uploaded new file <?= $chronologicalItem->path ?>
                                 the <?= ' ' . $chronologicalItem->date ?>
                             </p>
@@ -220,7 +251,7 @@ use yii\widgets\ActiveForm; ?>
                 'id' => 'proposal-comment-content-input',
                 'rows' => '8',
             ]); ?>
-        <?= yii\helpers\Html::submitButton('Submit'); ?>
+        <?= yii\helpers\Html::submitButton('Submit', ['class' => 'btn btn-not-outline']); ?>
         <?php yii\widgets\ActiveForm::end(); ?>
     </div>
 

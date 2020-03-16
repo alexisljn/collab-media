@@ -94,7 +94,6 @@ a.desc:after {
 
 
 .proposal-timeline-text-element-container {
-    position: relative;
 
     border: 1px solid #d4d4db;
     border-radius: 5px;
@@ -102,11 +101,19 @@ a.desc:after {
     box-shadow: 0 0 6px rgba(0, 0, 0, .04);
 }
 
-.proposal-timeline-text-element-container:not(#proposal-content) {
+.proposal-timeline-notification-element-container {
+    display: flex;
+    padding: 10px 0;
+}
+
+.proposal-timeline-text-element-container:not(#proposal-content),
+.proposal-timeline-notification-element-container {
+    position: relative;
     margin-top: 30px;
 }
 
-.proposal-timeline-text-element-container:not(#proposal-content):before {
+.proposal-timeline-text-element-container:not(#proposal-content):before,
+.proposal-timeline-notification-element-container:before {
     position: absolute;
 
     content: " ";
@@ -156,6 +163,17 @@ a.desc:after {
 .proposal-timeline-text-element-container h3,
 .proposal-content-text h3 {
     font-size: 1.65em !important;
+}
+
+.proposal-timeline-notification-element-icon {
+    width: 50px;
+    font-size: 1.3em;
+    padding-left: 12px;
+    color: #777;
+}
+
+.proposal-timeline-notification-element-content {
+    flex: 1
 }
 
 

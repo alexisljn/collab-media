@@ -9,6 +9,7 @@
 /** @var bool|\app\models\Review $potentialReview */
 /** @var bool $canEditProposal */
 
+use app\controllers\mainController\MainController;
 use app\models\Proposal;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm; ?>
@@ -106,16 +107,31 @@ use yii\widgets\ActiveForm; ?>
                                 <?= Html::encode($chronologicalItem->author->firstname . ' ' . $chronologicalItem->author->lastname) ?>
                                 –
                                 <?= $chronologicalItem->date ?>
+                                <?php
+                                if(!is_null($chronologicalItem->edited_date)) {
+                                    ?>
+                                    – Edited at <?= $chronologicalItem->edited_date ?>
+                                    <?php
+                                }
+                                ?>
                             </div>
-                            <div style="float: right">Edited at <?= $lastProposalContent->date ?> – <a id="proposal-content-show-history-link" href="#">View history</a></div>
+                            <?php
+                            if($chronologicalItem->author_id === MainController::getCurrentUser()->id) {
+                                ?>
+                                <div style="float: right">
+
+                                    <a href="" id="edit-comment-link-<?= $chronologicalItem->id ?>">Edit</a>
+                                    <a href="" id="cancel-edit-link-<?= $chronologicalItem->id ?>" style="display: none;">Cancel</a>
+                                </div>
+                                <?php
+                            }
+                            ?>
                             <div class="clear"></div>
                         </div>
                         <div class="proposal-timeline-text-element-content">
                             <?php
-                            if ($chronologicalItem->author_id == \app\controllers\mainController\MainController::getCurrentUser()->id) {
+                            if ($chronologicalItem->author_id == MainController::getCurrentUser()->id) {
                                 ?>
-                                <a href="" id="edit-comment-link-<?= $chronologicalItem->id ?>" style="color: red;">Edit</a>
-                                <a href="" id="cancel-edit-link-<?= $chronologicalItem->id ?>" style="display: none;color: red;">Cancel</a>
 
                                 <div id="edit-comment-<?= $chronologicalItem->id ?>" style="display: none">
                                     <?php
@@ -144,27 +160,8 @@ use yii\widgets\ActiveForm; ?>
                             }
                             ?>
                             <div id="comment-layout-<?= $chronologicalItem->id ?>">
-                                <?php
-                                if (!is_null($chronologicalItem->edited_date)) {
-                                    ?>
-                                    <p>
-                                        <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
-                                        \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' edited this comment on ' .
-                                        $chronologicalItem->edited_date ?>
-                                    </p>
-                                    <?php
-                                } else {
-                                    ?>
-                                    <p>
-                                        <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
-                                        \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
-                                        $chronologicalItem->date ?>
-                                    </p>
-                                    <?php
-                                }
-                                ?>
                                 <p id="comment-content-<?= $chronologicalItem->id ?>">
-                                    <?= \yii\helpers\Html::encode($chronologicalItem->content) ?>
+                                    <?= nl2br(\yii\helpers\Html::encode($chronologicalItem->content)) ?>
                                 </p>
                             </div>
                         </div>

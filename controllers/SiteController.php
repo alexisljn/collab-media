@@ -121,7 +121,7 @@ class SiteController extends MainController
      */
     public function actionValidateAccount($token = null)
     {
-        $user = $this->checkIfUserExist($token);
+        $user = $this->checkIfUserMatchToToken($token);
 
         $form = new ValidateAccountForm();
 
@@ -159,7 +159,7 @@ class SiteController extends MainController
      * @param $token
      * @return User|null
      */
-    private function checkIfUserExist($token)
+    private function checkIfUserMatchToToken($token)
     {
         $notFoundException = NotFoundHttpException::class;
         if (!is_null($user = User::findOne(['token' => $token]))) {

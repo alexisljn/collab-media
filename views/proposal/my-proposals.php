@@ -5,7 +5,8 @@
 
 
 <strong>My pending proposals</strong>
-<?= \yii\grid\GridView::widget([
+<?php \yii\widgets\Pjax::begin();
+echo \yii\grid\GridView::widget([
     'dataProvider' => $myPendingProposals,
     'columns' => [
         [
@@ -16,7 +17,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a data-pjax="0" href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -53,9 +54,11 @@
             }
         ]
     ]
-]); ?>
+]);
+\yii\widgets\Pjax::end();?>
 <strong>Proposals history</strong>
-<?= \yii\grid\GridView::widget([
+<?php \yii\widgets\Pjax::begin();
+echo \yii\grid\GridView::widget([
     'dataProvider' => $myNotPendingProposals,
     'columns' => [
         [
@@ -66,7 +69,7 @@
             {
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a data-pjax="0" href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -92,4 +95,5 @@
             }
         ]
     ]
-]); ?>
+]);
+\yii\widgets\Pjax::end();?>

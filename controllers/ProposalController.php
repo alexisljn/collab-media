@@ -1048,6 +1048,12 @@ class ProposalController extends MainController
         return $review;
     }
 
+    /**
+     * Check if user can publish Proposal
+     *
+     * @param Proposal $proposal
+     * @return bool
+     */
     private function canPublishProposal(Proposal $proposal)
     {
         $currentUser = MainController::getCurrentUser();
@@ -1060,6 +1066,12 @@ class ProposalController extends MainController
         return false;
     }
 
+    /**
+     * Pass pending proposal's status to rejected
+     *
+     * @return string
+     * @throws CannotSaveException
+     */
     public function actionRejectProposal()
     {
         $proposalId = Yii::$app->request->post()['proposalId'];

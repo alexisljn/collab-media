@@ -550,7 +550,8 @@ use yii\widgets\ActiveForm; ?>
 <script type="text/javascript" id="publish-reject">
     $(() => {
         $('#reject-btn').on('click', () => {
-            if(confirm('Are you sure to reject this proposal ?')) {
+
+            if (confirm('Are you sure to reject this proposal ?')) {
                 $.post('/proposal/reject-proposal',
                     { proposalId: <?= $selectedProposal->id ?> },
                     (response) => {

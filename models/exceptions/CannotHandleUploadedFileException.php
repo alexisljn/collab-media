@@ -4,7 +4,7 @@
 namespace app\models\exceptions;
 
 
-class CannotHandleUploadedFileException extends \Exception
+class CannotHandleUploadedFileException extends FileException
 {
 
 }

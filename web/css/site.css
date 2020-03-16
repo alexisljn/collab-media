@@ -94,24 +94,53 @@ a.desc:after {
 
 
 .proposal-timeline-text-element-container {
+    position: relative;
+
     border: 1px solid #d4d4db;
     border-radius: 5px;
 
-    box-shadow: 0 0 6px rgba(0,0,0,.04)
+    box-shadow: 0 0 6px rgba(0, 0, 0, .04);
+}
+
+.proposal-timeline-text-element-container:not(#proposal-content) {
+    margin-top: 30px;
+}
+
+.proposal-timeline-text-element-container:not(#proposal-content):before {
+    position: absolute;
+
+    content: " ";
+    display: block;
+    width: 3px;
+    height: 30px;
+    background-color: #d4d4db;
+    top: 0;
+    left: 20px;
+    transform: translateY(calc(-100% - 1px));
 }
 
 .proposal-timeline-text-element-content {
     padding: 20px;
 }
 
+.proposal-timeline-text-element-header,
 .proposal-timeline-text-element-footer {
     background-color: #f6f8fA;
-    border-top: 1px solid #d4d4db;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
     padding: 10px 20px;
     color: #5a5a5e;
     font-size: 0.9em;
+}
+
+.proposal-timeline-text-element-header {
+    border-bottom: 1px solid #d4d4db;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.proposal-timeline-text-element-footer {
+    border-top: 1px solid #d4d4db;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 .proposal-timeline-text-element-container h1,

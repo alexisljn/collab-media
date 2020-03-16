@@ -96,108 +96,119 @@ use yii\widgets\ActiveForm; ?>
 
         <!-- Chronological Stream -->
         <div id="chronological-stream">
-        <?php
-        foreach ($chronologicalStream as $chronologicalItem) {
-            if ($chronologicalItem instanceof \app\models\databaseModels\Comment) {
-                ?>
-                <div class="bg-primary" style="margin-bottom: 1em;">
-                    <?php
-                    if ($chronologicalItem->author_id == \app\controllers\mainController\MainController::getCurrentUser()->id) {
-                        ?>
-                        <a href="" id="edit-comment-link-<?= $chronologicalItem->id ?>" style="color: red;">Edit</a>
-                        <a href="" id="cancel-edit-link-<?= $chronologicalItem->id ?>" style="display: none;color: red;">Cancel</a>
-
-                        <div id="edit-comment-<?= $chronologicalItem->id ?>" style="display: none">
+            <?php
+            foreach ($chronologicalStream as $chronologicalItem) {
+                if ($chronologicalItem instanceof \app\models\databaseModels\Comment) {
+                    ?>
+                    <div class="proposal-timeline-text-element-container">
+                        <div class="proposal-timeline-text-element-header">
+                            <div style="float: left">
+                                <?= Html::encode($chronologicalItem->author->firstname . ' ' . $chronologicalItem->author->lastname) ?>
+                                –
+                                <?= $chronologicalItem->date ?>
+                            </div>
+                            <div style="float: right">Edited at <?= $lastProposalContent->date ?> – <a id="proposal-content-show-history-link" href="#">View history</a></div>
+                            <div class="clear"></div>
+                        </div>
+                        <div class="proposal-timeline-text-element-content">
                             <?php
-                            $manageCommentForm = yii\widgets\ActiveForm::begin([
-                                'id' => 'comment-form-' . $chronologicalItem->id,
-                                'action' => '/proposal/edit-comment/'. $selectedProposal->id,
-                            ]);
+                            if ($chronologicalItem->author_id == \app\controllers\mainController\MainController::getCurrentUser()->id) {
+                                ?>
+                                <a href="" id="edit-comment-link-<?= $chronologicalItem->id ?>" style="color: red;">Edit</a>
+                                <a href="" id="cancel-edit-link-<?= $chronologicalItem->id ?>" style="display: none;color: red;">Cancel</a>
+
+                                <div id="edit-comment-<?= $chronologicalItem->id ?>" style="display: none">
+                                    <?php
+                                    $manageCommentForm = yii\widgets\ActiveForm::begin([
+                                        'id' => 'comment-form-' . $chronologicalItem->id,
+                                        'action' => '/proposal/edit-comment/'. $selectedProposal->id,
+                                    ]);
+                                    ?>
+                                    <?= $manageCommentForm
+                                        ->field($manageCommentFormModel, 'content')
+                                        ->textarea([
+                                            'id' => 'edit-comment-content-' . $chronologicalItem->id,
+                                            'rows' => '8',
+                                        ])
+                                        ->label(false);
+                                    ?>
+                                    <?= $manageCommentForm
+                                        ->field($manageCommentFormModel, 'id')
+                                        ->hiddenInput(['id' => 'edit-comment-id-input-' . $chronologicalItem->id])
+                                        ->label(false);
+                                    ?>
+                                    <?= yii\helpers\Html::submitButton('Edit'); ?>
+                                    <?php yii\widgets\ActiveForm::end(); ?>
+                                </div>
+                                <?php
+                            }
                             ?>
-                            <?= $manageCommentForm
-                                ->field($manageCommentFormModel, 'content')
-                                ->textarea([
-                                    'id' => 'edit-comment-content-' . $chronologicalItem->id,
-                                    'rows' => '8',
-                                ])
-                                ->label(false);
-                            ?>
-                            <?= $manageCommentForm
-                                ->field($manageCommentFormModel, 'id')
-                                ->hiddenInput(['id' => 'edit-comment-id-input-' . $chronologicalItem->id])
-                                ->label(false);
-                            ?>
-                            <?= yii\helpers\Html::submitButton('Edit'); ?>
-                            <?php yii\widgets\ActiveForm::end(); ?>
+                            <div id="comment-layout-<?= $chronologicalItem->id ?>">
+                                <?php
+                                if (!is_null($chronologicalItem->edited_date)) {
+                                    ?>
+                                    <p>
+                                        <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
+                                        \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' edited this comment on ' .
+                                        $chronologicalItem->edited_date ?>
+                                    </p>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <p>
+                                        <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
+                                        \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
+                                        $chronologicalItem->date ?>
+                                    </p>
+                                    <?php
+                                }
+                                ?>
+                                <p id="comment-content-<?= $chronologicalItem->id ?>">
+                                    <?= \yii\helpers\Html::encode($chronologicalItem->content) ?>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+                } elseif ($chronologicalItem instanceof \app\models\databaseModels\Review
+                    && $chronologicalItem->status != \app\models\Review::REVIEW_STATUS_CANCELLED) {
+                    ?>
+                    <div class="bg-secondary">
+                        <p>
+                            <?= \yii\helpers\Html::encode($chronologicalItem->reviewer->firstname) . ' ' .
+                            \yii\helpers\Html::encode($chronologicalItem->reviewer->lastname) . ' - ' .
+                            $chronologicalItem->date . ' ' . $chronologicalItem->status . ' ' ?>this proposal.
+                        </p>
+                    </div>
+                    <?php
+                } elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalContentHistory) {
+                    if ($chronologicalItem->date != $selectedProposal->date) {
+                        ?>
+                        <div class="bg-danger">
+                            <p>
+                                <?= \yii\helpers\Html::encode($selectedProposal->submitter->firstname) . ' ' .
+                                \yii\helpers\Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
+                                edited this proposal on <?= ' ' . $chronologicalItem->date ?>
+                            </p>
                         </div>
                         <?php
                     }
-                    ?>
-                    <div id="comment-layout-<?= $chronologicalItem->id ?>">
-                        <?php
-                        if (!is_null($chronologicalItem->edited_date)) {
-                            ?>
-                            <p>
-                                <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
-                                \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' edited this comment on ' .
-                                $chronologicalItem->edited_date ?>
-                            </p>
-                            <?php
-                        } else {
-                            ?>
-                            <p>
-                                <?= \yii\helpers\Html::encode($chronologicalItem->author->firstname) . ' ' .
-                                \yii\helpers\Html::encode($chronologicalItem->author->lastname) . ' - ' .
-                                $chronologicalItem->date ?>
-                            </p>
-                            <?php
-                        }
+                } elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalFileHistory) {
+                    if ($chronologicalItem->date != $selectedProposal->date) {
                         ?>
-                        <p id="comment-content-<?= $chronologicalItem->id ?>">
-                            <?= \yii\helpers\Html::encode($chronologicalItem->content) ?>
-                        </p>
-                    </div>
-                </div>
-                <?php
-            } elseif ($chronologicalItem instanceof \app\models\databaseModels\Review
-                && $chronologicalItem->status != \app\models\Review::REVIEW_STATUS_CANCELLED) {
-                ?>
-                <div class="bg-secondary">
-                    <p>
-                        <?= \yii\helpers\Html::encode($chronologicalItem->reviewer->firstname) . ' ' .
-                        \yii\helpers\Html::encode($chronologicalItem->reviewer->lastname) . ' - ' .
-                        $chronologicalItem->date . ' ' . $chronologicalItem->status . ' ' ?>this proposal.
-                    </p>
-                </div>
-                <?php
-            } elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalContentHistory) {
-                if ($chronologicalItem->date != $selectedProposal->date) {
-                    ?>
-                    <div class="bg-danger">
-                        <p>
-                            <?= \yii\helpers\Html::encode($selectedProposal->submitter->firstname) . ' ' .
-                            \yii\helpers\Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
-                            edited this proposal on <?= ' ' . $chronologicalItem->date ?>
-                        </p>
-                    </div>
-                    <?php
-                }
-            } elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalFileHistory) {
-                if ($chronologicalItem->date != $selectedProposal->date) {
-                    ?>
-                    <div class="bg-warning">
-                        <p>
-                            <?= \yii\helpers\Html::encode($selectedProposal->submitter->firstname) . ' ' .
-                            \yii\helpers\Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
-                            uploaded new file <?= $chronologicalItem->path ?>
-                            the <?= ' ' . $chronologicalItem->date ?>
-                        </p>
-                    </div>
-                    <?php
+                        <div class="bg-warning">
+                            <p>
+                                <?= \yii\helpers\Html::encode($selectedProposal->submitter->firstname) . ' ' .
+                                \yii\helpers\Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
+                                uploaded new file <?= $chronologicalItem->path ?>
+                                the <?= ' ' . $chronologicalItem->date ?>
+                            </p>
+                        </div>
+                        <?php
+                    }
                 }
             }
-        }
-        ?>
+            ?>
         </div>
         <h3>Add a comment</h3>
         <?php
@@ -218,15 +229,15 @@ use yii\widgets\ActiveForm; ?>
 
     <aside class="col-3 proposal-sidebar">
         <div class="proposal-sidebar-block">
-<!--        TODO Display this block only if the current user is not the proposal submitter -->
+            <!--        TODO Display this block only if the current user is not the proposal submitter -->
             Created by <strong><?= Html::encode($selectedProposal->submitter->firstname . ' ' . $selectedProposal->submitter->lastname) ?></strong>
         </div>
         <div class="proposal-sidebar-divider"></div>
         <?php if ($canEditProposal) { ?>
-        <div class="proposal-sidebar-block">
-            <button id="edit-link" class="btn btn-block btn-sm btn-not-outline">Edit</button>
-        </div>
-        <div class="proposal-sidebar-divider"></div>
+            <div class="proposal-sidebar-block">
+                <button id="edit-link" class="btn btn-block btn-sm btn-not-outline">Edit</button>
+            </div>
+            <div class="proposal-sidebar-divider"></div>
         <?php } ?>
         <div class="proposal-sidebar-block">
             Status:
@@ -291,21 +302,21 @@ use yii\widgets\ActiveForm; ?>
             </div>
         </div>
         <?php if (!is_null($potentialReview)) { ?>
-        <div class="proposal-sidebar-divider"></div>
-        <div class="proposal-sidebar-block">
-            <div class="row">
-                <div class="col-6 text-center">
-                    <button id="vote-up" type="button" class="btn btn-lg btn-outline-success">
-                        <i class="fas fa-thumbs-up"></i>
-                    </button>
-                </div>
-                <div class="col-6 text-center">
-                    <button id="vote-down" type="button" class="btn btn-lg btn-outline-danger">
-                        <i class="fas fa-thumbs-down"></i>
-                    </button>
+            <div class="proposal-sidebar-divider"></div>
+            <div class="proposal-sidebar-block">
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <button id="vote-up" type="button" class="btn btn-lg btn-outline-success">
+                            <i class="fas fa-thumbs-up"></i>
+                        </button>
+                    </div>
+                    <div class="col-6 text-center">
+                        <button id="vote-down" type="button" class="btn btn-lg btn-outline-danger">
+                            <i class="fas fa-thumbs-down"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
         <?php } ?>
     </aside>
 </div>
@@ -418,9 +429,9 @@ use yii\widgets\ActiveForm; ?>
 
             $.post('/proposal/post-review',
                 {
-                proposalId: <?= $selectedProposal->id ?>,
-                reviewId: reviewId,
-                reviewStatus: thumbsUp.data('statusOnChange')
+                    proposalId: <?= $selectedProposal->id ?>,
+                    reviewId: reviewId,
+                    reviewStatus: thumbsUp.data('statusOnChange')
                 },
                 (response) => {
                     response = JSON.parse(response);

@@ -303,3 +303,39 @@ a.desc:after {
     margin-top: 30px;
     margin-bottom: 30px;
 }
+
+.bg-dashboard-proposals-count {
+    background-color: #873FA6;
+}
+
+.bg-dashboard-proposals-published-count {
+    background-color: #3cbb1e;
+}
+
+.bg-dashboard-proposals-pending-count {
+    background-color: #f3af22;
+}
+
+.bg-dashboard-proposals-rejected-count {
+    background-color: #c21b15;
+}
+
+.bg-dashboard-proposals-reviewed-by-user-count {
+    background-color: #49BCFF;
+}
+
+.h1-dashboard-card {
+    color: white;
+    font-size: 4em;
+    margin-bottom: 0;
+}
+
+.card-divider {
+    border-bottom: 1px white solid;
+    margin-bottom: 10px;
+}
+
+.content-dashboard-card {
+    color: white;
+    font-size: 1.3em;
+}

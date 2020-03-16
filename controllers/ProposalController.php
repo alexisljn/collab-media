@@ -775,13 +775,37 @@ class ProposalController extends MainController
      */
     public function actionManageProposals()
     {
+       // Récupérer count total proposition plateforme - count total prop published
+        // count total prop pending, rejected
+        // count prop reviewed by users
+
+        $proposalsCount = Proposal::find()->count();
+        $publishedProposalsCount = Proposal::find()
+            ->where(['status' => \app\models\Proposal::STATUS_PUBLISHED])
+            ->count();
+        $pendingProposalsCount = Proposal::find()
+            ->where(['status' => \app\models\Proposal::STATUS_PENDING])
+            ->count();
+        $rejectedProposalsCount = Proposal::find()
+            ->where(['status' => \app\models\Proposal::STATUS_REJECTED])
+            ->count();
+        $proposalsReviewedByUserCount = Review::find()
+            ->where(['reviewer_id' => MainController::getCurrentUser()->id])
+            ->count();
+        //dd($proposalsReviewedByUserCount);
+
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
         $notApprovedProposals = $this->buildNotApprovedProposalsActiveDataProvider($approvedProposalsQuery);
 
         return $this->render('manage-proposals', [
-           'approvedProposals' => $approvedProposals,
-           'notApprovedProposals' => $notApprovedProposals
+            'proposalsCount' => $proposalsCount,
+            'publishedProposalsCount' => $publishedProposalsCount,
+            'pendingProposalsCount' => $pendingProposalsCount,
+            'rejectedProposalsCount' => $rejectedProposalsCount,
+            'proposalsReviewedByUserCount' => $proposalsReviewedByUserCount,
+            'approvedProposals' => $approvedProposals,
+            'notApprovedProposals' => $notApprovedProposals
         ]);
     }
 

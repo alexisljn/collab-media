@@ -2,6 +2,51 @@
 /** @var \yii\data\ActiveDataProvider $approvedProposals  */
 /**  @var \yii\data\ActiveDataProvider $notApprovedProposals*/
 ?>
+
+<div class="row">
+    <div class="col-3">
+        <div class="card bg-dashboard-proposals-count">
+            <div class="card-body">
+                <p class="h1-dashboard-card">82</>
+                <div class="card-divider"></div>
+                <p class="content-dashboard-card">Proposals's total</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card bg-dashboard-proposals-published-count">
+            <div class="card-body">
+                <h1>45</h1>
+               <p>Published proposal's total</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card bg-dashboard-proposals-pending-count">
+            <div class="card-body">
+                This is some text within a card body.
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-4">
+        <div class="card bg-dashboard-proposals-rejected-count">
+            <div class="card-body">
+                This is some text within a card body.
+            </div>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card bg-dashboard-proposals-reviewed-by-user-count">
+            <div class="card-body">
+                This is some text within a card body.
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <strong>Reviewer's approved proposals</strong>
 <?= yii\grid\GridView::widget([
     'dataProvider' => $approvedProposals,

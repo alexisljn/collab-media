@@ -904,8 +904,8 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING]),
             'pagination' => [
-                'pageSize' => 10,
-                'defaultPageSize' => 10
+                'pageSize' => 20,
+                'defaultPageSize' => 20
             ],
             'sort' => [
                 'sortParam' => 'notApprovedSort',

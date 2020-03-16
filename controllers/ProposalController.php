@@ -219,6 +219,7 @@ class ProposalController extends MainController
                 ->where(['submitter_id' => self::getCurrentUser()->id])
                 ->andWhere(['status' => 'pending']),
             'pagination' => [
+                'pageSizeParam' => 'pendingProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -243,6 +244,7 @@ class ProposalController extends MainController
                 ->where(['not',['status' => \app\models\Proposal::STATUS_PENDING]])
                 ->andWhere(['submitter_id' => self::getCurrentUser()->id]),
             'pagination' => [
+                'pageSizeParam' => 'historyProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -299,6 +301,7 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => 'pending']),
             'pagination' => [
+                'pageSizeParam' => 'noReviewed',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -335,6 +338,7 @@ class ProposalController extends MainController
             ])
             ->andWhere(['status' => 'pending']),
             'pagination' => [
+                'pageSizeParam' => 'reviewed',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -775,10 +779,6 @@ class ProposalController extends MainController
      */
     public function actionDashboard()
     {
-       // Récupérer count total proposition plateforme - count total prop published
-        // count total prop pending, rejected
-        // count prop reviewed by users
-
         $proposalsCount = Proposal::find()->count();
         $publishedProposalsCount = Proposal::find()
             ->where(['status' => \app\models\Proposal::STATUS_PUBLISHED])
@@ -804,8 +804,10 @@ class ProposalController extends MainController
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
         $notApprovedProposals = $this->buildNotApprovedProposalsActiveDataProvider($approvedProposalsQuery);
+        $publishedProposals = $this->buildPublishedProposalsActiveDataProvider();
+        $rejectedProposals = $this->buildRejectedProposalsActiveDataProvider();
 
-        return $this->render('manage-proposals', [
+        return $this->render('dashboard', [
             'proposalsCount' => $proposalsCount,
             'publishedProposalsCount' => $publishedProposalsCount,
             'pendingProposalsCount' => $pendingProposalsCount,
@@ -814,7 +816,9 @@ class ProposalController extends MainController
             'proposalsCreatedByUserCount' => $proposalsCreatedByUserCount,
             'userProposalsPublishedCount' => $userProposalsPublishedCount,
             'approvedProposals' => $approvedProposals,
-            'notApprovedProposals' => $notApprovedProposals
+            'notApprovedProposals' => $notApprovedProposals,
+            'publishedProposals' => $publishedProposals,
+            'rejectedProposals' => $rejectedProposals
         ]);
     }
 
@@ -864,6 +868,7 @@ class ProposalController extends MainController
         return new ActiveDataProvider([
             'query' => $approvedProposalsQuery,
             'pagination' => [
+                'pageSizeParam' => 'approvedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -904,6 +909,7 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING]),
             'pagination' => [
+                'pageSizeParam' => 'notApprovedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -912,6 +918,46 @@ class ProposalController extends MainController
                 'attributes' => ['count_reviews', 'date', 'title'],
                 'defaultOrder' => [
                     'count_reviews' => SORT_DESC,
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+    }
+
+    private function buildPublishedProposalsActiveDataProvider()
+    {
+        return new ActiveDataProvider([
+            'query' => Proposal::find()->where(['status' => \app\models\Proposal::STATUS_PUBLISHED]),
+            'pagination' => [
+                'pageSizeParam' => 'publishedProposals',
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'publishedSort',
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+    }
+
+    private function buildRejectedProposalsActiveDataProvider()
+    {
+        return new ActiveDataProvider([
+            'query' => Proposal::find()->where(['status' => \app\models\Proposal::STATUS_REJECTED]),
+            'pagination' => [
+                'pageSizeParam' => 'rejectedProposals',
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'publishedSort',
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
                     'date' => SORT_DESC,
                     'title' => SORT_ASC
                 ]

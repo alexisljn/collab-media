@@ -5,8 +5,8 @@
 
 ?>
 <strong>No reviewed proposals for a reviewer</strong>
-<?=
-\yii\grid\GridView::widget([
+<?php \yii\widgets\Pjax::begin();
+echo \yii\grid\GridView::widget([
     'dataProvider' => $noReviewedProposalsByAReviewerDataProvider,
     'columns' => [
         [
@@ -18,7 +18,7 @@
 
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -65,10 +65,12 @@
         ]
 
     ]
-]) ?>
+]) ;
+\yii\widgets\Pjax::end();?>
 <strong>reviewed proposals for a reviewer</strong>
-<?=
-\yii\grid\GridView::widget([
+<?php
+\yii\widgets\Pjax::begin();
+echo \yii\grid\GridView::widget([
     'dataProvider' => $reviewedProposalsByAReviewerDataProvider,
     'columns' => [
         [
@@ -80,7 +82,7 @@
 
                 /** @var \app\models\databaseModels\Proposal $proposal */
 
-                return '<a href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
             }
         ],
         [
@@ -116,4 +118,5 @@
         ]
 
     ]
-]) ?>
+]);
+\yii\widgets\Pjax::end();?>

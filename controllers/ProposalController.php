@@ -792,7 +792,6 @@ class ProposalController extends MainController
         $proposalsReviewedByUserCount = Review::find()
             ->where(['reviewer_id' => MainController::getCurrentUser()->id])
             ->count();
-        //dd($proposalsReviewedByUserCount);
         $proposalsCreatedByUserCount = Proposal::find()
             ->where(['submitter_id' => MainController::getCurrentUser()->id])
             ->count();

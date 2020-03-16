@@ -773,7 +773,7 @@ class ProposalController extends MainController
      *
      * @return string
      */
-    public function actionManageProposals()
+    public function actionDashboard()
     {
        // Récupérer count total proposition plateforme - count total prop published
         // count total prop pending, rejected
@@ -904,8 +904,8 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING]),
             'pagination' => [
-                'pageSize' => 20,
-                'defaultPageSize' => 20
+                'pageSize' => 10,
+                'defaultPageSize' => 10
             ],
             'sort' => [
                 'sortParam' => 'notApprovedSort',

@@ -336,6 +336,12 @@ a.desc:after {
     margin-bottom: 10px;
 }
 
+.spacing_bottom {
+    width: 100%;
+    margin-bottom: 20px;
+    background-color: green;
+}
+
 .content-dashboard-card {
     color: white;
     font-size: 1.3em;
@@ -379,6 +385,12 @@ a.desc:after {
     justify-content: space-between;
     align-items: center;
 
+}
+
+.full-border {
+    border-bottom: 1px #D6D6D6 solid;
+    margin-bottom: 30px;
+    width: 100%;
 }
 
 .created-proposals-minicard {

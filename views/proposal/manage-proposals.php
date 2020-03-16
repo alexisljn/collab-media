@@ -7,9 +7,9 @@
     <div class="col-3">
         <div class="card bg-dashboard-proposals-count">
             <div class="card-body">
-                <p class="h1-dashboard-card">82</>
+                <p class="h1-dashboard-card"></>
                 <div class="card-divider"></div>
-                <p class="content-dashboard-card">Proposals's total</p>
+                <p class="content-dashboard-card"><i class="fas fa-flag " style="margin-right: 10px;"></i>Proposals's total</p>
             </div>
         </div>
     </div>

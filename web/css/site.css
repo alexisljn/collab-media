@@ -326,8 +326,9 @@ a.desc:after {
 
 .h1-dashboard-card {
     color: white;
-    font-size: 4em;
+    font-size: 5em;
     margin-bottom: 0;
+    margin-top: 0;
 }
 
 .card-divider {
@@ -339,3 +340,4 @@ a.desc:after {
     color: white;
     font-size: 1.3em;
 }
+

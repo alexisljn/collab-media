@@ -8,6 +8,7 @@
 /** @var \app\models\forms\ManageCommentForm $manageCommentFormModel */
 /** @var bool|\app\models\Review $potentialReview */
 /** @var bool $canEditProposal */
+/** @var bool $canPublishProposal */
 
 use app\controllers\mainController\MainController;
 use app\models\Proposal;
@@ -356,6 +357,24 @@ use yii\widgets\ActiveForm; ?>
                 </div>
             </div>
         <?php } ?>
+        <?php if ($canPublishProposal) { ?>
+            <div class="proposal-sidebar-divider"></div>
+            <div class="proposal-sidebar-block">
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <button id="vote-up" type="button" class="btn btn-lg btn-success">
+                            Publish
+                        </button>
+                    </div>
+                    <div class="col-6 text-center">
+                        <button id="vote-down" type="button" class="btn btn-lg btn-danger">
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
     </aside>
 </div>
 

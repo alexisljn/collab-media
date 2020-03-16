@@ -93,6 +93,7 @@ class ProposalController extends MainController
         $manageProposalFormModel->content = $lastProposalContent->content;
         $manageCommentFormModel = new ManageCommentForm();
         $canEditProposal = $this->canEditProposal($selectedProposal);
+        $canPublishProposal = $this->canPublishProposal($selectedProposal);
 
         $viewItems = [
             'selectedProposal' => $selectedProposal,
@@ -103,10 +104,11 @@ class ProposalController extends MainController
             'manageProposalFormModel' => $manageProposalFormModel,
             'manageCommentFormModel' => $manageCommentFormModel,
             'canEditProposal' => $canEditProposal,
+            'canPublishProposal' => $canPublishProposal
         ];
 
 
-        if ($this->checkIfReviewerCanReviewProposal($selectedProposal->submitter_id)) {
+        if ($this->checkIfReviewerCanReviewProposal($selectedProposal)) {
             $potentialReview = $this->getPotentialReviewOfAReviewer
             (
                 $selectedProposal,
@@ -886,9 +888,10 @@ class ProposalController extends MainController
         ]);
     }
 
-    private function checkIfReviewerCanReviewProposal($proposalSubmitterId) {
+    private function checkIfReviewerCanReviewProposal(Proposal $proposal) {
 
-        if (MainController::getCurrentUser()->id !== $proposalSubmitterId) {
+        if (MainController::getCurrentUser()->id !== $proposal->submitter_id
+            && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
             return true;
         }
 
@@ -1044,6 +1047,18 @@ class ProposalController extends MainController
         }
 
         return $review;
+    }
+
+    private function canPublishProposal(Proposal $proposal)
+    {
+        $currentUser = MainController::getCurrentUser();
+
+        if (($currentUser->role === User::USER_ROLE_PUBLISHER || $currentUser->role === User::USER_ROLE_ADMIN)
+            && ($proposal->submitter_id !== $currentUser->id) && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
+            return true;
+        }
+
+        return false;
     }
 
 }

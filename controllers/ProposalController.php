@@ -57,7 +57,7 @@ class ProposalController extends MainController
              /** @TODO USER_ROLE_PUBLISHER & ADMIN */
 
         }
-
+        //dd(explode('.', $selectedProposal->file->path)[1]);
         return $this->render('proposal', $viewItems);
     }
 

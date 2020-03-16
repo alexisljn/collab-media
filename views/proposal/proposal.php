@@ -57,6 +57,13 @@ use yii\widgets\ActiveForm; ?>
             <p class="content-layout">Published on : <?= $selectedProposal->social_media ?></p>
         <?php } ?>
         <div class="proposal-timeline-text-element-container content-layout" id="proposal-content">
+            <?php if (!is_null($selectedProposal->file)) { ?>
+            <div id="#proposal-file">
+                <?php if (explode('.', $selectedProposal->file->path)[1] !== 'mp4') { ?>
+
+                <?php } ?>
+            </div>
+            <?php } ?>
             <div class="proposal-timeline-text-element-content">
                 <?= (new Parsedown())->text(Html::encode($lastProposalContent->content)) ?>
             </div>

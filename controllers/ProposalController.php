@@ -1008,7 +1008,6 @@ class ProposalController extends MainController
      */
     private function saveReview(?\app\models\Review $currentReview, $reviewStatus, $reviewerId, $proposalId)
     {
-        //return dd($currentReview);
 
         if (!is_null($currentReview)) {
 
@@ -1059,6 +1058,19 @@ class ProposalController extends MainController
         }
 
         return false;
+    }
+
+    public function actionRejectProposal()
+    {
+        $proposalId = Yii::$app->request->post()['proposalId'];
+        $selectedProposal = $this->checkIfProposalExists($proposalId);
+        $selectedProposal->status = \app\models\Proposal::STATUS_REJECTED;
+
+        if (!$selectedProposal->save()) {
+            throw new CannotSaveException($selectedProposal);
+        }
+
+        return $this->actionProposal($proposalId);
     }
 
 }

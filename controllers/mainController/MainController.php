@@ -26,6 +26,7 @@ class MainController extends Controller
         'site' => [
             'login',
             'error',
+            'validate-account',
         ]
     ];
 

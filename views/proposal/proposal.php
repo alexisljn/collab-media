@@ -56,7 +56,7 @@ use yii\widgets\ActiveForm; ?>
         <?php if (!is_null($selectedProposal->social_media)) { ?>
             <p class="content-layout">Published on : <?= $selectedProposal->social_media ?></p>
         <?php } ?>
-        <div class="proposal-timeline-text-element-container" id="proposal-content">
+        <div class="proposal-timeline-text-element-container content-layout" id="proposal-content">
             <div class="proposal-timeline-text-element-content">
                 <?= (new Parsedown())->text(Html::encode($lastProposalContent->content)) ?>
             </div>
@@ -80,18 +80,18 @@ use yii\widgets\ActiveForm; ?>
         </div>
 
         <!-- Edit Form -->
-        <div style="display: none;" class="form-layout">
+        <div style="display: none;" class="form-layout proposal-edit-form-container">
             <?php
             $form = yii\widgets\ActiveForm::begin([
                 'id' => 'proposal-form',
-                'action' => '/proposal/edit-proposal/'. $selectedProposal->id
+                'action' => '/proposal/edit-proposal/'. $selectedProposal->id,
             ]);
             ?>
             <?= $form->field($manageProposalFormModel, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
-            <?= $form->field($manageProposalFormModel, 'content')->hiddenInput(['id' => 'proposal-form-content-input']); ?>
-            <div id="proposal-content" class="edit-section"></div>
+            <?= $form->field($manageProposalFormModel, 'content')->hiddenInput(['id' => 'proposal-form-content-input'])->label(false); ?>
+            <div class="proposal-edit-section"></div>
             <?= $form->field($manageProposalFormModel, 'relatedFile')->fileInput(); ?>
-            <?= yii\helpers\Html::submitButton('Edit'); ?>
+            <?= yii\helpers\Html::submitButton('Edit', ['class' => 'btn btn-not-outline']); ?>
             <?php yii\widgets\ActiveForm::end(); ?>
         </div>
 
@@ -245,21 +245,24 @@ use yii\widgets\ActiveForm; ?>
             }
             ?>
         </div>
-        <h3>Add a comment</h3>
-        <?php
-        $manageCommentForm = yii\widgets\ActiveForm::begin([
-            'id' => 'comment-form',
-            'action' => '/proposal/post-comment/'. $selectedProposal->id,
-        ]);
-        ?>
-        <?= $manageCommentForm
-            ->field($manageCommentFormModel, 'content')
-            ->textarea([
-                'id' => 'proposal-comment-content-input',
-                'rows' => '8',
-            ]); ?>
-        <?= yii\helpers\Html::submitButton('Submit', ['class' => 'btn btn-not-outline']); ?>
-        <?php yii\widgets\ActiveForm::end(); ?>
+        <div class="proposal-add-comment-container">
+            <h3>Add a comment</h3>
+            <?php
+            $manageCommentForm = yii\widgets\ActiveForm::begin([
+                'id' => 'comment-form',
+                'action' => '/proposal/post-comment/'. $selectedProposal->id,
+            ]);
+            ?>
+            <?= $manageCommentForm
+                ->field($manageCommentFormModel, 'content')
+                ->textarea([
+                    'id' => 'proposal-comment-content-input',
+                    'rows' => '8',
+                ])
+                ->label(false); ?>
+            <?= yii\helpers\Html::submitButton('Submit', ['class' => 'btn btn-not-outline']); ?>
+            <?php yii\widgets\ActiveForm::end(); ?>
+        </div>
     </div>
 
     <aside class="col-3 proposal-sidebar">
@@ -359,7 +362,7 @@ use yii\widgets\ActiveForm; ?>
 <script type="text/javascript" id="edit-form-script">
     $(() => {
         const editor = new tui.Editor({
-            el: document.querySelector('.edit-section'),
+            el: document.querySelector('.proposal-edit-section'),
             previewStyle: 'vertical',
             height: '300px',
             initialEditType: 'markdown',

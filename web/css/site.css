@@ -92,6 +92,13 @@ a.desc:after {
     font-size: 0.9em;
 }
 
+.proposal-edit-form-container {
+    padding-bottom: 20px;
+}
+
+.proposal-edit-section {
+    margin-bottom: 20px;
+}
 
 .proposal-timeline-text-element-container {
 
@@ -174,6 +181,10 @@ a.desc:after {
 
 .proposal-timeline-notification-element-content {
     flex: 1
+}
+
+.proposal-add-comment-container {
+    margin-top: 20px;
 }
 
 

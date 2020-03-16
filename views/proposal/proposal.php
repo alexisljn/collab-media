@@ -60,7 +60,7 @@ use yii\widgets\ActiveForm; ?>
             <?php if (!is_null($selectedProposal->file)) { ?>
             <div id="#proposal-file">
                 <?php if (explode('.', $selectedProposal->file->path)[1] !== 'mp4') { ?>
-
+                    <img src="" alt="">
                 <?php } ?>
             </div>
             <?php } ?>

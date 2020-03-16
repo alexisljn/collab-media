@@ -212,25 +212,32 @@ use yii\widgets\ActiveForm; ?>
                 } elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalContentHistory) {
                     if ($chronologicalItem->date != $selectedProposal->date) {
                         ?>
-                        <div class="bg-danger">
-                            <p>
-                                <?= Html::encode($selectedProposal->submitter->firstname) . ' ' .
-                                Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
-                                edited this proposal on <?= ' ' . $chronologicalItem->date ?>
-                            </p>
+                        <div class="proposal-timeline-notification-element-container">
+                            <div class="proposal-timeline-notification-element-icon">
+                                <i class="fas fa-pen"></i>
+                            </div>
+                            <div class="proposal-timeline-notification-element-content">
+                                <?= $chronologicalItem->date ?>
+                                –
+                                <?= Html::encode($selectedProposal->submitter->firstname . ' ' . $selectedProposal->submitter->lastname) ?>
+                                edited the proposal content
+                            </div>
                         </div>
                         <?php
                     }
                 } elseif ($chronologicalItem instanceof \app\models\databaseModels\ProposalFileHistory) {
                     if ($chronologicalItem->date != $selectedProposal->date) {
                         ?>
-                        <div class="bg-warning">
-                            <p>
-                                <?= Html::encode($selectedProposal->submitter->firstname) . ' ' .
-                                Html::encode($selectedProposal->submitter->lastname) . ' ' ?>
-                                uploaded new file <?= $chronologicalItem->path ?>
-                                the <?= ' ' . $chronologicalItem->date ?>
-                            </p>
+                        <div class="proposal-timeline-notification-element-container">
+                            <div class="proposal-timeline-notification-element-icon">
+                                <i class="fas fa-file" style="margin-left: 3px"></i>
+                            </div>
+                            <div class="proposal-timeline-notification-element-content">
+                                <?= $chronologicalItem->date ?>
+                                –
+                                <?= Html::encode($selectedProposal->submitter->firstname . ' ' . $selectedProposal->submitter->lastname) ?>
+                                updated the proposal file
+                            </div>
                         </div>
                         <?php
                     }

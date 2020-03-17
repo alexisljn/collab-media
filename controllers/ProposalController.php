@@ -8,6 +8,7 @@ use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\ProposalFileHistory;
 use app\models\exceptions\CannotDeleteFileException;
+use app\models\exceptions\FileDoesNotExistException;
 use app\models\forms\ManageCommentForm;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
@@ -57,7 +58,6 @@ class ProposalController extends MainController
              /** @TODO USER_ROLE_PUBLISHER & ADMIN */
 
         }
-
         return $this->render('proposal', $viewItems);
     }
 
@@ -107,6 +107,10 @@ class ProposalController extends MainController
             'canPublishProposal' => $canPublishProposal
         ];
 
+      /*  if (!is_null($selectedProposal->file))
+        {
+           $this->getRelatedFile($selectedProposal->file->path);
+        }*/
 
         if ($this->checkIfReviewerCanReviewProposal($selectedProposal)) {
             $potentialReview = $this->getPotentialReviewOfAReviewer
@@ -119,6 +123,7 @@ class ProposalController extends MainController
 
         return $viewItems;
     }
+
 
     /**
      * Check if a Proposal exists. If true it returns the proposal.
@@ -136,6 +141,21 @@ class ProposalController extends MainController
         }
 
         throw new $notFoundException();
+    }
+
+    public function actionGetFile(int $id)
+    {
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $this->checkIfUserCanSeeProposal($selectedProposal->submitter_id);
+        $filepath = '../uploaded-files/proposal-related-files/' . $selectedProposal->file->path;
+
+        if (!file_exists($filepath)) {
+            throw new FileDoesNotExistException();
+        }
+
+        header('Content-Type: ' . mime_content_type(($filepath)));
+        echo file_get_contents($filepath);
+        die;
     }
 
     /**
@@ -221,6 +241,7 @@ class ProposalController extends MainController
                 ->where(['submitter_id' => self::getCurrentUser()->id])
                 ->andWhere(['status' => 'pending']),
             'pagination' => [
+                'pageParam' => 'pendingProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -245,6 +266,7 @@ class ProposalController extends MainController
                 ->where(['not',['status' => \app\models\Proposal::STATUS_PENDING]])
                 ->andWhere(['submitter_id' => self::getCurrentUser()->id]),
             'pagination' => [
+                'pageParam' => 'historyProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -301,6 +323,7 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => 'pending']),
             'pagination' => [
+                'pageParam' => 'noReviewed',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -337,6 +360,7 @@ class ProposalController extends MainController
             ])
             ->andWhere(['status' => 'pending']),
             'pagination' => [
+                'pageParam' => 'reviewed',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -775,15 +799,47 @@ class ProposalController extends MainController
      *
      * @return string
      */
-    public function actionManageProposals()
+    public function actionDashboard()
     {
+        $proposalsCount = Proposal::find()->count();
+        $publishedProposalsCount = Proposal::find()
+            ->where(['status' => \app\models\Proposal::STATUS_PUBLISHED])
+            ->count();
+        $pendingProposalsCount = Proposal::find()
+            ->where(['status' => \app\models\Proposal::STATUS_PENDING])
+            ->count();
+        $rejectedProposalsCount = Proposal::find()
+            ->where(['status' => \app\models\Proposal::STATUS_REJECTED])
+            ->count();
+        $proposalsReviewedByUserCount = Review::find()
+            ->where(['reviewer_id' => MainController::getCurrentUser()->id])
+            ->count();
+        $proposalsCreatedByUserCount = Proposal::find()
+            ->where(['submitter_id' => MainController::getCurrentUser()->id])
+            ->count();
+        $userProposalsPublishedCount = Proposal::find()
+            ->where(['submitter_id' => MainController::getCurrentUser()->id])
+            ->andWhere(['status' => \app\models\Proposal::STATUS_PUBLISHED])
+            ->count();
+
         $approvedProposalsQuery = $this->buildApprovedProposalsQuery();
         $approvedProposals = $this->buildApprovedProposalsActiveDataProvider($approvedProposalsQuery);
         $notApprovedProposals = $this->buildNotApprovedProposalsActiveDataProvider($approvedProposalsQuery);
+        $publishedProposals = $this->buildPublishedProposalsActiveDataProvider();
+        $rejectedProposals = $this->buildRejectedProposalsActiveDataProvider();
 
-        return $this->render('manage-proposals', [
-           'approvedProposals' => $approvedProposals,
-           'notApprovedProposals' => $notApprovedProposals
+        return $this->render('dashboard', [
+            'proposalsCount' => $proposalsCount,
+            'publishedProposalsCount' => $publishedProposalsCount,
+            'pendingProposalsCount' => $pendingProposalsCount,
+            'rejectedProposalsCount' => $rejectedProposalsCount,
+            'proposalsReviewedByUserCount' => $proposalsReviewedByUserCount,
+            'proposalsCreatedByUserCount' => $proposalsCreatedByUserCount,
+            'userProposalsPublishedCount' => $userProposalsPublishedCount,
+            'approvedProposals' => $approvedProposals,
+            'notApprovedProposals' => $notApprovedProposals,
+            'publishedProposals' => $publishedProposals,
+            'rejectedProposals' => $rejectedProposals
         ]);
     }
 
@@ -833,6 +889,7 @@ class ProposalController extends MainController
         return new ActiveDataProvider([
             'query' => $approvedProposalsQuery,
             'pagination' => [
+                'pageParam' => 'approvedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -873,6 +930,7 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING]),
             'pagination' => [
+                'pageParam' => 'notApprovedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -888,8 +946,48 @@ class ProposalController extends MainController
         ]);
     }
 
-    private function checkIfReviewerCanReviewProposal(Proposal $proposal) {
+    private function buildPublishedProposalsActiveDataProvider()
+    {
+        return new ActiveDataProvider([
+            'query' => Proposal::find()->where(['status' => \app\models\Proposal::STATUS_PUBLISHED]),
+            'pagination' => [
+                'pageParam' => 'publishedProposals',
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'publishedSort',
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+    }
 
+    private function buildRejectedProposalsActiveDataProvider()
+    {
+        return new ActiveDataProvider([
+            'query' => Proposal::find()->where(['status' => \app\models\Proposal::STATUS_REJECTED]),
+            'pagination' => [
+                'pageParam' => 'rejectedProposals',
+                'pageSize' => 20,
+                'defaultPageSize' => 20
+            ],
+            'sort' => [
+                'sortParam' => 'publishedSort',
+                'attributes' => ['date', 'title'],
+                'defaultOrder' => [
+                    'date' => SORT_DESC,
+                    'title' => SORT_ASC
+                ]
+            ]
+        ]);
+    }
+
+    private function checkIfReviewerCanReviewProposal(Proposal $proposal)
+    {
         if (MainController::getCurrentUser()->id !== $proposal->submitter_id
             && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
             return true;

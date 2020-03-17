@@ -3,10 +3,12 @@
 # Collab'media
 
 ## Description
-Collab'media provides to your organization a powerful and handy way to manage social media publications by involving the whole team.
+Collab'media provides to your organization a powerful and handy way to manage social media publications by involving the whole team.<br>
+Your team can propose content to be published on your social networks, then your reviewers evaluate the proposal, suggest modifications, discuss about the content, and finally your publishers can schedule publication on selected social networks.
 
 ### Features
 
+- File upload
 - Complete roles and authorizations management
 - Proposals rating and reviewing
 - Social media integration and publication scheduling

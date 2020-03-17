@@ -15,6 +15,20 @@ use yii\web\UnauthorizedHttpException;
 class MainController extends Controller
 {
     /**
+     * Defines the actions that are accessible only in a dev environment
+     *
+     * Format :
+     * 'controller-name' => [
+     *     'allowed-action-name',
+     * ],
+     */
+    private const DEV_ONLY_ACTIONS = [
+        'fixtures' => [
+            '*',
+        ],
+    ];
+
+    /**
      * Defines the actions that are accessible to guest users
      *
      * Format :
@@ -171,6 +185,8 @@ class MainController extends Controller
      */
     public static $headerNavbar;
 
+    private $currentActionIsDevOnlyAction = false;
+
     /**
      * @inheritDoc
      */
@@ -201,12 +217,37 @@ class MainController extends Controller
      */
     private function handleActionAuthorization(Action $action)
     {
+        $this->handleDevActionAuthorization($action);
+
+        if($this->currentActionIsDevOnlyAction) {
+            return;
+        }
+
         if(\Yii::$app->user->isGuest) {
             $this->handleGuestActionAuthorization($action);
             return;
         }
 
         $this->handleLoggedInActionAuthorization($action);
+    }
+
+    private function handleDevActionAuthorization(Action $action)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        $actionName = $action->id;
+        $controllerName = $action->controller->id;
+
+        if(array_key_exists($controllerName, self::DEV_ONLY_ACTIONS)) {
+            if(in_array($actionName, self::DEV_ONLY_ACTIONS[$controllerName]) || in_array('*', self::DEV_ONLY_ACTIONS[$controllerName])) {
+                if(YII_ENV === 'dev') {
+                    $this->currentActionIsDevOnlyAction = true;
+                    return;
+                }
+
+                throw new $unauthorizedException();
+            }
+        }
     }
 
     /**

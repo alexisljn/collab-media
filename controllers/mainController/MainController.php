@@ -27,6 +27,8 @@ class MainController extends Controller
             'login',
             'error',
             'validate-account',
+            'forgotten-password',
+            'change-password',
         ]
     ];
 

@@ -21,6 +21,8 @@ class Util
     public const RANDOM_STRING_NUMERIC = "0123456789";
     public const RANDOM_STRING_ALPHANUMERIC_ALL_CASE = self::RANDOM_STRING_ALPHABET_LOWERCASE . self::RANDOM_STRING_ALPHABET_UPPERCASE . self::RANDOM_STRING_NUMERIC;
 
+    public const BASE_URL = "http://127.0.0.1:8000";
+
     public function __construct()
     {
         throw new StaticClassNotInstantiableException();

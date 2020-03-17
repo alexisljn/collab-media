@@ -2,8 +2,13 @@
 
 namespace app\controllers;
 
+use app\components\Util;
 use app\controllers\mainController\MainController;
+use app\models\exceptions\CannotCreateTokenException;
 use app\models\exceptions\CannotSaveException;
+use app\models\exceptions\CannotSendMailException;
+use app\models\forms\ChangePasswordForm;
+use app\models\forms\ForgottenPasswordForm;
 use app\models\forms\ValidateAccountForm;
 use app\models\User;
 use Yii;
@@ -166,5 +171,133 @@ class SiteController extends MainController
             return $user;
         }
         throw new $notFoundException();
+    }
+
+    /**
+     * @return string
+     * @throws \Exception
+     */
+    public function actionForgottenPassword()
+    {
+        $form = new ForgottenPasswordForm();
+
+        if($form->load($_POST) && $form->validate()) {
+            $this->forgetPassword($form);
+        }
+
+        return $this->render('forgotten-password', [
+            'forgottenPasswordModel' => $form,
+        ]);
+    }
+
+    /**
+     * @param $form
+     * @throws \Exception
+     */
+    private function forgetPassword($form)
+    {
+        $user = $this->checkIfUserMatchToEmail($form->email);
+
+        $tokenTry = 0;
+        do {
+            if($tokenTry === 10) {
+                throw new CannotCreateTokenException();
+            }
+            $token = $this->createUserToken();
+            $tokenTry++;
+        } while (!is_null(User::findOne(['token' => $token])));
+
+        $user->token = $token;
+
+        if (!$user->save()) {
+            throw new CannotSaveException($user);
+        }
+        $this->mailToUserPasswordForgotten($user);
+
+        return $this->redirect("/");
+    }
+
+    /**
+     * @param null $token
+     * @return string
+     * @throws \yii\base\Exception
+     * @throws CannotSaveException
+     */
+    public function actionChangePassword($token = null)
+    {
+        $user = $this->checkIfUserMatchToToken($token);
+
+        $form = new ChangePasswordForm();
+
+        if($form->load($_POST) && $form->validate()) {
+            $this->changePassword($form, $user);
+        }
+
+        return $this->render('change-password', [
+            'model' => $form,
+        ]);
+    }
+
+    /**
+     * @param $form
+     * @param $user
+     * @throws CannotSaveException
+     * @throws \yii\base\Exception
+     */
+    private function changePassword($form, $user)
+    {
+        $user->password_hash = Yii::$app->security->generatePasswordHash($form->password);
+        $user->token = null;
+
+        if (!$user->save()) {
+            throw new CannotSaveException($user);
+        }
+
+        Yii::$app->user->login($user);
+        $_SESSION["userPasswordHash"] = $user->password_hash;
+        return $this->redirect("/");
+    }
+
+    /**
+     * @param $email
+     * @return User|null
+     * @throws \Exception
+     */
+    private function checkIfUserMatchToEmail($email)
+    {
+        $notFoundException = NotFoundHttpException::class;
+        if (!is_null($user = User::findOne(['email' => $email]))) {
+            return $user;
+        }
+
+        throw new $notFoundException();
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \PHPMailer\PHPMailer\Exception
+     * @throws CannotSendMailException
+     */
+    private function mailToUserPasswordForgotten(User $user)
+    {
+        $mail = Util::getConfiguredMailerForMailhog();
+        $mail->addAddress($user->email);
+        $mail->isHTML(false);
+        $mail->CharSet = 'UTF-8';
+
+        $mail->Subject = "Forgotten your Collab'media account password";
+        $mail->Body = 'Click on the following link to reset your password : '. Util::BASE_URL .'/site/change-password/' . $user->token ;
+
+        if(!$mail->send()) {
+            throw new CannotSendMailException();
+        }
+    }
+    /**
+     * @throws \Exception
+     */
+    private function createUserToken()
+    {
+        return Util::getRandomString(32);
     }
 }

@@ -4,6 +4,7 @@
 namespace app\controllers;
 
 
+use app\components\socialMediaApi\TwitterConnector;
 use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\EnabledSocialMedia;
@@ -949,6 +950,11 @@ class ProposalController extends MainController
         ]);
     }
 
+    /**
+     * Builds published proposals's ActiveDateProvider
+     *
+     * @return ActiveDataProvider
+     */
     private function buildPublishedProposalsActiveDataProvider()
     {
         return new ActiveDataProvider([
@@ -969,6 +975,11 @@ class ProposalController extends MainController
         ]);
     }
 
+    /**
+     * Builds the ActiveDataProvider for the rejected proposals
+     *
+     * @return ActiveDataProvider
+     */
     private function buildRejectedProposalsActiveDataProvider()
     {
         return new ActiveDataProvider([
@@ -989,6 +1000,13 @@ class ProposalController extends MainController
         ]);
     }
 
+    /**
+     * Check if reviewer cans review proposal based on the proposal status
+     * and submitter.
+     *
+     * @param Proposal $proposal
+     * @return bool
+     */
     private function checkIfReviewerCanReviewProposal(Proposal $proposal)
     {
         if (MainController::getCurrentUser()->id !== $proposal->submitter_id
@@ -1186,21 +1204,47 @@ class ProposalController extends MainController
         return $this->actionProposal($proposalId);
     }
 
+    /**
+     * Display the publishing form of a proposal
+     * If post loaded, it tweets the proposal and
+     * save proposal's status to published
+     *
+     * @param int $id
+     * @return string
+     * @throws CannotSaveException
+     * @throws FileDoesNotExistException
+     * @throws \app\models\exceptions\CannotAddMediaToTweetException
+     * @throws \app\models\exceptions\FileException
+     * @throws \app\models\exceptions\TwitterAPIException
+     * @throws \app\models\exceptions\TwitterAPIInvalidFileContentException
+     */
     public function actionPublishProposal(int $id)
     {
-        // PENSER AU FILE
-
+        $selectedProposal = $this->checkIfProposalExists($id);
         $publishProposalFormModel = new PublishProposalForm();
 
-        if ($publishProposalFormModel->load(Yii::$app->request->post()) && $publishProposalFormModel->validate())
-        {
-            dd(Yii::$app->request->post());
+        if ($publishProposalFormModel->load(Yii::$app->request->post()) && $publishProposalFormModel->validate()) {
+            $twitterConnector = new TwitterConnector();
+
+            if ($publishProposalFormModel->file) {
+                $twitterConnector->addMedia('../uploaded-files/proposal-related-files/'. $selectedProposal->file->path);
+            }
+
+            $twitterConnector->postTweet($publishProposalFormModel->content);
+
+            $selectedProposal->status = \app\models\Proposal::STATUS_PUBLISHED;
+
+            if (!$selectedProposal->save())
+            {
+                throw new CannotSaveException($selectedProposal);
+            }
+
+            $this->redirect('/proposal/proposal/' . $selectedProposal->id);
         }
 
         $enabledSocialMedia = EnabledSocialMedia::find()->where(['is_enabled' => true])->all();
         $socialMediaPermission = SocialMediaPermission::findOne(['publisher_id' => MainController::getCurrentUser()->id]);
         $allowedSocialMedia = $this->getAllowedPermissionsForPublisher($enabledSocialMedia, $socialMediaPermission);
-        //dd($allowedSocialMedia);
         $selectedProposal = $this->checkIfProposalExists($id);
         $publishProposalFormModel->content = strip_tags((new \Parsedown())
             ->text($selectedProposal->proposalContentHistories
@@ -1217,6 +1261,12 @@ class ProposalController extends MainController
 
     }
 
+    /**
+     * Returns allowed publishing social media for a publisher.
+     *
+     * @param array $enabledSocialMedia
+     * @param SocialMediaPermission $socialMediaPermission
+     * @return |null    */
     private function getAllowedPermissionsForPublisher(array $enabledSocialMedia, SocialMediaPermission $socialMediaPermission)
     {
         $allowedSocialMedia = null;

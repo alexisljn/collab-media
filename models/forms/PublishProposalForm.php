@@ -16,7 +16,7 @@ class PublishProposalForm extends Model
     public function rules()
     {
         return [
-            [['content', 'social_media'], 'required'],
+            [['content', 'social_media', 'file'], 'required'],
             ['content', 'validateContent'],
         ];
     }

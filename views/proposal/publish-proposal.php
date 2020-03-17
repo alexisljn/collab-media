@@ -27,7 +27,7 @@ use yii\helpers\Html; ?>
                 'action' => '/proposal/publish-proposal/'. $selectedProposal->id]); ?>
 <span id="alert" class="text-danger"></span>
 <?= $form->field($publishProposalFormModel, 'content')->textarea(['id' => 'publish-form-content-input', 'rows' => '8',])->label('Publication body'); ?>
-<?= $form->field($publishProposalFormModel, 'file')->hiddenInput(['id' => 'publish-form-file-input'])->label(false); ?>
+<?= $form->field($publishProposalFormModel, 'file')->checkbox(['label' => 'Publish file', 'id' => 'publish-file']); ?>
 <?= $form->field($publishProposalFormModel, 'social_media')->checkboxList($allowedSocialMedia,
     ['item' => function($index, $label, $name, $checked, $value){
         return Html::checkbox($name, $checked, [
@@ -49,11 +49,14 @@ use yii\helpers\Html; ?>
             $('#submit-publish').attr('disabled', true);
         }
 
+        $('#publish-file').attr('checked', true);
+
         $('#facebook-checkbox').attr('disabled', true);
         $('#linkedin-checkbox').attr('disabled', true);
         $('#twitter-checkbox').attr('checked', true);
 
-        content.on('input', (e) => {
+
+        content.on('input', () => {
             if (content.val().length > <?= \app\models\forms\PublishProposalForm::TWEET_MAX_CHARS ?>) {
                 content.addClass('border border-danger');
                 $("#alert").text('Content is too long');
@@ -63,11 +66,7 @@ use yii\helpers\Html; ?>
                 $("#alert").text('');
                 $('#submit-publish').attr('disabled', false);
             }
-            console.log(e.target);
         });
 
-        $('#proposal-form').on('submit', () => {
-            console.log("teeeee");
-        })
     });
 </script>

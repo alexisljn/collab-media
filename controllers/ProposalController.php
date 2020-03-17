@@ -18,6 +18,7 @@ use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
+use app\models\forms\PublishProposalForm;
 use app\models\ProposalApprovementSetting;
 use app\models\User;
 use yii\data\ActiveDataProvider;
@@ -1181,6 +1182,38 @@ class ProposalController extends MainController
         }
 
         return $this->actionProposal($proposalId);
+    }
+
+    public function actionPublishProposal(int $id)
+    {
+        $publishProposalFormModel = new PublishProposalForm();
+
+        d(Yii::$app->request->post());
+        if ($publishProposalFormModel->load(Yii::$app->request->post()))
+        {
+            dd($_POST);
+            dd(Yii::$app->request->post());
+        }
+
+        $selectedProposal = $this->checkIfProposalExists($id);
+
+        $publishProposalFormModel->content = strip_tags((new \Parsedown())
+            ->text($selectedProposal->proposalContentHistories
+            [
+            count($selectedProposal->proposalContentHistories) -1
+            ]->content));
+
+        return $this->render('publish-proposal', [
+            'publishProposalFormModel' => $publishProposalFormModel,
+            'lastContent' =>  strip_tags((new \Parsedown())
+                ->text($selectedProposal->proposalContentHistories
+                [
+                count($selectedProposal->proposalContentHistories) -1
+                ]->content)),
+            'proposalId' => $selectedProposal->id
+        ]);
+
+
     }
 
 }

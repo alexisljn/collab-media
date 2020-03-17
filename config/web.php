@@ -74,6 +74,7 @@ $config = [
                 'proposal/edit-proposal/<id:\d+>' => 'proposal/edit-proposal',
                 'proposal/post-comment/<id:\d+>' => 'proposal/post-comment',
                 'proposal/edit-comment/<id:\d+>' => 'proposal/edit-comment',
+                'proposal/publish-proposal/<id:\d+>' => 'proposal/publish-proposal',
                 'management/accounts/<id:\d+>'   => 'management/accounts',
                 'management/social-media/<id:\w+>' => 'management/social-media',
                 'site/validate-account/<token:\w+>' => 'site/validate-account',

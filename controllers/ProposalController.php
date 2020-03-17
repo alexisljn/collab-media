@@ -219,7 +219,7 @@ class ProposalController extends MainController
                 ->where(['submitter_id' => self::getCurrentUser()->id])
                 ->andWhere(['status' => 'pending']),
             'pagination' => [
-                'pageSizeParam' => 'pendingProposals',
+                'pageParam' => 'pendingProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -244,7 +244,7 @@ class ProposalController extends MainController
                 ->where(['not',['status' => \app\models\Proposal::STATUS_PENDING]])
                 ->andWhere(['submitter_id' => self::getCurrentUser()->id]),
             'pagination' => [
-                'pageSizeParam' => 'historyProposals',
+                'pageParam' => 'historyProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -301,7 +301,7 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => 'pending']),
             'pagination' => [
-                'pageSizeParam' => 'noReviewed',
+                'pageParam' => 'noReviewed',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -338,7 +338,7 @@ class ProposalController extends MainController
             ])
             ->andWhere(['status' => 'pending']),
             'pagination' => [
-                'pageSizeParam' => 'reviewed',
+                'pageParam' => 'reviewed',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -867,7 +867,7 @@ class ProposalController extends MainController
         return new ActiveDataProvider([
             'query' => $approvedProposalsQuery,
             'pagination' => [
-                'pageSizeParam' => 'approvedProposals',
+                'pageParam' => 'approvedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -908,7 +908,7 @@ class ProposalController extends MainController
                 ])
                 ->andWhere(['status' => \app\models\Proposal::STATUS_PENDING]),
             'pagination' => [
-                'pageSizeParam' => 'notApprovedProposals',
+                'pageParam' => 'notApprovedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -929,7 +929,7 @@ class ProposalController extends MainController
         return new ActiveDataProvider([
             'query' => Proposal::find()->where(['status' => \app\models\Proposal::STATUS_PUBLISHED]),
             'pagination' => [
-                'pageSizeParam' => 'publishedProposals',
+                'pageParam' => 'publishedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],
@@ -949,7 +949,7 @@ class ProposalController extends MainController
         return new ActiveDataProvider([
             'query' => Proposal::find()->where(['status' => \app\models\Proposal::STATUS_REJECTED]),
             'pagination' => [
-                'pageSizeParam' => 'rejectedProposals',
+                'pageParam' => 'rejectedProposals',
                 'pageSize' => 20,
                 'defaultPageSize' => 20
             ],

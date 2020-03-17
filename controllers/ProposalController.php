@@ -6,7 +6,9 @@ namespace app\controllers;
 
 use app\components\Util;
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\ProposalFileHistory;
+use app\models\databaseModels\SocialMediaPermission;
 use app\models\exceptions\CannotDeleteFileException;
 use app\models\exceptions\FileDoesNotExistException;
 use app\models\forms\ManageCommentForm;
@@ -1186,17 +1188,20 @@ class ProposalController extends MainController
 
     public function actionPublishProposal(int $id)
     {
+        // PENSER AU FILE
+
         $publishProposalFormModel = new PublishProposalForm();
 
-        d(Yii::$app->request->post());
-        if ($publishProposalFormModel->load(Yii::$app->request->post()))
+        if ($publishProposalFormModel->load(Yii::$app->request->post()) && $publishProposalFormModel->validate())
         {
-            dd($_POST);
             dd(Yii::$app->request->post());
         }
 
+        $enabledSocialMedia = EnabledSocialMedia::find()->where(['is_enabled' => true])->all();
+        $socialMediaPermission = SocialMediaPermission::findOne(['publisher_id' => MainController::getCurrentUser()->id]);
+        $allowedSocialMedia = $this->getAllowedPermissionsForPublisher($enabledSocialMedia, $socialMediaPermission);
+        //dd($allowedSocialMedia);
         $selectedProposal = $this->checkIfProposalExists($id);
-
         $publishProposalFormModel->content = strip_tags((new \Parsedown())
             ->text($selectedProposal->proposalContentHistories
             [
@@ -1205,15 +1210,32 @@ class ProposalController extends MainController
 
         return $this->render('publish-proposal', [
             'publishProposalFormModel' => $publishProposalFormModel,
-            'lastContent' =>  strip_tags((new \Parsedown())
-                ->text($selectedProposal->proposalContentHistories
-                [
-                count($selectedProposal->proposalContentHistories) -1
-                ]->content)),
-            'proposalId' => $selectedProposal->id
+            'selectedProposal' => $selectedProposal,
+            'allowedSocialMedia' => $allowedSocialMedia
         ]);
 
 
+    }
+
+    private function getAllowedPermissionsForPublisher(array $enabledSocialMedia, SocialMediaPermission $socialMediaPermission)
+    {
+        $allowedSocialMedia = null;
+
+        foreach ($enabledSocialMedia as $socialMedia) {
+
+            foreach (array_keys($socialMediaPermission->attributeLabels()) as $key) {
+
+                if (stristr($key, $socialMedia->social_media_name)) {
+
+                    if ($socialMediaPermission->$key) {
+                        $allowedSocialMedia[$socialMedia->social_media_name] = ucfirst($socialMedia->social_media_name);
+                    }
+                }
+            }
+
+        }
+
+        return $allowedSocialMedia;
     }
 
 }

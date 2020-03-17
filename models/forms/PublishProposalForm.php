@@ -11,12 +11,13 @@ class PublishProposalForm extends Model
     const TWEET_MAX_CHARS = 280;
     public $content;
     public $file;
+    public $social_media;
 
     public function rules()
     {
         return [
-         //   [['content'], 'required'],
-        //    ['content', 'validateContent'],
+            [['content', 'social_media'], 'required'],
+            ['content', 'validateContent'],
         ];
     }
 

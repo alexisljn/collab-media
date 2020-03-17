@@ -9,7 +9,7 @@ $this->title = 'Forgotten Password';
     <h1><?= Html::encode($this->title) ?></h1>
 
     <?php $formForgottenPassword = ActiveForm::begin([
-        'id' => 'validate-account-form',
+        'id' => 'forgotten-password-form',
         'method' => 'post',
         'layout' => 'horizontal',
         'fieldConfig' => [
@@ -24,7 +24,7 @@ $this->title = 'Forgotten Password';
     <div class="form-group">
         <div class="col-lg-offset-1 col-lg-11">
             <?= Html::submitButton('Submit', [
-                'class' => 'btn btn-primary', 'name' => 'validate-account-button'
+                'class' => 'btn btn-primary', 'name' => 'forgotten-password-button'
             ]) ?>
         </div>
     </div>

@@ -5,7 +5,7 @@ namespace app\models\forms;
 use yii\base\Model;
 
 /**
- * ValidateAccountForm is the model behind the validate account form.
+ * ChangePasswordForm is the model behind the forgotten password form.
  * Class ValidateAccountForm
  * @package app\models\forms
  */

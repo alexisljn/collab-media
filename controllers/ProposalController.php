@@ -146,18 +146,12 @@ class ProposalController extends MainController
         $selectedProposal = $this->checkIfProposalExists($id);
         $this->checkIfUserCanSeeProposal($selectedProposal->submitter_id);
         $filepath = '../uploaded-files/proposal-related-files/' . $selectedProposal->file->path;
-        $extension = explode('.', $selectedProposal->file->path)[1];
 
         if (!file_exists($filepath)) {
             throw new FileDoesNotExistException();
         }
 
-        if ($extension !== 'mp4') {
-            header('Content-Type: image/'. $extension);
-        } else {
-            header('Content-Type: video/'. $extension);
-        }
-
+        header('Content-Type: ' . mime_content_type(($filepath)));
         echo file_get_contents($filepath);
         die;
     }

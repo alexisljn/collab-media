@@ -18,30 +18,58 @@ use app\models\databaseModels\SocialMediaPermission;
 use app\models\databaseModels\User;
 use app\models\databaseModels\EnabledSocialMedia;
 use app\models\exceptions\CannotSaveException;
+use Cassandra\Date;
 use yii\helpers\Console;
 
 class FixturesController extends MainController
 {
     const USERS_COUNT = 12;
-    const REVIEWERS_COUNT = 5;
-    const PUBLISHERS_COUNT = 3;
+    const REVIEWERS_COUNT = 6;
+    const PUBLISHERS_COUNT = 4;
     const ADMINS_COUNT = 1;
 
     const USERS_PASSWORD = 'password';
+
+    const PROPOSAL_MIN_WORDS_COUNT = 30;
+    const PROPOSAL_MAX_WORDS_COUNT = 200;
 
     const MIN_PROPOSALS_PER_USER = 2;
     const MAX_PROPOSALS_PER_USER = 11;
 
     const PROPOSALS_PERCENT_CHANCES_TO_HAVE_ASSOCIATED_FILE = 70;
 
-    // 
-    const REVIEWS_PERCENT_CHANGES_TO_BE_POSITIVE = 60;
+    const COMMENT_MIN_WORDS_COUNT = 10;
+    const COMMENT_MAX_WORDS_COUNT = 80;
 
+    const COMMENT_PERCENT_CHANCES_TO_BE_EDITED = 40;
+
+    const MIN_COMMENTS_PER_PROPOSAL = 1;
+    const MAX_COMMENTS_PER_PROPOSAL = 8;
+
+    const REVIEWS_PERCENT_CHANCES_TO_BE_POSITIVE = 60;
+
+    const MIN_REVIEWS_PER_PROPOSAL = 0;
+    const MAX_REVIEWS_PER_PROPOSAL = 10;
+
+    const MIN_CONTENT_EDITIONS_PER_PROPOSAL = 0;
+    const MAX_CONTENT_EDITIONS_PER_PROPOSAL = 3;
+
+    const MIN_FILE_EDITIONS_PER_PROPOSAL = 0;
+    const MAX_FILE_EDITIONS_PER_PROPOSAL = 3;
+
+    /** @var User[] $users */
     private $users = [];
+
+    /** @var User[] $reviewers */
     private $reviewers = [];
+
+    /** @var User[] $publishers */
     private $publishers = [];
+
+    /** @var User[] $admins */
     private $admins = [];
 
+    /** @var Proposal[] $proposals */
     private $proposals = [];
 
     static function getLorem(int $minLength, int $maxLength) {
@@ -62,13 +90,15 @@ class FixturesController extends MainController
      */
     public function actionGenerate()
     {
+        date_default_timezone_set('Europe/London');
+
         $transaction = \Yii::$app->db->beginTransaction();
 
         try {
             $this->println('Emptying all tables', Console::BOLD);
             $this->emptyAllTables();
 
-            $this->println('Emptying Proposal Related Files', Console::BOLD);
+            $this->println('Emptying Proposal Related Files Directory', Console::BOLD);
             $this->emptyProposalRelatedFilesDirectory();
 
             $this->println('Generating Enabled Social Media', Console::BOLD);
@@ -84,6 +114,18 @@ class FixturesController extends MainController
 
             $this->println('Generating ' . self::MIN_PROPOSALS_PER_USER . ' to ' . self::MAX_PROPOSALS_PER_USER . ' proposals per user', Console::BOLD);
             $this->generateProposals();
+
+            $this->println('Generating ' . self::MIN_REVIEWS_PER_PROPOSAL . ' to ' . self::MAX_REVIEWS_PER_PROPOSAL . ' reviews per proposal', Console::BOLD);
+            $this->generateReviews();
+
+            $this->println('Generating ' . self::MIN_CONTENT_EDITIONS_PER_PROPOSAL . ' to ' . self::MAX_CONTENT_EDITIONS_PER_PROPOSAL . ' content editions per proposal', Console::BOLD);
+            $this->generateProposalContentEditions();
+
+            $this->println('Generating ' . self::MIN_FILE_EDITIONS_PER_PROPOSAL . ' to ' . self::MAX_FILE_EDITIONS_PER_PROPOSAL . ' content editions per proposal', Console::BOLD);
+            $this->generateProposalFileEditions();
+
+            $this->println('Generating ' . self::MIN_COMMENTS_PER_PROPOSAL . ' to ' . self::MAX_COMMENTS_PER_PROPOSAL . ' comments per proposal', Console::BOLD);
+            $this->generateComments();
 
             $this->println('Commiting', Console::BOLD);
             $transaction->commit();
@@ -139,6 +181,55 @@ class FixturesController extends MainController
         foreach(scandir($directoryPath) as $file) {
             if(is_file($directoryPath . $file) and $file !== '.gitignore') {
                 unlink($directoryPath . $file);
+            }
+        }
+    }
+
+    private function generateComments()
+    {
+        foreach($this->proposals as $proposal) {
+            $commentMinDate = Util::getDateTimeFromDatabaseString($proposal->date);
+            $commentMaxDate = new \DateTime();
+
+            $commentsCount = random_int(self::MIN_COMMENTS_PER_PROPOSAL, self::MAX_COMMENTS_PER_PROPOSAL);
+
+            $this->println("Generating $commentsCount comments for proposal {$proposal->id} of {$proposal->submitter->email}");
+
+            $usersWhoCanComment = $this->reviewers;
+            if($proposal->submitter->role = \app\models\User::USER_ROLE_MEMBER) {
+                $usersWhoCanComment[] = $proposal->submitter;
+            }
+
+            for($i = 0; $i < count($usersWhoCanComment); ++$i) {
+                $commentAuthorIndex = random_int(0, count($usersWhoCanComment)-1);
+                $commentAuthor = $usersWhoCanComment[$commentAuthorIndex];
+
+                $comment = new Comment();
+                $comment->proposal_id = $proposal->id;
+//                var_dump($commentAuthor);
+                $comment->author_id = $commentAuthor->id;
+                $comment->date = Util::getDateTimeFormattedForDatabase(
+                    \DateTime::createFromFormat('U', random_int(
+                        $commentMinDate->format('U'),
+                        $commentMaxDate->format('U'),
+                    ))
+                );
+                $comment->content = self::getLorem(self::COMMENT_MIN_WORDS_COUNT, self::COMMENT_MAX_WORDS_COUNT);
+
+                $isEdited = random_int(1, 100);
+                if($isEdited < self::COMMENT_PERCENT_CHANCES_TO_BE_EDITED) {
+                    $comment->edited_date = Util::getDateTimeFormattedForDatabase(
+                        \DateTime::createFromFormat('U', random_int(
+                            Util::getDateTimeFromDatabaseString($comment->date)->format('U'),
+                            $commentMaxDate->format('U'),
+                        ))
+                    );
+                }
+
+                if(!$comment->save()) {
+                    var_dump($comment->errors);
+                    throw new CannotSaveException($comment);
+                }
             }
         }
     }
@@ -208,7 +299,8 @@ class FixturesController extends MainController
                     \DateTime::createFromFormat('U', random_int(
                         $sixMonthsAgo->format('U'),
                         $now->format('U')
-                    )));
+                    ))
+                );
                 $proposal->submitter_id = $user->id;
 
                 $status = random_int(0, 2);
@@ -232,13 +324,13 @@ class FixturesController extends MainController
                     throw new CannotSaveException($proposal);
                 }
 
-                $proposalContent = new ProposalContentHistory();
-                $proposalContent->proposal_id = $proposal->id;
-                $proposalContent->date = $proposal->date;
-                $proposalContent->content = self::getLorem(30, 200);
+                $proposalContentHistory = new ProposalContentHistory();
+                $proposalContentHistory->proposal_id = $proposal->id;
+                $proposalContentHistory->date = $proposal->date;
+                $proposalContentHistory->content = self::getLorem(self::PROPOSAL_MIN_WORDS_COUNT, self::PROPOSAL_MAX_WORDS_COUNT);
 
-                if(!$proposalContent->save()) {
-                    throw new CannotSaveException($proposalContent);
+                if(!$proposalContentHistory->save()) {
+                    throw new CannotSaveException($proposalContentHistory);
                 }
 
                 $hasFile = random_int(1, 100);
@@ -253,6 +345,15 @@ class FixturesController extends MainController
                     if(!$file->save()) {
                         throw new CannotSaveException($file);
                     }
+
+                    $fileHistory = new ProposalFileHistory();
+                    $fileHistory->proposal_id = $proposal->id;
+                    $fileHistory->date = $proposal->date;
+                    $fileHistory->path = $file->path;
+
+                    if(!$fileHistory->save()) {
+                        throw new CannotSaveException($fileHistory);
+                    }
                 }
 
                 $this->proposals[] = $proposal;
@@ -260,9 +361,111 @@ class FixturesController extends MainController
         }
     }
 
+    private function generateProposalContentEditions()
+    {
+        foreach($this->proposals as $proposal) {
+            $editionMinDate = Util::getDateTimeFromDatabaseString($proposal->date);
+            $editionMaxDate = new \DateTime();
+
+            $editionsCount = random_int(self::MIN_CONTENT_EDITIONS_PER_PROPOSAL, self::MAX_CONTENT_EDITIONS_PER_PROPOSAL);
+
+            $this->println("Generating $editionsCount content editions for proposal {$proposal->id} of {$proposal->submitter->email}");
+
+            for($i = 0; $i < $editionsCount; ++$i) {
+                $proposalContentHistory = new ProposalContentHistory();
+                $proposalContentHistory->proposal_id = $proposal->id;
+                $proposalContentHistory->date = Util::getDateTimeFormattedForDatabase(
+                    \DateTime::createFromFormat('U', random_int(
+                        $editionMinDate->format('U'),
+                        $editionMaxDate->format('U'),
+                    ))
+                );
+                $proposalContentHistory->content = self::getLorem(self::PROPOSAL_MIN_WORDS_COUNT, self::PROPOSAL_MAX_WORDS_COUNT);
+
+                if(!$proposalContentHistory->save()) {
+                    throw new CannotSaveException($proposalContentHistory);
+                }
+            }
+        }
+    }
+
+    private function generateProposalFileEditions()
+    {
+        foreach($this->proposals as $proposal) {
+            $editionMinDate = Util::getDateTimeFromDatabaseString($proposal->date);
+            $editionMaxDate = new \DateTime();
+
+            $editionsCount = random_int(self::MIN_FILE_EDITIONS_PER_PROPOSAL, self::MAX_FILE_EDITIONS_PER_PROPOSAL);
+
+            $this->println("Generating $editionsCount file editions for proposal {$proposal->id} of {$proposal->submitter->email}");
+
+            for($i = 0; $i < $editionsCount; ++$i) {
+                $proposalFileHistory = new ProposalFileHistory();
+                $proposalFileHistory->proposal_id = $proposal->id;
+                $proposalFileHistory->date = Util::getDateTimeFormattedForDatabase(
+                    \DateTime::createFromFormat('U', random_int(
+                        $editionMinDate->format('U'),
+                        $editionMaxDate->format('U'),
+                    ))
+                );
+                $proposalFileHistory->path = $proposal->id . '.jpg';
+
+                if(!$proposalFileHistory->save()) {
+                    throw new CannotSaveException($proposalFileHistory);
+                }
+            }
+        }
+    }
+
     private function generateReviews()
     {
+        foreach($this->proposals as $proposal) {
+            $reviewMinDate = Util::getDateTimeFromDatabaseString($proposal->date);
+            $reviewMaxDate = new \DateTime();
 
+            $reviewsCount = random_int(self::MIN_REVIEWS_PER_PROPOSAL, self::MAX_REVIEWS_PER_PROPOSAL);
+
+            $this->println("Generating $reviewsCount reviews for proposal {$proposal->id} of {$proposal->submitter->email}");
+
+            $reviewersWhoCanReview = $this->reviewers;
+            for($i = 0; $i < count($reviewersWhoCanReview); ++$i) {
+                if($reviewersWhoCanReview[$i]->id === $proposal->id) {
+                    Util::deleteElementFromArray($reviewersWhoCanReview, $i);
+                }
+            }
+
+            for($i = 0; $i < $reviewsCount; ++$i) {
+                if(count($reviewersWhoCanReview) === 0) {
+                    $this->println("No more reviewers available, skipping to next proposal");
+                    break;
+                }
+
+                $reviewerIndex = random_int(0, count($reviewersWhoCanReview)-1);
+                $reviewer = $reviewersWhoCanReview[$reviewerIndex];
+                Util::deleteElementFromArray($reviewersWhoCanReview, $reviewerIndex); // A reviewer can only review a proposal once
+
+                $review = new Review();
+                $review->reviewer_id = $reviewer->id;
+                $review->proposal_id = $proposal->id;
+                $review->date = Util::getDateTimeFormattedForDatabase(
+                    \DateTime::createFromFormat('U', random_int(
+                        $reviewMinDate->format('U'),
+                        $reviewMaxDate->format('U'),
+                    ))
+                );
+
+                $isPositive = random_int(1, 100);
+                if($isPositive < self::REVIEWS_PERCENT_CHANCES_TO_BE_POSITIVE) {
+                    $review->status = \app\models\Review::REVIEW_STATUS_APPROVED;
+                } else {
+                    $review->status = \app\models\Review::REVIEW_STATUS_DISAPPROVED;
+                }
+
+                if(!$review->save()) {
+                    throw new CannotSaveException($review);
+                }
+            }
+        }
     }
 
     /**
@@ -358,6 +561,19 @@ class FixturesController extends MainController
             $this->users[] = $user;
 
             $this->println("Generated admin {$user->firstname} {$user->lastname} - {$user->email}");
+        }
+
+        foreach($this->publishers as $publisher) {
+            $this->println("Saving Social Media Permission for {$publisher->firstname} {$publisher->lastname}");
+            $socialMediaPermission = new SocialMediaPermission();
+            $socialMediaPermission->publisher_id = $publisher->id;
+            $socialMediaPermission->facebook_enabled = (bool) random_int(0, 3); // 0 to 3 to have 3x more chances (around 75%) to be enabled
+            $socialMediaPermission->twitter_enabled = (bool) random_int(0, 3);
+            $socialMediaPermission->linkedin_enabled = (bool) random_int(0, 3);
+
+            if(!$socialMediaPermission->save()) {
+                throw new CannotSaveException($socialMediaPermission);
+            }
         }
     }
 }

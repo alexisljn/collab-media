@@ -58,9 +58,13 @@ use yii\widgets\ActiveForm; ?>
         <?php } ?>
         <div class="proposal-timeline-text-element-container content-layout" id="proposal-content">
             <?php if (!is_null($selectedProposal->file)) { ?>
-            <div id="#proposal-file">
+            <div id="#proposal-file" class="text-center proposal-timeline-text-element-content">
                 <?php if (explode('.', $selectedProposal->file->path)[1] !== 'mp4') { ?>
-                    <img src="" alt="">
+                    <img src="/proposal/get-file/<?= $selectedProposal->id ?>"  class="img-fluid" alt="proposal file">
+                <?php } else { ?>
+                    <video controls width="1280" class="img-fluid">
+                        <source src="/proposal/get-file/<?= $selectedProposal->id ?>" type="video/mp4">
+                    </video>
                 <?php } ?>
             </div>
             <?php } ?>

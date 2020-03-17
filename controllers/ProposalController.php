@@ -8,6 +8,7 @@ use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\ProposalFileHistory;
 use app\models\exceptions\CannotDeleteFileException;
+use app\models\exceptions\FileDoesNotExistException;
 use app\models\forms\ManageCommentForm;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
@@ -57,7 +58,6 @@ class ProposalController extends MainController
              /** @TODO USER_ROLE_PUBLISHER & ADMIN */
 
         }
-        //dd(explode('.', $selectedProposal->file->path)[1]);
         return $this->render('proposal', $viewItems);
     }
 
@@ -105,6 +105,10 @@ class ProposalController extends MainController
             'canEditProposal' => $canEditProposal,
         ];
 
+      /*  if (!is_null($selectedProposal->file))
+        {
+           $this->getRelatedFile($selectedProposal->file->path);
+        }*/
 
         if ($this->checkIfReviewerCanReviewProposal($selectedProposal->submitter_id)) {
             $potentialReview = $this->getPotentialReviewOfAReviewer
@@ -117,6 +121,7 @@ class ProposalController extends MainController
 
         return $viewItems;
     }
+
 
     /**
      * Check if a Proposal exists. If true it returns the proposal.
@@ -134,6 +139,47 @@ class ProposalController extends MainController
         }
 
         throw new $notFoundException();
+    }
+
+    public function actionGetFile(int $id)
+    {
+        // verification autorisation
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $filepath = '../uploaded-files/proposal-related-files/' . $selectedProposal->file->path;
+        $extension = explode('.', $selectedProposal->file->path)[1];
+
+        if (!file_exists($filepath)) {
+            throw new FileDoesNotExistException();
+        }
+
+        if ($extension !== 'mp4') {
+            header('Content-Type: image/'. $extension);
+        } else {
+            header('Content-Type: video/'. $extension);
+        }
+
+        echo file_get_contents($filepath);
+        die;
+
+
+        // Verification autorisation accès fichier
+        /*$extension = explode('.', $filename)[1];
+        $filepath = '../uploaded-files/proposal-related-files/' . $filename;
+
+        if (!file_exists($filepath)) {
+            throw new FileDoesNotExistException();
+        }
+
+        $fileBinary = fread(fopen($filepath, 'r'), filesize($filepath));
+        if ($extension !== 'mp4') {
+            return 'data:image/' . $extension . ';base64, ' . base64_encode($fileBinary);
+        }
+
+        return 'data:video/' . $extension . ''
+        //$toto =
+        dd($toto);*/
+
+
     }
 
     /**

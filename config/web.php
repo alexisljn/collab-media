@@ -70,6 +70,7 @@ $config = [
             'showScriptName' => false,
             'rules' => [
                 'proposal/proposal/<id:\d+>' => 'proposal/proposal',
+                'proposal/get-file/<id:\d+>' => 'proposal/get-file',
                 'proposal/edit-proposal/<id:\d+>' => 'proposal/edit-proposal',
                 'proposal/post-comment/<id:\d+>' => 'proposal/post-comment',
                 'proposal/edit-comment/<id:\d+>' => 'proposal/edit-comment',

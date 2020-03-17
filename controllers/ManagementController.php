@@ -316,7 +316,7 @@ class ManagementController extends MainController
         $mail->CharSet = 'UTF-8';
 
         $mail->Subject = "Activate your Collab'media account";
-        $mail->Body = 'Click on the following link to create your password : http://127.0.0.1:8000/site/validate-account/' . $user->token ;
+        $mail->Body = 'Click on the following link to create your password : '. Util::BASE_URL .'/site/validate-account/' . $user->token ;
 
         if(!$mail->send()) {
             throw new CannotSendMailException();

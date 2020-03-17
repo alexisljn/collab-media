@@ -9,7 +9,7 @@ class ForgottenPasswordForm extends Model
     public function rules()
     {
         return [
-            // username and password are both required
+            // email is required
             [['email'], 'required'],
             // email must be a valid email
             ['email', 'email'],

@@ -287,7 +287,7 @@ class SiteController extends MainController
         $mail->CharSet = 'UTF-8';
 
         $mail->Subject = "Forgotten your Collab'media account password";
-        $mail->Body = 'Click on the following link to reset your password : http://127.0.0.1:8000/site/change-password/' . $user->token ;
+        $mail->Body = 'Click on the following link to reset your password : '. Util::BASE_URL .'/site/change-password/' . $user->token ;
 
         if(!$mail->send()) {
             throw new CannotSendMailException();

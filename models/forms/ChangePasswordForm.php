@@ -17,7 +17,7 @@ class ChangePasswordForm extends Model
     public function rules()
     {
         return [
-            // username and password are both required
+            // password and confirmPassword are both required
             [['password', 'confirmPassword'], 'required'],
             // password is validated by validatePassword()
             ['password', 'validatePassword'],

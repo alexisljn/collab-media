@@ -8,6 +8,7 @@ use app\components\Util;
 use app\controllers\mainController\MainController;
 use app\models\databaseModels\ProposalFileHistory;
 use app\models\exceptions\CannotDeleteFileException;
+use app\models\exceptions\FileDoesNotExistException;
 use app\models\forms\ManageCommentForm;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
@@ -57,7 +58,6 @@ class ProposalController extends MainController
              /** @TODO USER_ROLE_PUBLISHER & ADMIN */
 
         }
-
         return $this->render('proposal', $viewItems);
     }
 
@@ -105,6 +105,10 @@ class ProposalController extends MainController
             'canEditProposal' => $canEditProposal,
         ];
 
+      /*  if (!is_null($selectedProposal->file))
+        {
+           $this->getRelatedFile($selectedProposal->file->path);
+        }*/
 
         if ($this->checkIfReviewerCanReviewProposal($selectedProposal->submitter_id)) {
             $potentialReview = $this->getPotentialReviewOfAReviewer
@@ -117,6 +121,7 @@ class ProposalController extends MainController
 
         return $viewItems;
     }
+
 
     /**
      * Check if a Proposal exists. If true it returns the proposal.
@@ -134,6 +139,21 @@ class ProposalController extends MainController
         }
 
         throw new $notFoundException();
+    }
+
+    public function actionGetFile(int $id)
+    {
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $this->checkIfUserCanSeeProposal($selectedProposal->submitter_id);
+        $filepath = '../uploaded-files/proposal-related-files/' . $selectedProposal->file->path;
+
+        if (!file_exists($filepath)) {
+            throw new FileDoesNotExistException();
+        }
+
+        header('Content-Type: ' . mime_content_type(($filepath)));
+        echo file_get_contents($filepath);
+        die;
     }
 
     /**

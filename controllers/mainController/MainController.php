@@ -52,6 +52,7 @@ class MainController extends Controller
             'edit-proposal' => User::USER_ROLE_MEMBER,
             'post-comment' => User::USER_ROLE_MEMBER,
             'edit-comment' => User::USER_ROLE_MEMBER,
+            'get-file' => User::USER_ROLE_MEMBER,
             'reviewer-pending-proposals' => User::USER_ROLE_REVIEWER,
             'post-review' => User::USER_ROLE_REVIEWER,
             'dashboard' => User::USER_ROLE_PUBLISHER,

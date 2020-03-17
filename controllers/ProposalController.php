@@ -143,8 +143,8 @@ class ProposalController extends MainController
 
     public function actionGetFile(int $id)
     {
-        // verification autorisation
         $selectedProposal = $this->checkIfProposalExists($id);
+        $this->checkIfUserCanSeeProposal($selectedProposal->submitter_id);
         $filepath = '../uploaded-files/proposal-related-files/' . $selectedProposal->file->path;
         $extension = explode('.', $selectedProposal->file->path)[1];
 
@@ -160,26 +160,6 @@ class ProposalController extends MainController
 
         echo file_get_contents($filepath);
         die;
-
-
-        // Verification autorisation accès fichier
-        /*$extension = explode('.', $filename)[1];
-        $filepath = '../uploaded-files/proposal-related-files/' . $filename;
-
-        if (!file_exists($filepath)) {
-            throw new FileDoesNotExistException();
-        }
-
-        $fileBinary = fread(fopen($filepath, 'r'), filesize($filepath));
-        if ($extension !== 'mp4') {
-            return 'data:image/' . $extension . ';base64, ' . base64_encode($fileBinary);
-        }
-
-        return 'data:video/' . $extension . ''
-        //$toto =
-        dd($toto);*/
-
-
     }
 
     /**

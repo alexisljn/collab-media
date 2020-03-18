@@ -1,8 +1,6 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $usersDataProvider */
 
-echo $usersDataProvider->count;
-
 use yii\helpers\Html; ?>
 <?= \yii\grid\GridView::widget([
     'dataProvider' => $usersDataProvider,

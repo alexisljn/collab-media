@@ -1221,6 +1221,7 @@ class ProposalController extends MainController
      * @throws \app\models\exceptions\FileException
      * @throws \app\models\exceptions\TwitterAPIException
      * @throws \app\models\exceptions\TwitterAPIInvalidFileContentException
+     * @throws \Throwable
      */
     public function actionPublishProposal(int $id)
     {
@@ -1281,7 +1282,8 @@ class ProposalController extends MainController
      *
      * @param array $enabledSocialMedia
      * @param SocialMediaPermission $socialMediaPermission
-     * @return |null    */
+     * @return null
+     */
     private function getAllowedPermissionsForPublisher(array $enabledSocialMedia, SocialMediaPermission $socialMediaPermission)
     {
         $allowedSocialMedia = null;

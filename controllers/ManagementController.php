@@ -12,6 +12,7 @@ use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
 use app\models\forms\ModifySocialMediaInformationsForm;
 use app\models\forms\ModifySocialMediaPermissionForm;
+use app\models\forms\ResetPasswordForm;
 use PHPMailer\PHPMailer\Exception;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
@@ -89,6 +90,7 @@ class ManagementController extends MainController
         return $this->render('modify-account', [
             'formModifyAccountModel' => $formModifyAccount,
             'formSocialMediaPermissionModel' => $formSocialMediaPermission,
+            'user' => $user,
         ]);
     }
 
@@ -333,6 +335,7 @@ class ManagementController extends MainController
 
     /**
      * @param null $id
+     * @return \yii\web\Response
      * @throws CannotCreateTokenException
      * @throws CannotSaveException
      */
@@ -341,6 +344,10 @@ class ManagementController extends MainController
         $user = $this->checkIfUserExist($id);
 
         $this->resetPassword($user);
+
+        $redirect = $_POST["redirect"] ?? "/management/accounts";
+
+        return $this->redirect($redirect);
     }
 
     /**
@@ -352,6 +359,7 @@ class ManagementController extends MainController
     private function resetPassword($user)
     {
         $user->password_hash = null;
+        $user->is_active = false;
 
         $tokenTry = 0;
         do {
@@ -368,8 +376,6 @@ class ManagementController extends MainController
             throw new CannotSaveException($user);
         }
         $this->mailToUserResetPassword($user);
-
-        return $this->redirect("/management/accounts");
     }
 
     /**

@@ -2,7 +2,8 @@
 /** @var \yii\data\ActiveDataProvider $usersDataProvider */
 
 echo $usersDataProvider->count;
-?>
+
+use yii\helpers\Html; ?>
 <?= \yii\grid\GridView::widget([
     'dataProvider' => $usersDataProvider,
     'columns' => [
@@ -67,7 +68,16 @@ echo $usersDataProvider->count;
             {
                 /** @var \app\models\databaseModels\User $user */
 
-                return "<a href='/management/reset-password/" . $user->id . "'  id='reset-password'>Reset User Password<a/>";
+                ob_start();
+                ?>
+                <form method="post" action="/management/reset-password/<?= $user->id; ?>">
+                    <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
+                    <input hidden name="redirect" value="/management/accounts">
+                    <button type="submit">Reset Password</button>
+                </form>
+                <?php
+                return ob_get_clean();
+                //return "<a href='/management/reset-password/" . $user->id . "'  id='reset-password'>Reset User Password<a/>";
             }
         ],
     ],

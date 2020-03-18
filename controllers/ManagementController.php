@@ -16,6 +16,7 @@ use app\models\forms\ResetPasswordForm;
 use PHPMailer\PHPMailer\Exception;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\NotFoundHttpException;
 
 
@@ -338,9 +339,13 @@ class ManagementController extends MainController
      * @return \yii\web\Response
      * @throws CannotCreateTokenException
      * @throws CannotSaveException
+     * @throws MethodNotAllowedHttpException
      */
     public function actionResetPassword($id = null)
     {
+        if (\Yii::$app->request->isPost === false) {
+            throw new MethodNotAllowedHttpException;
+        }
         $user = $this->checkIfUserExist($id);
 
         $this->resetPassword($user);

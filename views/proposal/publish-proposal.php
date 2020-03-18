@@ -49,7 +49,7 @@ use yii\helpers\Html; ?>
 
         if(content.val().length > <?= \app\models\forms\PublishProposalForm::TWEET_MAX_CHARS ?>) {
             content.addClass('border border-danger');
-            $('#alert').text('Content is too long');
+            $('#alert').text('Max content length is <?=  \app\models\forms\PublishProposalForm::TWEET_MAX_CHARS; ?>');
             $('#submit-publish').attr('disabled', true);
         }
 
@@ -63,7 +63,7 @@ use yii\helpers\Html; ?>
         content.on('input', () => {
             if (content.val().length > <?= \app\models\forms\PublishProposalForm::TWEET_MAX_CHARS ?>) {
                 content.addClass('border border-danger');
-                $("#alert").text('Content is too long');
+                $('#alert').text('Max content length is <?=  \app\models\forms\PublishProposalForm::TWEET_MAX_CHARS; ?>');
                 $('#submit-publish').attr('disabled', true);
             } else {
                 content.removeClass('border border-danger');

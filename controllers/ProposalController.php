@@ -12,6 +12,7 @@ use app\models\databaseModels\ProposalFileHistory;
 use app\models\databaseModels\SocialMediaPermission;
 use app\models\exceptions\CannotDeleteFileException;
 use app\models\exceptions\FileDoesNotExistException;
+use app\models\exceptions\TwitterAPIException;
 use app\models\forms\ManageCommentForm;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
@@ -1177,8 +1178,8 @@ class ProposalController extends MainController
     {
         $currentUser = MainController::getCurrentUser();
 
-        if (($currentUser->role === User::USER_ROLE_PUBLISHER || $currentUser->role === User::USER_ROLE_ADMIN)
-            && ($proposal->submitter_id !== $currentUser->id) && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
+        if (($currentUser->hasRole(User::USER_ROLE_PUBLISHER)) && ($proposal->submitter_id !== $currentUser->id)
+            && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
             return true;
         }
 
@@ -1225,21 +1226,31 @@ class ProposalController extends MainController
 
         if ($publishProposalFormModel->load(Yii::$app->request->post()) && $publishProposalFormModel->validate()) {
             $twitterConnector = new TwitterConnector();
+            $transaction = Yii::$app->db->beginTransaction();
+            try {
+                $selectedProposal->status = \app\models\Proposal::STATUS_PUBLISHED;
 
-            if ($publishProposalFormModel->file) {
-                $twitterConnector->addMedia('../uploaded-files/proposal-related-files/'. $selectedProposal->file->path);
+                if ($publishProposalFormModel->file) {
+                    $twitterConnector->addMedia('../uploaded-files/proposal-related-files/'. $selectedProposal->file->path);
+                }
+
+                $response = $twitterConnector->postTweet($publishProposalFormModel->content);
+
+                if (preg_match('/^2/', $response['statusCode']) !== 1) {
+                    throw new TwitterAPIException();
+                }
+
+                if (!$selectedProposal->save()) {
+                    throw new CannotSaveException($selectedProposal);
+                }
+
+                $transaction->commit();
+
+                return $this->redirect('/proposal/proposal/' . $selectedProposal->id);
+            } catch (\Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
             }
-
-            $twitterConnector->postTweet($publishProposalFormModel->content);
-
-            $selectedProposal->status = \app\models\Proposal::STATUS_PUBLISHED;
-
-            if (!$selectedProposal->save())
-            {
-                throw new CannotSaveException($selectedProposal);
-            }
-
-            $this->redirect('/proposal/proposal/' . $selectedProposal->id);
         }
 
         $enabledSocialMedia = EnabledSocialMedia::find()->where(['is_enabled' => true])->all();

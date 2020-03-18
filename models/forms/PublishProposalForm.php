@@ -24,7 +24,7 @@ class PublishProposalForm extends Model
     public function validateContent($attribute)
     {
         if (mb_strlen($this->content) > self::TWEET_MAX_CHARS) {
-            $this->addError($attribute, 'Too long content');
+            $this->addError($attribute, 'Max content length is '. self::TWEET_MAX_CHARS);
         }
     }
 }

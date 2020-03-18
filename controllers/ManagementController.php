@@ -33,7 +33,7 @@ class ManagementController extends MainController
     {
 
         if(!is_null($id)) {
-            return $this->actionModifiyAccount($id);
+            return $this->actionModifyAccount($id);
         }
         $usersDataProvider = new ActiveDataProvider([
             'query' => User::find(),
@@ -54,15 +54,11 @@ class ManagementController extends MainController
      * @return string
      * @throws CannotSaveException
      */
-    private function actionModifiyAccount($id)
+    private function actionModifyAccount($id)
     {
         $user = $this->checkIfUserExist($id);
-
         $userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]);
-
-
         $formModifyAccount = new ModifyAccountForm();
-
         $formSocialMediaPermission = new ModifySocialMediaPermissionForm();
 
         if ($formModifyAccount->load($_POST) && $formModifyAccount->validate()) {
@@ -70,6 +66,7 @@ class ManagementController extends MainController
         }
 
         if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
+
             if ($userPermission === null) {
                 $this->createSocialMediaPermission($formSocialMediaPermission, $user);
             } else {
@@ -83,7 +80,6 @@ class ManagementController extends MainController
         $formModifyAccount->email        = $user->email;
         $formModifyAccount->role         = $user->role;
         $formModifyAccount->is_active    = $user->is_active;
-
         $formSocialMediaPermission->facebook_enabled = $userPermission->facebook_enabled;
         $formSocialMediaPermission->twitter_enabled  = $userPermission->twitter_enabled;
         $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;

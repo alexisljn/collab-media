@@ -71,13 +71,9 @@ $this->title = 'Modify Account';
                 'labelOptions' => ['class' => 'col-lg-1 control-label'],
             ],
         ]);?>
-
         <?= $formModifySocialMediaPermission->field($formSocialMediaPermissionModel,'facebook_enabled')->checkbox(); ?>
-
         <?= $formModifySocialMediaPermission->field($formSocialMediaPermissionModel,'twitter_enabled')->checkbox(); ?>
-
         <?= $formModifySocialMediaPermission->field($formSocialMediaPermissionModel,'linkedin_enabled')->checkbox(); ?>
-
         <div class="form-group">
             <div class="col-lg-offset-1 col-lg-11">
                 <?= Html::submitButton('Modify Permission', [

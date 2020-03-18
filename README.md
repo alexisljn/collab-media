@@ -49,13 +49,14 @@ You should access to:
 
 ### Fake data
 
-Fake data is automatically imported when you start docker-compose. If you want to change it, you have to edit the `/sql/import.sql` file.
+Fake data is automatically imported when you start docker-compose. If you want to change it, you have to edit the constants in `commands/FixturesController.php` and run command `php yii fixtures/generate`.  
+Don't forget to update the `/sql/import.sql` file, which is automatically loaded when you starts your Docker containers.
 You can login
 
 - as user with `user1@example.com` to `user12@example.com`
-- as reviewer with `reviewer1@example.com` to `reviewer5@example.com`
-- as publisher with `publisher1@example.com` to `publisher3@example.com`
-- as admin with `admin@example.com`
+- as reviewer with `reviewer1@example.com` to `reviewer6@example.com`
+- as publisher with `publisher1@example.com` to `publisher4@example.com`
+- as admin with `admin1@example.com`
 
 For all the demo accounts, the password is `password`
 

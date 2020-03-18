@@ -31,7 +31,7 @@ class ManagementController extends MainController
     {
 
         if(!is_null($id)) {
-            return $this->actionModifiyAccount($id);
+            return $this->actionModifyAccount($id);
         }
         $usersDataProvider = new ActiveDataProvider([
             'query' => User::find(),
@@ -52,7 +52,7 @@ class ManagementController extends MainController
      * @return string
      * @throws CannotSaveException
      */
-    private function actionModifiyAccount($id)
+    private function actionModifyAccount($id)
     {
         $user = $this->checkIfUserExist($id);
         $userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]);

@@ -359,8 +359,6 @@ class ManagementController extends MainController
     private function resetPassword($user)
     {
         $user->password_hash = null;
-        $user->is_active = false;
-
         $tokenTry = 0;
         do {
             if($tokenTry === 10) {

@@ -248,7 +248,6 @@ class SiteController extends MainController
     {
         $user->password_hash = Yii::$app->security->generatePasswordHash($form->password);
         $user->token = null;
-        $user->is_active = true;
 
         if (!$user->save()) {
             throw new CannotSaveException($user);

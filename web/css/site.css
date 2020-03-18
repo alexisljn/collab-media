@@ -75,6 +75,10 @@ a.desc:after {
     color: #999;
 }
 
+.help-block-error {
+    color: #dd1111;
+}
+
 .error-summary {
     color: #a94442;
     background: #fdf7f7;

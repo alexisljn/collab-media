@@ -216,7 +216,6 @@ class FixturesController extends MainController
 
                 $comment = new Comment();
                 $comment->proposal_id = $proposal->id;
-//                var_dump($commentAuthor);
                 $comment->author_id = $commentAuthor->id;
                 $comment->date = Util::getDateTimeFormattedForDatabase(
                     \DateTime::createFromFormat('U', random_int(
@@ -457,7 +456,7 @@ class FixturesController extends MainController
 
             $reviewersWhoCanReview = $this->reviewers;
             for($i = 0; $i < count($reviewersWhoCanReview); ++$i) {
-                if($reviewersWhoCanReview[$i]->id === $proposal->id) {
+                if($reviewersWhoCanReview[$i]->id === $proposal->submitter->id) {
                     Util::deleteElementFromArray($reviewersWhoCanReview, $i);
                 }
             }

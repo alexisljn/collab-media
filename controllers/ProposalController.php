@@ -1227,6 +1227,7 @@ class ProposalController extends MainController
         if ($publishProposalFormModel->load(Yii::$app->request->post()) && $publishProposalFormModel->validate()) {
             $twitterConnector = new TwitterConnector();
             $transaction = Yii::$app->db->beginTransaction();
+
             try {
                 $selectedProposal->status = \app\models\Proposal::STATUS_PUBLISHED;
 

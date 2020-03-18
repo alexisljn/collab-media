@@ -137,7 +137,7 @@ class ManagementController extends MainController
      * @param $userPermission
      * @throws CannotSaveException
      */
-    private function updateSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, $userPermission)
+    private function updateSocialMediaPermission(ModifySocialMediaPermissionForm $formSocialMediaPermission, SocialMediaPermission $userPermission)
     {
         $userPermission->facebook_enabled = $formSocialMediaPermission->facebook_enabled;
         $userPermission->twitter_enabled  = $formSocialMediaPermission->twitter_enabled;
@@ -168,7 +168,9 @@ class ManagementController extends MainController
      * Test the form and if it's validated, calls the function createAccount
      *
      * @return string
+     * @throws CannotCreateTokenException
      * @throws CannotSaveException
+     * @throws Exception
      */
     public function actionCreateAccount()
     {
@@ -222,7 +224,10 @@ class ManagementController extends MainController
     }
 
     /**
-     * Action that allows an admin to look at all the social medias
+     * Platforrm settings page.
+     * Display a form to change te proposal
+     * approvement settings and display the
+     * social media installed on the platform.
      *
      * @param null $id
      * @return string
@@ -241,10 +246,9 @@ class ManagementController extends MainController
             $mainApprovementSettings->required_review = $proposalApprovementSettingFormModel->required_review;
 
             if (!$mainApprovementSettings->save()) {
-
+                throw new CannotSaveException($mainApprovementSettings);
             }
         }
-
 
         $proposalApprovementSettingFormModel->required_review = $mainApprovementSettings->required_review;
         $proposalApprovementSettingFormModel->approvement_percent = $mainApprovementSettings->approvement_percent;
@@ -254,8 +258,6 @@ class ManagementController extends MainController
                 'pageSize' => 10,
             ],
         ]);
-
-
 
         return $this->render('social-media', [
             'socialMediasDataProvider' => $socialMediasDataProvider,
@@ -305,22 +307,6 @@ class ManagementController extends MainController
             return $socialMedia;
         }
         throw new $notFoundException();
-    }
-
-    /**
-     * Update the is_enabled value of a social media
-     *
-     * @param ModifySocialMediaInformationsForm $formModifySocialMedias
-     * @param $socialMedia
-     * @throws CannotSaveException
-     */
-    private function updateSocialMedia(ModifySocialMediaInformationsForm $formModifySocialMedias, $socialMedia)
-    {
-        $socialMedia->is_enabled = $formModifySocialMedias->is_enabled;
-
-        if(!$socialMedia->save()){
-            throw new CannotSaveException($socialMedia);
-        }
     }
 
     /**

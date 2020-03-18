@@ -236,7 +236,6 @@ class FixturesController extends MainController
                 }
 
                 if(!$comment->save()) {
-                    var_dump($comment->errors);
                     throw new CannotSaveException($comment);
                 }
             }

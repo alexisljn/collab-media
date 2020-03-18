@@ -25,8 +25,8 @@ use yii\helpers\Html; ?>
 <?php $form = yii\widgets\ActiveForm::begin([
                 'id' => 'publishing-form',
                 'action' => '/proposal/publish-proposal/'. $selectedProposal->id]); ?>
-<span id="alert" class="text-danger"></span>
 <?= $form->field($publishProposalFormModel, 'content')->textarea(['id' => 'publish-form-content-input', 'rows' => '8',])->label('Publication body'); ?>
+<span id="alert" class="text-danger"></span>
 <?php if (!is_null($selectedProposal->file)) { ?>
 <?= $form->field($publishProposalFormModel, 'file')->checkbox(['label' => 'Publish file', 'id' => 'publish-file']); ?>
 <?php } else { ?>
@@ -47,11 +47,11 @@ use yii\helpers\Html; ?>
     $(() => {
         let content = $('#publish-form-content-input');
 
-      /*  if(content.val().length > <?= \app\models\forms\PublishProposalForm::TWEET_MAX_CHARS ?>) {
+        if(content.val().length > <?= \app\models\forms\PublishProposalForm::TWEET_MAX_CHARS ?>) {
             content.addClass('border border-danger');
             $('#alert').text('Content is too long');
             $('#submit-publish').attr('disabled', true);
-        }*/
+        }
 
         $('#publish-file').attr('checked', true);
 

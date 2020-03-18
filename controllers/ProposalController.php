@@ -1282,7 +1282,7 @@ class ProposalController extends MainController
      *
      * @param array $enabledSocialMedia
      * @param SocialMediaPermission $socialMediaPermission
-     * @return null |null
+     * @return null
      */
     private function getAllowedPermissionsForPublisher(array $enabledSocialMedia, SocialMediaPermission $socialMediaPermission)
     {

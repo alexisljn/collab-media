@@ -79,6 +79,7 @@ $config = [
                 'management/social-media/<id:\w+>' => 'management/social-media',
                 'site/validate-account/<token:\w+>' => 'site/validate-account',
                 'site/change-password/<token:\w+>' => 'site/change-password',
+                'management/reset-password/<id:\d+>' => 'management/reset-password',
             ],
         ],
 

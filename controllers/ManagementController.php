@@ -12,9 +12,11 @@ use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
 use app\models\forms\ModifySocialMediaInformationsForm;
 use app\models\forms\ModifySocialMediaPermissionForm;
+use app\models\forms\ResetPasswordForm;
 use PHPMailer\PHPMailer\Exception;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
+use yii\web\MethodNotAllowedHttpException;
 use yii\web\NotFoundHttpException;
 
 
@@ -85,6 +87,7 @@ class ManagementController extends MainController
         return $this->render('modify-account', [
             'formModifyAccountModel' => $formModifyAccount,
             'formSocialMediaPermissionModel' => $formSocialMediaPermission,
+            'user' => $user,
         ]);
     }
 
@@ -325,6 +328,74 @@ class ManagementController extends MainController
     private function createUserToken()
     {
         return Util::getRandomString(32);
+    }
+
+    /**
+     * @param null $id
+     * @return \yii\web\Response
+     * @throws CannotCreateTokenException
+     * @throws CannotSaveException
+     * @throws MethodNotAllowedHttpException
+     */
+    public function actionResetPassword($id = null)
+    {
+        if (\Yii::$app->request->isPost === false) {
+            throw new MethodNotAllowedHttpException;
+        }
+        $user = $this->checkIfUserExist($id);
+
+        $this->resetPassword($user);
+
+        $redirect = $_POST["redirect"] ?? "/management/accounts";
+
+        return $this->redirect($redirect);
+    }
+
+    /**
+     * @param $user
+     * @throws CannotCreateTokenException
+     * @throws CannotSaveException
+     * @throws \Exception
+     */
+    private function resetPassword($user)
+    {
+        $user->password_hash = null;
+        $tokenTry = 0;
+        do {
+            if($tokenTry === 10) {
+                throw new CannotCreateTokenException();
+            }
+            $token = $this->createUserToken();
+            $tokenTry++;
+        } while (!is_null(User::findOne(['token' => $token])));
+
+        $user->token = $token;
+
+        if (!$user->save()) {
+            throw new CannotSaveException($user);
+        }
+        $this->mailToUserResetPassword($user);
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \PHPMailer\PHPMailer\Exception
+     * @throws CannotSendMailException
+     */
+    private function mailToUserResetPassword(User $user)
+    {
+        $mail = Util::getConfiguredMailerForMailhog();
+        $mail->addAddress($user->email);
+        $mail->isHTML(false);
+        $mail->CharSet = 'UTF-8';
+
+        $mail->Subject = "We have reset your Collab'media account password";
+        $mail->Body = 'Click on the following link to create a new password : '. Util::BASE_URL .'/site/change-password/' . $user->token ;
+
+        if(!$mail->send()) {
+            throw new CannotSendMailException();
+        }
     }
 }
 ?>

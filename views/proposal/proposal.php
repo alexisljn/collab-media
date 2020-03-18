@@ -8,6 +8,7 @@
 /** @var \app\models\forms\ManageCommentForm $manageCommentFormModel */
 /** @var bool|\app\models\Review $potentialReview */
 /** @var bool $canEditProposal */
+/** @var bool $canPublishProposal */
 
 use app\controllers\mainController\MainController;
 use app\models\Proposal;
@@ -367,9 +368,28 @@ use yii\widgets\ActiveForm; ?>
                 </div>
             </div>
         <?php } ?>
+        <?php if ($canPublishProposal) { ?>
+            <div class="proposal-sidebar-divider"></div>
+            <div class="proposal-sidebar-block">
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <a href="/proposal/publish-proposal/<?= $selectedProposal->id ?>" id="publish-btn" type="button" class="btn btn-lg btn-success">
+                            Publish
+                        </a>
+                    </div>
+                    <div class="col-6 text-center">
+                        <button id="reject-btn" type="button" class="btn btn-lg btn-danger">
+                            Reject
+                        </button>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
     </aside>
 </div>
 
+<?php if ($canEditProposal) { ?>
 <script type="text/javascript" id="edit-form-script">
     $(() => {
         const editor = new tui.Editor({
@@ -389,7 +409,7 @@ use yii\widgets\ActiveForm; ?>
         });
     });
 </script>
-
+<?php } ?>
 <script type="text/javascript" id="comment-script">
     $(() => {
         $("a[id^='edit-comment-link-']").on('click', (event) => {
@@ -411,7 +431,6 @@ use yii\widgets\ActiveForm; ?>
         })
     });
 </script>
-
 <script type="text/javascript" id="content-history-modal-script">
     $(() => {
         const modalContainer = $('#proposal-content-history-modal');
@@ -437,7 +456,7 @@ use yii\widgets\ActiveForm; ?>
         });
     });
 </script>
-
+<?php if(!is_null($potentialReview)) { ?>
 <script type="text/javascript" id="vote-review-script">
     $(() => {
         let reviewStatus = '<?= $potentialReview->status ?>';
@@ -537,3 +556,21 @@ use yii\widgets\ActiveForm; ?>
         });
     })
 </script>
+<?php } ?>
+<?php if ($canPublishProposal) { ?>
+<script type="text/javascript" id="publish-reject">
+    $(() => {
+        $('#reject-btn').on('click', () => {
+
+            if (confirm('Are you sure to reject this proposal ?')) {
+                $.post('/proposal/reject-proposal',
+                    { proposalId: <?= $selectedProposal->id ?> },
+                    (response) => {
+                        $('aside').html($(response).find('aside').html());
+                    }
+                )
+            }
+        })
+    })
+</script>
+<?php } ?>

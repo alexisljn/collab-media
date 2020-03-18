@@ -4,11 +4,15 @@
 namespace app\controllers;
 
 
+use app\components\socialMediaApi\TwitterConnector;
 use app\components\Util;
 use app\controllers\mainController\MainController;
+use app\models\databaseModels\EnabledSocialMedia;
 use app\models\databaseModels\ProposalFileHistory;
+use app\models\databaseModels\SocialMediaPermission;
 use app\models\exceptions\CannotDeleteFileException;
 use app\models\exceptions\FileDoesNotExistException;
+use app\models\exceptions\TwitterAPIException;
 use app\models\forms\ManageCommentForm;
 use app\models\forms\ManageProposalForm;
 use app\models\databaseModels\Comment;
@@ -18,6 +22,7 @@ use app\models\databaseModels\ProposalContentHistory;
 use app\models\databaseModels\Review;
 use app\models\exceptions\CannotHandleUploadedFileException;
 use app\models\exceptions\CannotSaveException;
+use app\models\forms\PublishProposalForm;
 use app\models\ProposalApprovementSetting;
 use app\models\User;
 use yii\data\ActiveDataProvider;
@@ -93,6 +98,7 @@ class ProposalController extends MainController
         $manageProposalFormModel->content = $lastProposalContent->content;
         $manageCommentFormModel = new ManageCommentForm();
         $canEditProposal = $this->canEditProposal($selectedProposal);
+        $canPublishProposal = $this->canPublishProposal($selectedProposal);
 
         $viewItems = [
             'selectedProposal' => $selectedProposal,
@@ -103,6 +109,7 @@ class ProposalController extends MainController
             'manageProposalFormModel' => $manageProposalFormModel,
             'manageCommentFormModel' => $manageCommentFormModel,
             'canEditProposal' => $canEditProposal,
+            'canPublishProposal' => $canPublishProposal
         ];
 
       /*  if (!is_null($selectedProposal->file))
@@ -110,7 +117,7 @@ class ProposalController extends MainController
            $this->getRelatedFile($selectedProposal->file->path);
         }*/
 
-        if ($this->checkIfReviewerCanReviewProposal($selectedProposal->submitter_id)) {
+        if ($this->checkIfReviewerCanReviewProposal($selectedProposal)) {
             $potentialReview = $this->getPotentialReviewOfAReviewer
             (
                 $selectedProposal,
@@ -944,6 +951,11 @@ class ProposalController extends MainController
         ]);
     }
 
+    /**
+     * Builds published proposals's ActiveDateProvider
+     *
+     * @return ActiveDataProvider
+     */
     private function buildPublishedProposalsActiveDataProvider()
     {
         return new ActiveDataProvider([
@@ -964,6 +976,11 @@ class ProposalController extends MainController
         ]);
     }
 
+    /**
+     * Builds the ActiveDataProvider for the rejected proposals
+     *
+     * @return ActiveDataProvider
+     */
     private function buildRejectedProposalsActiveDataProvider()
     {
         return new ActiveDataProvider([
@@ -984,9 +1001,17 @@ class ProposalController extends MainController
         ]);
     }
 
-    private function checkIfReviewerCanReviewProposal($proposalSubmitterId) {
-
-        if (MainController::getCurrentUser()->id !== $proposalSubmitterId) {
+    /**
+     * Check if reviewer cans review proposal based on the proposal status
+     * and submitter.
+     *
+     * @param Proposal $proposal
+     * @return bool
+     */
+    private function checkIfReviewerCanReviewProposal(Proposal $proposal)
+    {
+        if (MainController::getCurrentUser()->id !== $proposal->submitter_id
+            && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
             return true;
         }
 
@@ -1103,7 +1128,6 @@ class ProposalController extends MainController
      */
     private function saveReview(?\app\models\Review $currentReview, $reviewStatus, $reviewerId, $proposalId)
     {
-        //return dd($currentReview);
 
         if (!is_null($currentReview)) {
 
@@ -1142,6 +1166,138 @@ class ProposalController extends MainController
         }
 
         return $review;
+    }
+
+    /**
+     * Check if user can publish Proposal
+     *
+     * @param Proposal $proposal
+     * @return bool
+     */
+    private function canPublishProposal(Proposal $proposal)
+    {
+        $currentUser = MainController::getCurrentUser();
+
+        if (($currentUser->hasRole(User::USER_ROLE_PUBLISHER)) && ($proposal->submitter_id !== $currentUser->id)
+            && $proposal->status === \app\models\Proposal::STATUS_PENDING) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Pass pending proposal's status to rejected
+     *
+     * @return string
+     * @throws CannotSaveException
+     */
+    public function actionRejectProposal()
+    {
+        $proposalId = Yii::$app->request->post()['proposalId'];
+        $selectedProposal = $this->checkIfProposalExists($proposalId);
+        $selectedProposal->status = \app\models\Proposal::STATUS_REJECTED;
+
+        if (!$selectedProposal->save()) {
+            throw new CannotSaveException($selectedProposal);
+        }
+
+        return $this->actionProposal($proposalId);
+    }
+
+    /**
+     * Display the publishing form of a proposal
+     * If post loaded, it tweets the proposal and
+     * save proposal's status to published
+     *
+     * @param int $id
+     * @return string
+     * @throws CannotSaveException
+     * @throws FileDoesNotExistException
+     * @throws \app\models\exceptions\CannotAddMediaToTweetException
+     * @throws \app\models\exceptions\FileException
+     * @throws \app\models\exceptions\TwitterAPIException
+     * @throws \app\models\exceptions\TwitterAPIInvalidFileContentException
+     */
+    public function actionPublishProposal(int $id)
+    {
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $publishProposalFormModel = new PublishProposalForm();
+
+        if ($publishProposalFormModel->load(Yii::$app->request->post()) && $publishProposalFormModel->validate()) {
+            $twitterConnector = new TwitterConnector();
+            $transaction = Yii::$app->db->beginTransaction();
+
+            try {
+                $selectedProposal->status = \app\models\Proposal::STATUS_PUBLISHED;
+
+                if ($publishProposalFormModel->file) {
+                    $twitterConnector->addMedia('../uploaded-files/proposal-related-files/'. $selectedProposal->file->path);
+                }
+
+                $response = $twitterConnector->postTweet($publishProposalFormModel->content);
+
+                if (preg_match('/^2/', $response['statusCode']) !== 1) {
+                    throw new TwitterAPIException();
+                }
+
+                if (!$selectedProposal->save()) {
+                    throw new CannotSaveException($selectedProposal);
+                }
+
+                $transaction->commit();
+
+                return $this->redirect('/proposal/proposal/' . $selectedProposal->id);
+            } catch (\Throwable $e) {
+                $transaction->rollBack();
+                throw $e;
+            }
+        }
+
+        $enabledSocialMedia = EnabledSocialMedia::find()->where(['is_enabled' => true])->all();
+        $socialMediaPermission = SocialMediaPermission::findOne(['publisher_id' => MainController::getCurrentUser()->id]);
+        $allowedSocialMedia = $this->getAllowedPermissionsForPublisher($enabledSocialMedia, $socialMediaPermission);
+        $selectedProposal = $this->checkIfProposalExists($id);
+        $publishProposalFormModel->content = strip_tags((new \Parsedown())
+            ->text($selectedProposal->proposalContentHistories
+            [
+            count($selectedProposal->proposalContentHistories) -1
+            ]->content));
+
+        return $this->render('publish-proposal', [
+            'publishProposalFormModel' => $publishProposalFormModel,
+            'selectedProposal' => $selectedProposal,
+            'allowedSocialMedia' => $allowedSocialMedia
+        ]);
+
+
+    }
+
+    /**
+     * Returns allowed publishing social media for a publisher.
+     *
+     * @param array $enabledSocialMedia
+     * @param SocialMediaPermission $socialMediaPermission
+     * @return |null    */
+    private function getAllowedPermissionsForPublisher(array $enabledSocialMedia, SocialMediaPermission $socialMediaPermission)
+    {
+        $allowedSocialMedia = null;
+
+        foreach ($enabledSocialMedia as $socialMedia) {
+
+            foreach (array_keys($socialMediaPermission->attributeLabels()) as $key) {
+
+                if (stristr($key, $socialMedia->social_media_name)) {
+
+                    if ($socialMediaPermission->$key) {
+                        $allowedSocialMedia[$socialMedia->social_media_name] = ucfirst($socialMedia->social_media_name);
+                    }
+                }
+            }
+
+        }
+
+        return $allowedSocialMedia;
     }
 
 }

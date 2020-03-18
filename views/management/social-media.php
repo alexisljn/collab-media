@@ -32,7 +32,6 @@ use yii\helpers\Html; ?>
     </div>
 </div>
 <?php yii\widgets\ActiveForm::end(); ?>
-<div id="work"></div>
 <div class="row">
     <div class="col-12">
         <p class="lead">Social Media</p>
@@ -40,7 +39,6 @@ use yii\helpers\Html; ?>
 </div>
 <div class="row">
     <div class="col-12">
-        <span id="alert"></span>
         <?= GridView::widget([
             'dataProvider' => $socialMediasDataProvider,
             'columns' => [
@@ -86,7 +84,6 @@ use yii\helpers\Html; ?>
             enabled: $('#checkbox-'+e.target.name).is(':checked')
         },
         (response) => {
-            $('#work').html(response);
             if(response == 200) {
                 toastr.success('Success', 'Your change have been saved');
             }

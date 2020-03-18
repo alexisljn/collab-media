@@ -330,5 +330,67 @@ class ManagementController extends MainController
     {
         return Util::getRandomString(32);
     }
+
+    /**
+     * @param null $id
+     * @throws CannotCreateTokenException
+     * @throws CannotSaveException
+     */
+    public function actionResetPassword($id = null)
+    {
+        $user = $this->checkIfUserExist($id);
+
+        $this->resetPassword($user);
+    }
+
+    /**
+     * @param $user
+     * @throws CannotCreateTokenException
+     * @throws CannotSaveException
+     * @throws \Exception
+     */
+    private function resetPassword($user)
+    {
+        $user->password_hash = null;
+
+        $tokenTry = 0;
+        do {
+            if($tokenTry === 10) {
+                throw new CannotCreateTokenException();
+            }
+            $token = $this->createUserToken();
+            $tokenTry++;
+        } while (!is_null(User::findOne(['token' => $token])));
+
+        $user->token = $token;
+
+        if (!$user->save()) {
+            throw new CannotSaveException($user);
+        }
+        $this->mailToUserResetPassword($user);
+
+        return $this->redirect("/management/accounts");
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     * @throws \PHPMailer\PHPMailer\Exception
+     * @throws CannotSendMailException
+     */
+    private function mailToUserResetPassword(User $user)
+    {
+        $mail = Util::getConfiguredMailerForMailhog();
+        $mail->addAddress($user->email);
+        $mail->isHTML(false);
+        $mail->CharSet = 'UTF-8';
+
+        $mail->Subject = "We have reset your Collab'media account password";
+        $mail->Body = 'Click on the following link to create a new password : '. Util::BASE_URL .'/site/change-password/' . $user->token ;
+
+        if(!$mail->send()) {
+            throw new CannotSendMailException();
+        }
+    }
 }
 ?>

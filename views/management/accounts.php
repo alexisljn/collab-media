@@ -59,8 +59,17 @@ echo $usersDataProvider->count;
                 return "<a href='/management/accounts/" . $user->id . "'  id='modify-account'>Modify Account<a/>";
             }
         ],
+        [
+            'attribute' => 'reset',
+            'label'     => 'Reset',
+            'format'    => 'raw',
+            'value'     => function ($user)
+            {
+                /** @var \app\models\databaseModels\User $user */
 
-
+                return "<a href='/management/reset-password/" . $user->id . "'  id='reset-password'>Reset User Password<a/>";
+            }
+        ],
     ],
 
 ]) ?>

@@ -16,6 +16,6 @@ class ResetPasswordForm extends Model
             [['id'], 'required'],
             // id must be an integer
             ['id', 'integer'],
-            ];
+        ];
     }
 }

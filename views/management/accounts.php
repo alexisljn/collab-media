@@ -77,7 +77,6 @@ use yii\helpers\Html; ?>
                 </form>
                 <?php
                 return ob_get_clean();
-                //return "<a href='/management/reset-password/" . $user->id . "'  id='reset-password'>Reset User Password<a/>";
             }
         ],
     ],

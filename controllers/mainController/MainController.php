@@ -66,6 +66,7 @@ class MainController extends Controller
             'create-account' => User::USER_ROLE_ADMIN,
             'platform-settings' => User::USER_ROLE_ADMIN,
             'enable-social-media' => User::USER_ROLE_ADMIN,
+            'reset-password' => User::USER_ROLE_ADMIN,
         ],
     ];
 

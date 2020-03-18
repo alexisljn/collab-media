@@ -83,9 +83,12 @@ class ProposalController extends MainController
             $selectedProposal->proposalFileHistories,
 
         );
-        $lastProposalContent = $selectedProposal->proposalContentHistories[
-            count($selectedProposal->proposalContentHistories)-1
-        ];
+        $lastProposalContent = ProposalContentHistory::find()
+            ->where(['proposal_id' => $selectedProposal->id])
+            ->orderBy('date DESC')
+            ->limit(1)
+            ->one();
+
         $approvalsCount = Review::find()->where(['proposal_id' => $selectedProposal->id])
             ->andWhere(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])
             ->count();

@@ -1,9 +1,9 @@
 <?php
 
-/** @var $this yii\web\View */
-/** @var $formModifyAccountModel app\models\forms\ModifyAccountForm */
-/** @var $formSocialMediaPermissionModel app\models\forms\ModifySocialMediaPermissionForm */
-/** @var array $socialMedia  */
+/* @var $this yii\web\View */
+/* @var $formModifyAccountModel app\models\forms\ModifyAccountForm */
+/* @var $formSocialMediaPermissionModel app\models\forms\ModifySocialMediaPermissionForm */
+/* @var $user app\models\databaseModels\User */
 
 use app\models\User;
 use yii\helpers\Html;
@@ -49,10 +49,19 @@ $this->title = 'Modify Account';
         </div>
     </div>
 
+    <?php ActiveForm::end();?>
 
-    <?php ActiveForm::end();
+    <h1>Reset User Password</h1>
+    <p>You can reset the user password by clicking on the button below. He will receive an email to define a new password.</p>
+    <form method="post" action="/management/reset-password/<?= $user->id; ?>">
+        <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
+        <input hidden name="redirect" value="/management/accounts/<?= $user->id; ?>">
+        <button type="submit">Reset Password</button>
+    </form>
 
-    if (in_array($formModifyAccountModel->role, [User::USER_ROLE_PUBLISHER, User::USER_ROLE_ADMIN])) {
+
+    <?php
+     if (in_array($formModifyAccountModel->role, [User::USER_ROLE_PUBLISHER, User::USER_ROLE_ADMIN])) {
         $formModifySocialMediaPermission = ActiveForm::begin([
             'id' => 'modify-social-media-form',
             'method' => 'post',

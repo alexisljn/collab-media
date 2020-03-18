@@ -78,6 +78,7 @@ $config = [
                 'management/accounts/<id:\d+>'   => 'management/accounts',
                 'site/validate-account/<token:\w+>' => 'site/validate-account',
                 'site/change-password/<token:\w+>' => 'site/change-password',
+                'management/reset-password/<id:\d+>' => 'management/reset-password',
             ],
         ],
 

@@ -12,6 +12,9 @@ use app\models\databaseModels\User;
 use app\models\exceptions\CannotSaveException;
 use app\models\forms\ModifySocialMediaInformationsForm;
 use app\models\forms\ModifySocialMediaPermissionForm;
+use app\models\forms\ProposalApprovementSettingForm;
+use app\models\Proposal;
+use app\models\ProposalApprovementSetting;
 use PHPMailer\PHPMailer\Exception;
 use yii\data\ActiveDataProvider;
 use app\models\forms\ModifyAccountForm;
@@ -225,46 +228,68 @@ class ManagementController extends MainController
      * @return string
      * @throws CannotSaveException
      */
-    public function actionSocialMedia($id = null)
+    public function actionPlatformSettings()
     {
-        if(!is_null($id)) {
-           return $this->actionModifySocialMedia($id);
+
+        $mainApprovementSettings = ProposalApprovementSetting::findOne([
+            'id' => ProposalApprovementSetting::MAIN_SETTING]);
+        $proposalApprovementSettingFormModel = new ProposalApprovementSettingForm();
+
+        if ($proposalApprovementSettingFormModel->load(\Yii::$app->request->post())
+            && $proposalApprovementSettingFormModel->validate()) {
+            $mainApprovementSettings->approvement_percent = $proposalApprovementSettingFormModel->approvement_percent;
+            $mainApprovementSettings->required_review = $proposalApprovementSettingFormModel->required_review;
+
+            if (!$mainApprovementSettings->save()) {
+
+            }
         }
+
+
+        $proposalApprovementSettingFormModel->required_review = $mainApprovementSettings->required_review;
+        $proposalApprovementSettingFormModel->approvement_percent = $mainApprovementSettings->approvement_percent;
         $socialMediasDataProvider = new ActiveDataProvider([
             'query' => EnabledSocialMedia::find(),
             'pagination' => [
                 'pageSize' => 10,
             ],
         ]);
+
+
+
         return $this->render('social-media', [
-            'socialMediasDataProvider' => $socialMediasDataProvider
+            'socialMediasDataProvider' => $socialMediasDataProvider,
+            'proposalApprovementSettingFormModel' => $proposalApprovementSettingFormModel
         ]);
     }
 
     /**
-     * Display a page where the social media selected in actionSocialMedias can be modified
+     * Enable or disable social media in Ajax call.
      *
-     * @param string $id
      * @return string
      * @throws CannotSaveException
      */
-    private function actionModifySocialMedia(string $id)
+    public function actionEnableSocialMedia()
     {
-        $socialMedia = $this->checkIfSocialMediaExists($id);
+        $unauthorizedException = NotFoundHttpException::class;
 
-        $formModifySocialMedias = new ModifySocialMediaInformationsForm();
+        if (\Yii::$app->request->post()) {
+            $socialMedia = $this->checkIfSocialMediaExists(\Yii::$app->request->post()['social_media_name']);
 
-        if ($formModifySocialMedias->load($_POST) && $formModifySocialMedias->validate()) {
-            $this->updateSocialMedia($formModifySocialMedias, $socialMedia);
+            if (\Yii::$app->request->post()['enabled'] === 'true') {
+                $socialMedia->is_enabled = 1;
+            } else {
+                $socialMedia->is_enabled = 0;
+            }
+
+            if (!$socialMedia->save()) {
+                throw new CannotSaveException($socialMedia);
+            }
+
+            return \Yii::$app->response->statusCode;
         }
-        $formModifySocialMedias->is_enabled = $socialMedia->is_enabled;
 
-
-
-        return $this->render('modify-social-media', [
-            'formModifySocialMediasModel' => $formModifySocialMedias,
-            'socialMedia' => $socialMedia
-        ]);
+        throw new $unauthorizedException();
     }
 
     /**
@@ -300,9 +325,8 @@ class ManagementController extends MainController
 
     /**
      * @param User $user
-     * @return bool
-     * @throws \PHPMailer\PHPMailer\Exception
      * @throws CannotSendMailException
+     * @throws Exception
      */
     private function mailToUserPasswordCreation(User $user)
     {

@@ -128,6 +128,7 @@
             echo yii\grid\GridView::widget([
                 'dataProvider' => $approvedProposals,
                 'layout' => '{items}{pager}',
+                'emptyText' => 'No approved proposals',
                 'tableOptions' => ['class' => 'table box'],
                 'headerRowOptions' => ['class' => 'box-header'],
                 'rowOptions' => ['class' => 'box-row js-row-clickable'],
@@ -197,6 +198,7 @@
             <?php \yii\widgets\Pjax::begin();
             echo yii\grid\GridView::widget([
                 'dataProvider' => $notApprovedProposals,
+                'emptyText' => 'No proposals',
                 'layout' => '{items}{pager}',
                 'tableOptions' => ['class' => 'table box'],
                 'headerRowOptions' => ['class' => 'box-header'],
@@ -268,6 +270,7 @@
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $publishedProposals,
                 'layout' => '{items}{pager}',
+                'emptyText' => 'No published proposals',
                 'tableOptions' => ['class' => 'table box'],
                 'headerRowOptions' => ['class' => 'box-header'],
                 'rowOptions' => ['class' => 'box-row js-row-clickable'],
@@ -305,6 +308,7 @@
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $rejectedProposals,
                 'layout' => '{items}{pager}',
+                'emptyText' => 'No rejected proposals',
                 'tableOptions' => ['class' => 'table box'],
                 'headerRowOptions' => ['class' => 'box-header'],
                 'rowOptions' => ['class' => 'box-row js-row-clickable'],

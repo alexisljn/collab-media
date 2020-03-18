@@ -1215,12 +1215,6 @@ class ProposalController extends MainController
      *
      * @param int $id
      * @return string
-     * @throws CannotSaveException
-     * @throws FileDoesNotExistException
-     * @throws \app\models\exceptions\CannotAddMediaToTweetException
-     * @throws \app\models\exceptions\FileException
-     * @throws \app\models\exceptions\TwitterAPIException
-     * @throws \app\models\exceptions\TwitterAPIInvalidFileContentException
      * @throws \Throwable
      */
     public function actionPublishProposal(int $id)

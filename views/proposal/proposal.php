@@ -266,7 +266,7 @@ use yii\widgets\ActiveForm; ?>
             ?>
         </div>
         <div class="proposal-add-comment-container">
-            <h3>Add a comment</h3>
+            <h2 class="h5">Add a comment</h2>
             <?php
             $manageCommentForm = yii\widgets\ActiveForm::begin([
                 'id' => 'comment-form',

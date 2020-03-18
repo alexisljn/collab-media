@@ -159,8 +159,8 @@ class MainController extends Controller
                         ],
                     ],
                     [
-                        'title' => 'Social Media',
-                        'url' => '/management/social-media',
+                        'title' => 'Platform settings',
+                        'url' => '/management/platform-settings',
                         'roleNeeded' => User::USER_ROLE_ADMIN,
                         'activeActions' => [
                             'management' => ['social-media'],

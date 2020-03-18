@@ -30,6 +30,7 @@ AppAsset::register($this);
     <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>
     <script src="/js/toastr.min.js"></script>
+    <script src="/js/active-data-provider.js"></script>
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>

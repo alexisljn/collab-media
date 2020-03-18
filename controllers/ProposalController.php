@@ -1228,6 +1228,7 @@ class ProposalController extends MainController
 
             try {
                 $selectedProposal->status = \app\models\Proposal::STATUS_PUBLISHED;
+                $selectedProposal->social_media = "twitter";
 
                 if ($publishProposalFormModel->file) {
                     $twitterConnector->addMedia('../uploaded-files/proposal-related-files/'. $selectedProposal->file->path);

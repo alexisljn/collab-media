@@ -462,3 +462,38 @@ a.desc:after {
     justify-content: space-between;
     align-items: center;
 }
+
+.box {
+    background-color: #fff;
+    border: 1px solid #d1d5da;
+    border-radius: 3px;
+}
+
+.box-header {
+    padding: 16px;
+    margin: -1px -1px 0;
+    background-color: #f6f8fa;
+    border: 1px solid #d1d5da;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.box-row {
+    padding: 16px;
+    margin-top: -1px;
+    list-style-type: none;
+    border-top: 1px solid #e1e4e8;
+}
+
+.box-row:hover {
+    cursor: pointer;
+    background-color: #F7F7F7;
+}
+
+.box-link a {
+    color: #333333;
+}
+
+.box-link a:hover {
+    text-decoration: none;
+}

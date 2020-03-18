@@ -235,7 +235,7 @@ class ProposalController extends MainController
      */
     private function buildMyPendingProposalsActiveDataProvider(): ActiveDataProvider
     {
-        $myPendingProposals = new ActiveDataProvider([
+        return new ActiveDataProvider([
             'query' => Proposal::find()
                 ->select('proposal.*,
                                     CASE
@@ -258,8 +258,6 @@ class ProposalController extends MainController
                 'defaultOrder' => ['date' => SORT_DESC, 'title' => SORT_ASC, 'has_review' => SORT_ASC]
             ]
         ]);
-
-        return $myPendingProposals;
     }
 
     /**
@@ -269,7 +267,7 @@ class ProposalController extends MainController
      */
     private function buildMyNotPendingProposalsActiveDataProvider(): ActiveDataProvider
     {
-        $myReviewedProposals = new ActiveDataProvider([
+        return new ActiveDataProvider([
             'query' => Proposal::find()
                 ->where(['not',['status' => \app\models\Proposal::STATUS_PENDING]])
                 ->andWhere(['submitter_id' => self::getCurrentUser()->id]),
@@ -283,8 +281,6 @@ class ProposalController extends MainController
                 'defaultOrder' => ['date' => SORT_DESC, 'title' => SORT_ASC, 'status' => SORT_ASC]
             ]
         ]);
-
-        return $myReviewedProposals;
     }
 
     /**
@@ -294,12 +290,12 @@ class ProposalController extends MainController
      */
     public function actionReviewerPendingProposals(): string
     {
-        $noReviewedProposalsByAReviewerDataProvider = $this->buildNoReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider();
-        $reviewedProposalsByAReviewerDataProvider = $this->buildReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider();
+        $proposalsToReviewActiveDataProvider = $this->buildProposalsToReviewActiveDataProvider();
+        $reviewedProposalsActiveDataProvider = $this->buildReviewedProposalsActiveDataProvider();
 
         return $this->render('reviewer-pending-proposals', [
-            'noReviewedProposalsByAReviewerDataProvider' => $noReviewedProposalsByAReviewerDataProvider,
-            'reviewedProposalsByAReviewerDataProvider' => $reviewedProposalsByAReviewerDataProvider
+            'proposalsToReviewActiveDataProvider' => $proposalsToReviewActiveDataProvider,
+            'reviewedProposalsActiveDataProvider' => $reviewedProposalsActiveDataProvider
         ]);
     }
 
@@ -308,9 +304,9 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function buildNoReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider(): ActiveDataProvider
+    private function buildProposalsToReviewActiveDataProvider(): ActiveDataProvider
     {
-        $noReviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
+        return new ActiveDataProvider([
             'query' => Proposal::find()
                ->select('proposal.*,
                                   CASE
@@ -344,8 +340,6 @@ class ProposalController extends MainController
                 ]
             ]
         ]);
-
-        return $noReviewedAndNoPublishedProposalsForAReviewer;
     }
 
     /**
@@ -353,9 +347,9 @@ class ProposalController extends MainController
      *
      * @return ActiveDataProvider
      */
-    private function buildReviewedAndNoPublishedProposalsForAReviewerActiveDataProvider(): ActiveDataProvider
+    private function buildReviewedProposalsActiveDataProvider(): ActiveDataProvider
     {
-        $reviewedAndNoPublishedProposalsForAReviewer = new ActiveDataProvider([
+        return new ActiveDataProvider([
             'query' => Proposal::find()
             ->where([
                 'in',
@@ -381,8 +375,6 @@ class ProposalController extends MainController
                 ]
             ]
         ]);
-
-        return $reviewedAndNoPublishedProposalsForAReviewer;
     }
 
     /**

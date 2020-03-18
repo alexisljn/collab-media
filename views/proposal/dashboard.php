@@ -127,15 +127,20 @@
             <?php \yii\widgets\Pjax::begin();
             echo yii\grid\GridView::widget([
                 'dataProvider' => $approvedProposals,
+                'layout' => '{items}{pager}',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
                         'label' => 'Title',
                         'format' => 'raw',
+                        'contentOptions' => ['class' => 'box-link'],
                         'value' => function($proposal)
                         {
                             /** @var \app\models\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -173,6 +178,7 @@
                     ],
                     [
                         'label' => 'Comments',
+                        'contentOptions' => ['class' => 'text-center'],
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
@@ -191,15 +197,20 @@
             <?php \yii\widgets\Pjax::begin();
             echo yii\grid\GridView::widget([
                 'dataProvider' => $notApprovedProposals,
+                'layout' => '{items}{pager}',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
                         'label' => 'Title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -237,6 +248,7 @@
                     ],
                     [
                         'label' => 'Comments',
+                        'contentOptions' => ['class' => 'text-center'],
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
@@ -255,15 +267,20 @@
             <?php \yii\widgets\Pjax::begin();
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $publishedProposals,
+                'layout' => '{items}{pager}',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
                         'label' => 'Title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -272,9 +289,9 @@
                         'format' => 'raw',
                     ],
                     [
-                            'attribute' => 'social_media',
-                            'label' => 'Published on',
-                            'format' => 'raw'
+                        'attribute' => 'social_media',
+                        'label' => 'Published on',
+                        'format' => 'raw'
                     ]
                 ]
             ]);
@@ -287,15 +304,20 @@
             <?php \yii\widgets\Pjax::begin();
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $rejectedProposals,
+                'layout' => '{items}{pager}',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'label' => 'Title',
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [

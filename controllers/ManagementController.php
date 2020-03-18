@@ -261,7 +261,7 @@ class ManagementController extends MainController
             ],
         ]);
 
-        return $this->render('social-media', [
+        return $this->render('platform-settings', [
             'socialMediasDataProvider' => $socialMediasDataProvider,
             'proposalApprovementSettingFormModel' => $proposalApprovementSettingFormModel
         ]);

@@ -124,7 +124,7 @@
              class="tab-pane fade show active"
              role="tabpanel"
              aria-labelledby="approved-proposals-tab">
-            <?php \yii\widgets\Pjax::begin();
+            <?php \yii\widgets\Pjax::begin(['timeout' => 5000]);
             echo yii\grid\GridView::widget([
                 'dataProvider' => $approvedProposals,
                 'columns' => [
@@ -148,6 +148,13 @@
                         'label' => 'Reviews',
                         'format' => 'raw',
                     ],
+                ],
+                'pager' => [
+                    'maxButtonCount' => 7,
+                    'firstPageLabel' => '<i class="fas fa-angle-double-left"></i>',
+                    'lastPageLabel' => '<i class="fas fa-angle-double-right"></i>',
+                    'prevPageLabel' => '<i class="fas fa-angle-left"></i>',
+                    'nextPageLabel' => '<i class="fas fa-angle-right"></i>'
                 ]
             ]);
             \yii\widgets\Pjax::end()?>
@@ -156,7 +163,7 @@
              class="tab-pane fade"
              role="tabpanel"
              aria-labelledby="not-approved-proposals-tab">
-            <?php \yii\widgets\Pjax::begin();
+            <?php \yii\widgets\Pjax::begin(['timeout' => 5000]);
             echo yii\grid\GridView::widget([
                 'dataProvider' => $notApprovedProposals,
                 'columns' => [
@@ -180,6 +187,13 @@
                         'label' => 'Reviews',
                         'format' => 'raw',
                     ],
+                ],
+                'pager' => [
+                    'maxButtonCount' => 7,
+                    'firstPageLabel' => '<i class="fas fa-angle-double-left"></i>',
+                    'lastPageLabel' => '<i class="fas fa-angle-double-right"></i>',
+                    'prevPageLabel' => '<i class="fas fa-angle-left"></i>',
+                    'nextPageLabel' => '<i class="fas fa-angle-right"></i>'
                 ]
             ]);
             \yii\widgets\Pjax::end();?>
@@ -188,7 +202,7 @@
              class="tab-pane fade"
              role="tabpanel"
              aria-labelledby="published-proposals-tab">
-            <?php \yii\widgets\Pjax::begin();
+            <?php \yii\widgets\Pjax::begin(['timeout' => 5000]);
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $publishedProposals,
                 'columns' => [
@@ -207,6 +221,13 @@
                         'label' => 'Creation date',
                         'format' => 'raw',
                     ],
+                ],
+                'pager' => [
+                    'maxButtonCount' => 7,
+                    'firstPageLabel' => '<i class="fas fa-angle-double-left"></i>',
+                    'lastPageLabel' => '<i class="fas fa-angle-double-right"></i>',
+                    'prevPageLabel' => '<i class="fas fa-angle-left"></i>',
+                    'nextPageLabel' => '<i class="fas fa-angle-right"></i>'
                 ]
             ]);
             \yii\widgets\Pjax::end()?>
@@ -215,7 +236,7 @@
              class="tab-pane fade"
              role="tabpanel"
              aria-labelledby="rejected-proposals-tab">
-            <?php \yii\widgets\Pjax::begin();
+            <?php \yii\widgets\Pjax::begin(['timeout' => 5000]);
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $rejectedProposals,
                 'columns' => [
@@ -234,6 +255,13 @@
                         'label' => 'Creation date',
                         'format' => 'raw',
                     ],
+                ],
+                'pager' => [
+                    'maxButtonCount' => 7,
+                    'firstPageLabel' => '<i class="fas fa-angle-double-left"></i>',
+                    'lastPageLabel' => '<i class="fas fa-angle-double-right"></i>',
+                    'prevPageLabel' => '<i class="fas fa-angle-left"></i>',
+                    'nextPageLabel' => '<i class="fas fa-angle-right"></i>'
                 ]
             ]);
             \yii\widgets\Pjax::end()?>

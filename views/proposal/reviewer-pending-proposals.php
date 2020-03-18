@@ -5,7 +5,7 @@
 
 ?>
 <strong>No reviewed proposals for a reviewer</strong>
-<?php \yii\widgets\Pjax::begin();
+<?php \yii\widgets\Pjax::begin(['timeout' => 5000]);
 echo \yii\grid\GridView::widget([
     'dataProvider' => $noReviewedProposalsByAReviewerDataProvider,
     'columns' => [
@@ -63,13 +63,19 @@ echo \yii\grid\GridView::widget([
                 return $proposal->getComments()->count();
             }
         ]
-
+    ],
+    'pager' => [
+        'maxButtonCount' => 7,
+        'firstPageLabel' => '<i class="fas fa-angle-double-left"></i>',
+        'lastPageLabel' => '<i class="fas fa-angle-double-right"></i>',
+        'prevPageLabel' => '<i class="fas fa-angle-left"></i>',
+        'nextPageLabel' => '<i class="fas fa-angle-right"></i>'
     ]
 ]) ;
 \yii\widgets\Pjax::end();?>
 <strong>reviewed proposals for a reviewer</strong>
 <?php
-\yii\widgets\Pjax::begin();
+\yii\widgets\Pjax::begin(['timeout' => 5000]);
 echo \yii\grid\GridView::widget([
     'dataProvider' => $reviewedProposalsByAReviewerDataProvider,
     'columns' => [
@@ -116,7 +122,13 @@ echo \yii\grid\GridView::widget([
                 return $proposal->getComments()->count();
             }
         ]
-
+    ],
+    'pager' => [
+        'maxButtonCount' => 7,
+        'firstPageLabel' => '<i class="fas fa-angle-double-left"></i>',
+        'lastPageLabel' => '<i class="fas fa-angle-double-right"></i>',
+        'prevPageLabel' => '<i class="fas fa-angle-left"></i>',
+        'nextPageLabel' => '<i class="fas fa-angle-right"></i>'
     ]
 ]);
 \yii\widgets\Pjax::end();?>

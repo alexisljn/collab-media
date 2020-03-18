@@ -69,6 +69,43 @@ a.desc:after {
     white-space: nowrap;
 }
 
+ul.pagination li {
+    border: 1px solid #d1d5da;
+}
+
+ul.pagination li:not(:last-child) {
+    border-right: 0;
+}
+
+ul.pagination li:first-child {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+ul.pagination li:last-child {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+ul.pagination a,
+ul.pagination li span {
+    display: block;
+    padding: 10px;
+    color: inherit;
+    text-decoration: none;
+    text-align: center;
+    min-width: 42px;
+}
+
+ul.pagination a:hover,
+ul.pagination li.active a {
+    background-color: #f7f7f7;
+}
+
+ul.pagination li.disabled {
+    color: #999;
+}
+
 .hint-block {
     display: block;
     margin-top: 5px;

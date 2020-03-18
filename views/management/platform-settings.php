@@ -10,7 +10,7 @@ use yii\helpers\Html; ?>
 <h1>Platform settings</h1>
 <div class="row">
     <div class="col-12">
-        <p class="lead">Proposal Approvement setting</p>
+        <h2 class="h5 mb-3">Proposal Approvement setting</>
     </div>
 </div>
 <?php $form = \yii\widgets\ActiveForm::begin([
@@ -34,13 +34,17 @@ use yii\helpers\Html; ?>
 <?php yii\widgets\ActiveForm::end(); ?>
 <div class="row">
     <div class="col-12">
-        <p class="lead">Social Media</p>
+        <h2 class="h5 mb-3">Social Media</>
     </div>
 </div>
 <div class="row">
     <div class="col-12">
         <?= GridView::widget([
             'dataProvider' => $socialMediasDataProvider,
+            'emptyText' => 'You have no social media configured',
+            'layout' => '{items}{pager}',
+            'tableOptions' => ['class' => 'table box'],
+            'headerRowOptions' => ['class' => 'box-header'],
             'columns' => [
                 [
                    'attribute' => 'social_media_name',

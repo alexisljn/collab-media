@@ -98,7 +98,7 @@ class ManagementController extends MainController
      * @param $user
      * @throws CannotSaveException
      */
-    private function updateAccount(ModifyAccountForm $form, $user)
+    private function updateAccount(ModifyAccountForm $form, User $user)
     {
         $user->firstname    = $form->firstname;
         $user->lastname     = $form->lastname;
@@ -229,7 +229,6 @@ class ManagementController extends MainController
      * approvement settings and display the
      * social media installed on the platform.
      *
-     * @param null $id
      * @return string
      * @throws CannotSaveException
      */
@@ -337,4 +336,3 @@ class ManagementController extends MainController
         return Util::getRandomString(32);
     }
 }
-?>

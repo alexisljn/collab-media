@@ -39,17 +39,22 @@
             <?php \yii\widgets\Pjax::begin();
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $myPendingProposals,
-                'emptyText' => 'You have no pending proposals ',
+                'emptyText' => 'You have no pending proposals',
+                'layout' => '{items}{pager}',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'label' => 'Title',
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
 
-                            return '<a data-pjax="0" href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -76,6 +81,7 @@
                     ],
                     [
                         'label' => 'Comments',
+                        'contentOptions' => ['class' => 'text-center'],
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
@@ -95,16 +101,21 @@
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $myNotPendingProposals,
                 'emptyText' => 'No proposals',
+                'layout' => '{items}{pager}',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
                         'label' => 'Title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
 
-                            return '<a data-pjax="0" href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="proposal/' . $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -141,6 +152,7 @@
                     ],
                     [
                         'label' => 'Comments',
+                        'contentOptions' => ['class' => 'text-center'],
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */

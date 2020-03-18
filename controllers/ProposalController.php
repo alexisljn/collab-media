@@ -1207,12 +1207,6 @@ class ProposalController extends MainController
      *
      * @param int $id
      * @return string
-     * @throws CannotSaveException
-     * @throws FileDoesNotExistException
-     * @throws \app\models\exceptions\CannotAddMediaToTweetException
-     * @throws \app\models\exceptions\FileException
-     * @throws \app\models\exceptions\TwitterAPIException
-     * @throws \app\models\exceptions\TwitterAPIInvalidFileContentException
      * @throws \Throwable
      */
     public function actionPublishProposal(int $id)
@@ -1226,6 +1220,7 @@ class ProposalController extends MainController
 
             try {
                 $selectedProposal->status = \app\models\Proposal::STATUS_PUBLISHED;
+                $selectedProposal->social_media = "twitter";
 
                 if ($publishProposalFormModel->file) {
                     $twitterConnector->addMedia('../uploaded-files/proposal-related-files/'. $selectedProposal->file->path);

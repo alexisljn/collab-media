@@ -127,15 +127,21 @@
             <?php \yii\widgets\Pjax::begin();
             echo yii\grid\GridView::widget([
                 'dataProvider' => $approvedProposals,
+                'layout' => '{items}{pager}',
+                'emptyText' => 'No approved proposals',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
                         'label' => 'Title',
                         'format' => 'raw',
+                        'contentOptions' => ['class' => 'box-link'],
                         'value' => function($proposal)
                         {
                             /** @var \app\models\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -144,10 +150,43 @@
                         'format' => 'raw',
                     ],
                     [
-                        'attribute' => 'count_reviews',
-                        'label' => 'Reviews',
+                        'label' => 'Rating',
                         'format' => 'raw',
+                        'value' => function($proposal)
+                        {
+                            /** @var \app\models\databaseModels\Proposal $proposal */
+                            $approvalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])->count();
+                            $disapprovalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])->count();
+                            ob_start();
+                            ?>
+                            <div class="rating-viewer-counts-container">
+                                <div class="rating-viewer-counts-approvals"><?= $approvalsCount ?></div>
+                                <div class="rating-viewer-counts-disapprovals"><?= $disapprovalsCount ?></div>
+                                <div class="clear"></div>
+                            </div>
+                            <div class="rating-viewer-bar-container">
+                                <?php
+                                $totalReviewsCount = $approvalsCount + $disapprovalsCount;
+                                if($totalReviewsCount === 0) {
+                                    $barPercentage = 50;
+                                } else {
+                                    $barPercentage = $approvalsCount / $totalReviewsCount * 100;
+                                } ?>
+                                <div class="rating-viewer-approval-bar" style="width: <?= $barPercentage ?>%"></div>
+                            </div>
+                            <?php  return ob_get_clean();
+                        }
                     ],
+                    [
+                        'label' => 'Comments',
+                        'contentOptions' => ['class' => 'text-center'],
+                        'value' => function($proposal)
+                        {
+                            /** @var \app\models\databaseModels\Proposal $proposal */
+
+                            return $proposal->getComments()->count();
+                        }
+                    ]
                 ]
             ]);
             \yii\widgets\Pjax::end()?>
@@ -159,15 +198,21 @@
             <?php \yii\widgets\Pjax::begin();
             echo yii\grid\GridView::widget([
                 'dataProvider' => $notApprovedProposals,
+                'emptyText' => 'No proposals',
+                'layout' => '{items}{pager}',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
                         'label' => 'Title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -176,10 +221,43 @@
                         'format' => 'raw',
                     ],
                     [
-                        'attribute' => 'count_reviews',
-                        'label' => 'Reviews',
+                        'label' => 'Rating',
                         'format' => 'raw',
+                        'value' => function($proposal)
+                        {
+                            /** @var \app\models\databaseModels\Proposal $proposal */
+                            $approvalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])->count();
+                            $disapprovalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])->count();
+                            ob_start();
+                            ?>
+                            <div class="rating-viewer-counts-container">
+                                <div class="rating-viewer-counts-approvals"><?= $approvalsCount ?></div>
+                                <div class="rating-viewer-counts-disapprovals"><?= $disapprovalsCount ?></div>
+                                <div class="clear"></div>
+                            </div>
+                            <div class="rating-viewer-bar-container">
+                                <?php
+                                $totalReviewsCount = $approvalsCount + $disapprovalsCount;
+                                if($totalReviewsCount === 0) {
+                                    $barPercentage = 50;
+                                } else {
+                                    $barPercentage = $approvalsCount / $totalReviewsCount * 100;
+                                } ?>
+                                <div class="rating-viewer-approval-bar" style="width: <?= $barPercentage ?>%"></div>
+                            </div>
+                            <?php  return ob_get_clean();
+                        }
                     ],
+                    [
+                        'label' => 'Comments',
+                        'contentOptions' => ['class' => 'text-center'],
+                        'value' => function($proposal)
+                        {
+                            /** @var \app\models\databaseModels\Proposal $proposal */
+
+                            return $proposal->getComments()->count();
+                        }
+                    ]
                 ]
             ]);
             \yii\widgets\Pjax::end();?>
@@ -191,15 +269,21 @@
             <?php \yii\widgets\Pjax::begin();
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $publishedProposals,
+                'layout' => '{items}{pager}',
+                'emptyText' => 'No published proposals',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
                         'label' => 'Title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [
@@ -207,6 +291,11 @@
                         'label' => 'Creation date',
                         'format' => 'raw',
                     ],
+                    [
+                        'attribute' => 'social_media',
+                        'label' => 'Published on',
+                        'format' => 'raw'
+                    ]
                 ]
             ]);
             \yii\widgets\Pjax::end()?>
@@ -218,15 +307,21 @@
             <?php \yii\widgets\Pjax::begin();
             echo \yii\grid\GridView::widget([
                 'dataProvider' => $rejectedProposals,
+                'layout' => '{items}{pager}',
+                'emptyText' => 'No rejected proposals',
+                'tableOptions' => ['class' => 'table box'],
+                'headerRowOptions' => ['class' => 'box-header'],
+                'rowOptions' => ['class' => 'box-row js-row-clickable'],
                 'columns' => [
                     [
                         'attribute' => 'title',
+                        'contentOptions' => ['class' => 'box-link'],
                         'label' => 'Title',
                         'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-                            return '<a data-pjax="0" href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
+                            return '<a data-pjax="0" data-js-row-clickable-url href="/proposal/proposal/'. $proposal->id . '">' . \yii\helpers\Html::encode($proposal->title) . '</a>';
                         }
                     ],
                     [

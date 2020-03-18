@@ -1225,7 +1225,7 @@ class ProposalController extends MainController
 
         if ($publishProposalFormModel->load(Yii::$app->request->post()) && $publishProposalFormModel->validate()) {
             $twitterConnector = new TwitterConnector();
-
+            dd(Yii::$app->request->post());
             if ($publishProposalFormModel->file) {
                 $twitterConnector->addMedia('../uploaded-files/proposal-related-files/'. $selectedProposal->file->path);
             }

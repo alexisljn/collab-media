@@ -373,9 +373,9 @@ use yii\widgets\ActiveForm; ?>
             <div class="proposal-sidebar-block">
                 <div class="row">
                     <div class="col-6 text-center">
-                        <button id="publish-btn" type="button" class="btn btn-lg btn-success">
+                        <a href="/proposal/publish-proposal/<?= $selectedProposal->id ?>" id="publish-btn" type="button" class="btn btn-lg btn-success">
                             Publish
-                        </button>
+                        </a>
                     </div>
                     <div class="col-6 text-center">
                         <button id="reject-btn" type="button" class="btn btn-lg btn-danger">

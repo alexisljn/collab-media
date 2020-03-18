@@ -64,7 +64,9 @@ class MainController extends Controller
         'management' => [
             'accounts' => User::USER_ROLE_ADMIN,
             'create-account' => User::USER_ROLE_ADMIN,
-            'social-media' => User::USER_ROLE_ADMIN,
+            'platform-settings' => User::USER_ROLE_ADMIN,
+            'enable-social-media' => User::USER_ROLE_ADMIN,
+            'reset-password' => User::USER_ROLE_ADMIN,
         ],
     ];
 
@@ -158,8 +160,8 @@ class MainController extends Controller
                         ],
                     ],
                     [
-                        'title' => 'Social Media',
-                        'url' => '/management/social-media',
+                        'title' => 'Platform settings',
+                        'url' => '/management/platform-settings',
                         'roleNeeded' => User::USER_ROLE_ADMIN,
                         'activeActions' => [
                             'management' => ['social-media'],

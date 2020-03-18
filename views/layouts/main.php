@@ -24,10 +24,13 @@ AppAsset::register($this);
     <link rel="stylesheet" href="/css/tui-editor-contents.css">
     <link rel="stylesheet" href="/css/tui-editor-override.css">
     <link rel="stylesheet" href="/fontawesome/css/all.min.css">
+    <link rel="stylesheet" href="/css/toastr.min.css">
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,600,700,900&display=swap" rel="stylesheet">
     <script src="/js/jquery-3.4.1.min.js"></script>
     <script src="/js/tui-editor-Editor-full.js"></script>
     <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/toastr.min.js"></script>
+    <script src="/js/active-data-provider.js"></script>
     <?php $this->registerCsrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
     <?php $this->head() ?>

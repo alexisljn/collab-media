@@ -18,7 +18,6 @@ use app\models\databaseModels\SocialMediaPermission;
 use app\models\databaseModels\User;
 use app\models\databaseModels\EnabledSocialMedia;
 use app\models\exceptions\CannotSaveException;
-use Cassandra\Date;
 use yii\helpers\Console;
 
 class FixturesController extends MainController
@@ -86,6 +85,7 @@ class FixturesController extends MainController
     }
 
     /**
+     * The main function, clears tables and generates fixtures
      * @throws \Throwable
      */
     public function actionGenerate()
@@ -139,6 +139,9 @@ class FixturesController extends MainController
         $this->println('Fixtures successfully generated', Console::BOLD, Console::FG_GREEN);
     }
 
+    /**
+     * Empties all tables
+     */
     private function emptyAllTables()
     {
         Comment::deleteAll();
@@ -175,6 +178,9 @@ class FixturesController extends MainController
         $this->println(User::tableName() . ' table emptied');
     }
 
+    /**
+     * Deletes all files related to a proposal
+     */
     private function emptyProposalRelatedFilesDirectory()
     {
         $directoryPath = \Yii::getAlias('@app/uploaded-files/proposal-related-files/');
@@ -185,6 +191,10 @@ class FixturesController extends MainController
         }
     }
 
+    /**
+     * Generates proposal comments
+     * @throws CannotSaveException
+     */
     private function generateComments()
     {
         foreach($this->proposals as $proposal) {
@@ -235,6 +245,7 @@ class FixturesController extends MainController
     }
 
     /**
+     * Generates enabled social media
      * @throws CannotSaveException
      */
     private function generateEnabledSocialMedia()
@@ -260,6 +271,7 @@ class FixturesController extends MainController
     }
 
     /**
+     * Generates proposal approvement setting
      * @throws CannotSaveException
      */
     private function generateProposalApprovementSetting()
@@ -273,6 +285,10 @@ class FixturesController extends MainController
         }
     }
 
+    /**
+     * Generates proposals
+     * @throws CannotSaveException
+     */
     private function generateProposals()
     {
         $now = new \DateTime();
@@ -361,6 +377,10 @@ class FixturesController extends MainController
         }
     }
 
+    /**
+     * Generates proposal content editions between the proposal submit date and now
+     * @throws CannotSaveException
+     */
     private function generateProposalContentEditions()
     {
         foreach($this->proposals as $proposal) {
@@ -389,6 +409,10 @@ class FixturesController extends MainController
         }
     }
 
+    /**
+     * Generates proposal file editions between the proposal submit date and now
+     * @throws CannotSaveException
+     */
     private function generateProposalFileEditions()
     {
         foreach($this->proposals as $proposal) {
@@ -417,6 +441,10 @@ class FixturesController extends MainController
         }
     }
 
+    /**
+     * Generates proposal reviews between the proposal submit date and now
+     * @throws CannotSaveException
+     */
     private function generateReviews()
     {
         foreach($this->proposals as $proposal) {
@@ -469,6 +497,7 @@ class FixturesController extends MainController
     }
 
     /**
+     * Generates users, reviewers, publishers and admins
      * @throws CannotSaveException
      * @throws \yii\base\Exception
      */

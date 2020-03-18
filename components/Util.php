@@ -96,4 +96,15 @@ class Util
         }
         return $string;
     }
+
+    /**
+     * Deletes an element by key from an array and re-order the keys (the output array has ordered numeric keys)
+     * @param array $array
+     * @param $key
+     */
+    public static function deleteElementFromArray(array &$array, $key)
+    {
+        unset($array[$key]); // Unset function deletes the element, but does not re-order keys
+        $array = array_values($array); // Re-order keys
+    }
 }

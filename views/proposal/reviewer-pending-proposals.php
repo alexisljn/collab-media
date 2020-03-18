@@ -56,32 +56,31 @@
                         'label' => 'Date'
                     ],
                     [
-                        'attribute' => 'has_review',
-                        'label' => 'Reviewed ?',
-                        'value' => function($proposal) {
-                            /** @var \app\models\databaseModels\Proposal $proposal */
-                            if ($proposal->getReviews()->count()) {
-                                return 'Yes';
-                            }
-                            return 'No';
-                        }
-                    ],
-                    [
-                        'label' => 'Approval',
+                        'label' => 'Rating',
+                        'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-
-                            return $proposal->getReviews()->where(['status' => 'approved'])->count();
-                        }
-                    ],
-                    [
-                        'label' => 'Disapproval',
-                        'value' => function($proposal)
-                        {
-                            /** @var \app\models\databaseModels\Proposal $proposal */
-
-                            return $proposal->getReviews()->where(['status' => 'disapproved'])->count();
+                            $approvalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])->count();
+                            $disapprovalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])->count();
+                            ob_start();
+                            ?>
+                            <div class="rating-viewer-counts-container">
+                                <div class="rating-viewer-counts-approvals"><?= $approvalsCount ?></div>
+                                <div class="rating-viewer-counts-disapprovals"><?= $disapprovalsCount ?></div>
+                                <div class="clear"></div>
+                            </div>
+                            <div class="rating-viewer-bar-container">
+                                <?php
+                                $totalReviewsCount = $approvalsCount + $disapprovalsCount;
+                                if($totalReviewsCount === 0) {
+                                    $barPercentage = 50;
+                                } else {
+                                    $barPercentage = $approvalsCount / $totalReviewsCount * 100;
+                                } ?>
+                                <div class="rating-viewer-approval-bar" style="width: <?= $barPercentage ?>%"></div>
+                            </div>
+                            <?php  return ob_get_clean();
                         }
                     ],
                     [
@@ -124,21 +123,31 @@
                         'label' => 'Date'
                     ],
                     [
-                        'label' => 'Approval',
+                        'label' => 'Rating',
+                        'format' => 'raw',
                         'value' => function($proposal)
                         {
                             /** @var \app\models\databaseModels\Proposal $proposal */
-
-                            return $proposal->getReviews()->where(['status' => 'approved'])->count();
-                        }
-                    ],
-                    [
-                        'label' => 'Disapproval',
-                        'value' => function($proposal)
-                        {
-                            /** @var \app\models\databaseModels\Proposal $proposal */
-
-                            return $proposal->getReviews()->where(['status' => 'disapproved'])->count();
+                            $approvalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_APPROVED])->count();
+                            $disapprovalsCount = $proposal->getReviews()->where(['status' => \app\models\Review::REVIEW_STATUS_DISAPPROVED])->count();
+                            ob_start();
+                            ?>
+                            <div class="rating-viewer-counts-container">
+                                <div class="rating-viewer-counts-approvals"><?= $approvalsCount ?></div>
+                                <div class="rating-viewer-counts-disapprovals"><?= $disapprovalsCount ?></div>
+                                <div class="clear"></div>
+                            </div>
+                            <div class="rating-viewer-bar-container">
+                                <?php
+                                $totalReviewsCount = $approvalsCount + $disapprovalsCount;
+                                if($totalReviewsCount === 0) {
+                                    $barPercentage = 50;
+                                } else {
+                                    $barPercentage = $approvalsCount / $totalReviewsCount * 100;
+                                } ?>
+                                <div class="rating-viewer-approval-bar" style="width: <?= $barPercentage ?>%"></div>
+                            </div>
+                            <?php  return ob_get_clean();
                         }
                     ],
                     [
@@ -150,7 +159,6 @@
                             return $proposal->getComments()->count();
                         }
                     ]
-
                 ]
             ]);
             \yii\widgets\Pjax::end();?>

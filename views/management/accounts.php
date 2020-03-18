@@ -70,7 +70,13 @@ use yii\helpers\Html; ?>
                     }
                 ],
             ],
-
+            'pager' => [
+                'maxButtonCount' => 7,
+                'firstPageLabel' => '<i class="fas fa-angle-double-left"></i>',
+                'lastPageLabel' => '<i class="fas fa-angle-double-right"></i>',
+                'prevPageLabel' => '<i class="fas fa-angle-left"></i>',
+                'nextPageLabel' => '<i class="fas fa-angle-right"></i>'
+            ],
         ]);
         \yii\widgets\Pjax::end();?>
     </div>

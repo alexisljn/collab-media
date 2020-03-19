@@ -9,7 +9,7 @@ use app\models\User;
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 
-$this->title = 'Modify Account';
+$this->title = 'Modify account';
 ?>
 <div class="row mb-5">
     <div class="col-12">

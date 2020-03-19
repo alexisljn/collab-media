@@ -191,5 +191,6 @@
                 ],
             ]);
             \yii\widgets\Pjax::end();?>
+        </div>
     </div>
 </div>

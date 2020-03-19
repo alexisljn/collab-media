@@ -1,8 +1,11 @@
 <?php
 /** @var string $error  */
-use yii\helpers\Html; ?>
+use yii\helpers\Html;
 
-<h1>Create Proposal</h1>
+$this->title = 'Create a proposal';
+?>
+
+<h1>Create a proposal</h1>
 
 <?php
     if (!is_null($error)) {

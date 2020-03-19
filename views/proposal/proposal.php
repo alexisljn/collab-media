@@ -13,7 +13,10 @@
 use app\controllers\mainController\MainController;
 use app\models\Proposal;
 use yii\helpers\Html;
-use yii\widgets\ActiveForm; ?>
+use yii\widgets\ActiveForm;
+
+$this->title = $selectedProposal->title;
+?>
 <div id="work"></div>
 <div id="proposal-content-history-modal" class="modal-container">
     <div class="modal-content">

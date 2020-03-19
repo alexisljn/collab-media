@@ -1,10 +1,14 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $myPendingProposals */
 /** @var \yii\data\ActiveDataProvider $myNotPendingProposals */
+
+$this->title = 'My proposals';
 ?>
 
 <div class="row">
-    <h1 class="full-border">My Proposals</h1>
+    <div class="col-12">
+        <h1>My proposals</h1>
+    </div>
 </div>
 <div class="row">
     <div class="col-lg-12">

@@ -93,10 +93,14 @@ if (in_array($formModifyAccountModel->role, [User::USER_ROLE_PUBLISHER, User::US
     <div class="col-12">
         <h2 class="h5">Reset User Password</h2>
         <p>You can reset the user password by clicking on the button below. He will receive an email to define a new password.</p>
-        <form method="post" action="/management/reset-password/<?= $user->id; ?>">
+        <form method="post" action="/management/reset-password/<?= $user->id; ?>" onsubmit="return confirm('Are you sure you want to reset the password of this user?')">
             <?= Html::hiddenInput(Yii::$app->request->csrfParam, Yii::$app->request->csrfToken) ?>
             <input hidden name="redirect" value="/management/accounts/<?= $user->id; ?>">
-            <button type="submit" class="btn btn-not-outline">Reset Password</button>
+            <div class="form-group">
+                <div class="col-lg-offset-1 col-lg-11">
+                    <button type="submit" class="btn btn-warning">Reset Password</button>
+                </div>
+            </div>
         </form>
     </div>
 </div>

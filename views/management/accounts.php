@@ -1,7 +1,10 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $usersDataProvider */
 
-use yii\helpers\Html; ?>
+use yii\helpers\Html;
+
+$this->title = 'Accounts';
+?>
 
 <div class="row">
     <div class="col-12">

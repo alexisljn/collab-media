@@ -1,6 +1,8 @@
 <?php
 /** @var \yii\data\ActiveDataProvider $proposalsToReviewActiveDataProvider */
 /** @var \yii\data\ActiveDataProvider $reviewedProposalsActiveDataProvider */
+
+$this->title = 'Pending proposals';
 ?>
 <div class="row">
     <div class="col-12">

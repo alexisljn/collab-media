@@ -10,10 +10,12 @@
 /** @var int $proposalsReviewedByUserCount */
 /** @var int $proposalsCreatedByUserCount */
 /** @var int $userProposalsPublishedCount */
+
+$this->title = 'Publishing dashboard'
 ?>
 <div class="row">
     <div class="col-12">
-        <h1>Dashboard</h1>
+        <h1>Publishing dashboard</h1>
     </div>
 </div>
 <div class="row margin-bottom">

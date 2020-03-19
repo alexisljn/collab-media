@@ -5,7 +5,10 @@
 
 use app\models\EnabledSocialMedia;
 use yii\grid\GridView;
-use yii\helpers\Html; ?>
+use yii\helpers\Html;
+
+$this->title = 'Settings';
+?>
 
 <div class="row">
     <div class="col-12">

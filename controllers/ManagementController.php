@@ -101,9 +101,15 @@ class ManagementController extends MainController
         $formModifyAccount->email        = $user->email;
         $formModifyAccount->role         = $user->role;
         $formModifyAccount->is_active    = $user->is_active;
-        $formSocialMediaPermission->facebook_enabled = $userPermission->facebook_enabled;
-        $formSocialMediaPermission->twitter_enabled  = $userPermission->twitter_enabled;
-        $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
+        if($user->role === \app\models\User::USER_ROLE_PUBLISHER || $user->role === \app\models\User::USER_ROLE_ADMIN) {
+            $formSocialMediaPermission->facebook_enabled = $userPermission->facebook_enabled;
+            $formSocialMediaPermission->twitter_enabled  = $userPermission->twitter_enabled;
+            $formSocialMediaPermission->linkedin_enabled = $userPermission->linkedin_enabled;
+        } else {
+            $formSocialMediaPermission->facebook_enabled = false;
+            $formSocialMediaPermission->twitter_enabled  = false;
+            $formSocialMediaPermission->linkedin_enabled = false;
+        }
 
         return $this->render('modify-account', [
             'formModifyAccountModel' => $formModifyAccount,

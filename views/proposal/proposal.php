@@ -97,12 +97,20 @@ use yii\widgets\ActiveForm; ?>
             $form = yii\widgets\ActiveForm::begin([
                 'id' => 'proposal-form',
                 'action' => '/proposal/edit-proposal/'. $selectedProposal->id,
+                'options' => [
+                    'enctype' => 'multipart/form-data',
+                ],
             ]);
             ?>
             <?= $form->field($manageProposalFormModel, 'title')->textInput(['id' => 'proposal-form-title-input']); ?>
             <?= $form->field($manageProposalFormModel, 'content')->hiddenInput(['id' => 'proposal-form-content-input'])->label(false); ?>
             <div class="proposal-edit-section"></div>
-            <?= $form->field($manageProposalFormModel, 'relatedFile')->fileInput(); ?>
+            <div class="form-group mt-4 file-input-container">
+                <label class="file-input-label">
+                    Pick or drop a file...
+                    <input type="file" id="manageproposalform-relatedfile" class="file-input" name="ManageProposalForm[relatedFile]">                </label>
+                <span class="file-input-filename"></span>
+            </div>
             <?= yii\helpers\Html::submitButton('Edit', ['class' => 'btn btn-not-outline']); ?>
             <?php yii\widgets\ActiveForm::end(); ?>
         </div>
@@ -258,7 +266,7 @@ use yii\widgets\ActiveForm; ?>
             ?>
         </div>
         <div class="proposal-add-comment-container">
-            <h3>Add a comment</h3>
+            <h2 class="h5">Add a comment</h2>
             <?php
             $manageCommentForm = yii\widgets\ActiveForm::begin([
                 'id' => 'comment-form',

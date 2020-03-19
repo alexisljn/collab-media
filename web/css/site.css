@@ -112,6 +112,30 @@ ul.pagination li.disabled {
     color: #999;
 }
 
+.help-block-error {
+    color: #dd1111;
+}
+
+.file-input-label {
+    position: relative;
+    border-radius: .25rem;
+}
+
+.file-input-label input {
+    font-size: 0;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+}
+
+.file-input-label input:hover {
+    cursor: pointer;
+}
+
 .error-summary {
     color: #a94442;
     background: #fdf7f7;
@@ -317,7 +341,8 @@ ul.pagination li.disabled {
     text-transform: capitalize ;
 }
 
-.btn-not-outline {
+.btn-not-outline,
+.file-input-label {
     background-color: #eff3f6;
     background-image: linear-gradient(-180deg,#fafbfc,#eff3f6 90%);
     border: 1px solid rgba(27,31,35,.2);
@@ -327,10 +352,12 @@ ul.pagination li.disabled {
     padding: 3px 10px;
 }
 
-.btn-not-outline:hover {
+.btn-not-outline:hover,
+.file-input-label:hover,
+.file-input-label.dragging {
     background-color: #e6ebf1;
     background-image: linear-gradient(-180deg,#f0f3f6,#e6ebf1 90%);
-    /*background-position: -.5em;*/
+    cursor: pointer;
 }
 
 .clear {

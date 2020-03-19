@@ -43,6 +43,42 @@ h1 {
     border-bottom: 1px solid #e8e8e8;
 }
 
+h1.site-index-title {
+    padding-bottom: 0;
+    border-bottom: none;
+    margin-bottom: 1.5em;
+}
+
+.site-index {
+    text-align: center;
+}
+
+a.site-index-start {
+    display: block;
+    max-width: 500px;
+    margin: auto;
+    padding: 15px;
+    font-size: 1.3em;
+    text-decoration: none;
+    background-color: #278ee8;
+    color: #fff;
+    border-radius: 10px;
+
+    transition: 0.1s background-color ease-out;
+}
+
+a.site-index-start:hover {
+    background-color: #2ca1d6;
+}
+
+.site-index-twitter-timeline {
+    max-width: 600px;
+    margin: auto;
+    border: 1px solid #efefef;
+    padding: 10px 15px;
+    border-radius: 10px;
+}
+
 /* add sorting icons to gridview sort links */
 a.asc:after, a.desc:after {
     position: relative;

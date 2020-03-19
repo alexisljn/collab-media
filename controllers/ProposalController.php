@@ -349,7 +349,7 @@ class ProposalController extends MainController
                     ->select('proposal_id')
                     ->from('review')
                     ->where(['reviewer_id' => self::getCurrentUser()->id])
-                    ->column()
+                    ->andWhere(['not', ['status' => \app\models\Review::REVIEW_STATUS_CANCELLED]])
             ])
             ->andWhere(['status' => 'pending']),
             'pagination' => [

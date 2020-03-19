@@ -38,6 +38,7 @@ class ManagementController extends MainController
         if(!is_null($id)) {
             return $this->actionModifyAccount($id);
         }
+
         $usersDataProvider = new ActiveDataProvider([
             'query' => User::find(),
             'sort' => ['defaultOrder' => ['id' => SORT_DESC]],
@@ -63,9 +64,26 @@ class ManagementController extends MainController
         $userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]);
         $formModifyAccount = new ModifyAccountForm();
         $formSocialMediaPermission = new ModifySocialMediaPermissionForm();
+        $canEditAllInputs = true;
+        $isAccountModified = false;
 
-        if ($formModifyAccount->load($_POST) && $formModifyAccount->validate()) {
-            $this->updateAccount($formModifyAccount, $user);
+        if($user->role === \app\models\User::USER_ROLE_ADMIN && $user->id === MainController::getCurrentUser()->id) {
+            $canEditAllInputs = false;
+        }
+
+        if ($formModifyAccount->load($_POST)) {
+            if(!$canEditAllInputs) {
+                if (is_null($formModifyAccount->role)) {
+                    $formModifyAccount->role = $user->role;
+                    $formModifyAccount->is_active = $user->is_active;
+                } else if ($formModifyAccount->role !== $user->role || (bool) $formModifyAccount->is_active !== $user->is_active) {
+                    $formModifyAccount->addError('is_active', 'you can\'t edit as an admin your role or active status');
+                }
+            }
+            if($formModifyAccount->validate(null, false)) {
+                $this->updateAccount($formModifyAccount, $user);
+                $isAccountModified = true;
+            }
         }
 
         if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
@@ -91,7 +109,27 @@ class ManagementController extends MainController
             'formModifyAccountModel' => $formModifyAccount,
             'formSocialMediaPermissionModel' => $formSocialMediaPermission,
             'user' => $user,
+            'canEditAllInputs' => $canEditAllInputs,
+            'isAccountModified' => $isAccountModified
         ]);
+    }
+
+    private function checkIfAdminCanEditAllInputs(
+        User $userModified,
+        ModifyAccountForm $modifyAccountForm,
+        $canEditAllInputs)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if($canEditAllInputs) {
+            return;
+        }
+
+        if ($userModified->id === MainController::getCurrentUser()->id) {
+           //dd($modifyAccountForm);
+            //throw new $unauthorizedException();
+        }
+
     }
 
     /**

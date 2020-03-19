@@ -1,9 +1,10 @@
 <?php
 
-/* @var $this yii\web\View */
-/* @var $formModifyAccountModel app\models\forms\ModifyAccountForm */
-/* @var $formSocialMediaPermissionModel app\models\forms\ModifySocialMediaPermissionForm */
-/* @var $user app\models\databaseModels\User */
+/** @var $this yii\web\View */
+/** @var $formModifyAccountModel app\models\forms\ModifyAccountForm */
+/** @var $formSocialMediaPermissionModel app\models\forms\ModifySocialMediaPermissionForm */
+/** @var $user app\models\databaseModels\User */
+/** @var bool $canEditAllInputs */
 
 use app\models\User;
 use yii\helpers\Html;
@@ -31,15 +32,17 @@ $this->title = 'Modify Account';
 
         <?= $formModifyAccount->field($formModifyAccountModel, 'email')?>
 
-        <?= $formModifyAccount->field($formModifyAccountModel, 'role')->dropDownList([
-            User::USER_ROLE_MEMBER => 'Member',
-            User::USER_ROLE_REVIEWER => 'Reviewer',
-            User::USER_ROLE_PUBLISHER => 'Publisher',
-            User::USER_ROLE_ADMIN => 'Admin'
-        ],[
-            'options'=>[
-                'role' => ['selected' => true]
-            ]]) ?>
+        <?= $formModifyAccount->field($formModifyAccountModel, 'role')
+            ->dropDownList([
+                User::USER_ROLE_MEMBER => 'Member',
+                User::USER_ROLE_REVIEWER => 'Reviewer',
+                User::USER_ROLE_PUBLISHER => 'Publisher',
+                User::USER_ROLE_ADMIN => 'Admin'
+            ],
+            [ 'options'=> [
+                    'role' => ['selected' => true],
+                ]
+            ])?>
 
         <?= $formModifyAccount->field($formModifyAccountModel,'is_active')->checkbox(); ?>
 
@@ -87,8 +90,6 @@ if (in_array($formModifyAccountModel->role, [User::USER_ROLE_PUBLISHER, User::US
     </div>
 <?php ActiveForm::end();
 } ?>
-
-
 <div class="row mb-5">
     <div class="col-12">
         <h2 class="h5">Reset User Password</h2>
@@ -104,3 +105,11 @@ if (in_array($formModifyAccountModel->role, [User::USER_ROLE_PUBLISHER, User::US
         </form>
     </div>
 </div>
+<script type="text/javascript" id="modify-account-script">
+    $(() => {
+        if ('<?= $canEditAllInputs ?>' === '') {
+            $('#modifyaccountform-role').attr('disabled', 'true');
+            $('#modifyaccountform-is_active').attr('disabled', 'true');
+        }
+    });
+</script>

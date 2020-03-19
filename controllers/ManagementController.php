@@ -38,6 +38,7 @@ class ManagementController extends MainController
         if(!is_null($id)) {
             return $this->actionModifyAccount($id);
         }
+
         $usersDataProvider = new ActiveDataProvider([
             'query' => User::find(),
             'sort' => ['defaultOrder' => ['id' => SORT_DESC]],
@@ -63,8 +64,14 @@ class ManagementController extends MainController
         $userPermission = SocialMediaPermission::findOne(['publisher_id' => $id]);
         $formModifyAccount = new ModifyAccountForm();
         $formSocialMediaPermission = new ModifySocialMediaPermissionForm();
+        $canEditAllInputs = true;
+
+        if($user->role === \app\models\User::USER_ROLE_ADMIN && $user->id === MainController::getCurrentUser()->id) {
+            $canEditAllInputs = false;
+        }
 
         if ($formModifyAccount->load($_POST) && $formModifyAccount->validate()) {
+            $this->checkIfAdminCanEditAllInputs($user, $canEditAllInputs);
             $this->updateAccount($formModifyAccount, $user);
         }
 
@@ -91,7 +98,22 @@ class ManagementController extends MainController
             'formModifyAccountModel' => $formModifyAccount,
             'formSocialMediaPermissionModel' => $formSocialMediaPermission,
             'user' => $user,
+            'canEditAllInputs' => $canEditAllInputs
         ]);
+    }
+
+    private function checkIfAdminCanEditAllInputs(User $userModified, $canEditAllInputs)
+    {
+        $unauthorizedException = NotFoundHttpException::class;
+
+        if($canEditAllInputs) {
+            return;
+        }
+
+        if ($userModified->id === MainController::getCurrentUser()->id) {
+            throw new $unauthorizedException();
+        }
+
     }
 
     /**

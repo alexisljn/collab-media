@@ -4,7 +4,10 @@
 /** @var \app\models\Proposal $selectedProposal  */
 /** @var array $allowedSocialMedia */
 
-use yii\helpers\Html; ?>
+use yii\helpers\Html;
+
+$this->title = 'Publish ' . $selectedProposal->title;
+?>
 
 <div class="row">
     <div class="col-12">

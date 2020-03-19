@@ -106,41 +106,21 @@ class MainController extends Controller
                 'activeActions' => [
                     'proposal' => ['reviewer-pending-proposals'],
                 ],
-                'children' => [
-                    [
-                        'title' => 'Not reviewed proposals',
-                        'url' => '/proposal/reviewer-pending-proposals',
-                        'roleNeeded' => User::USER_ROLE_REVIEWER,
-                        'activeActions' => [
-                            'proposal' => ['reviewer-pending-proposals'],
-                        ],
-                    ],
-                ],
             ],
             [
-                'title' => 'Publisher',
+                'title' => 'Publish',
                 'url' => '/proposal/dashboard',
                 'roleNeeded' => User::USER_ROLE_PUBLISHER,
                 'activeActions' => [
-                    'proposal' => ['dasboard']
+                    'proposal' => ['dashboard']
                 ],
-                'children' => [
-                    [
-                        'title' => 'Dashboard',
-                        'url' => '/proposal/dashboard',
-                        'roleNeeded' => User::USER_ROLE_PUBLISHER,
-                        'activeActions' => [
-                            'proposal' => ['dashboard']
-                        ],
-                    ]
-                ]
             ],
             [
                 'title' => 'Manage',
                 'url' => '/management/accounts',
                 'roleNeeded' => User::USER_ROLE_ADMIN,
                 'activeActions' => [
-                    'management' => ['accounts'],
+                    'management' => ['accounts', 'modify-account', 'create-account', 'platform-settings'],
                 ],
                 'children' => [
                     [
@@ -164,7 +144,7 @@ class MainController extends Controller
                         'url' => '/management/platform-settings',
                         'roleNeeded' => User::USER_ROLE_ADMIN,
                         'activeActions' => [
-                            'management' => ['social-media'],
+                            'management' => ['platform-settings'],
                         ],
                     ],
                 ],

@@ -12,7 +12,9 @@
 /** @var int $userProposalsPublishedCount */
 ?>
 <div class="row">
-    <h1 class="full-border">Dashboard</h1>
+    <div class="col-12">
+        <h1>Dashboard</h1>
+    </div>
 </div>
 <div class="row margin-bottom">
     <div class="col-lg-3 col-md-6">

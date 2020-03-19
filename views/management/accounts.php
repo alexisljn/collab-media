@@ -4,7 +4,9 @@
 use yii\helpers\Html; ?>
 
 <div class="row">
-    <h1 class="full-border">Accounts</h1>
+    <div class="col-12">
+        <h1>Accounts</h1>
+    </div>
 </div>
 <div class="row">
     <div class="col-12">

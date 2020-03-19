@@ -308,15 +308,6 @@ class ProposalController extends MainController
     {
         return new ActiveDataProvider([
             'query' => Proposal::find()
-               ->select('proposal.*,
-                                  CASE
-                                    WHEN 
-                                        (SELECT count(*) 
-                                        FROM review 
-                                        WHERE review.proposal_id = proposal.id) > 0 
-                                        THEN 1
-                                    ELSE 0
-                                  END as has_review')
                ->where([
                     'not in',
                     'id',
@@ -324,6 +315,7 @@ class ProposalController extends MainController
                         ->select('proposal_id')
                         ->from('review')
                         ->where(['reviewer_id' => self::getCurrentUser()->id])
+                        ->andWhere(['not', ['status' => \app\models\Review::REVIEW_STATUS_CANCELLED]])
                 ])
                 ->andWhere(['status' => 'pending']),
             'pagination' => [
@@ -333,9 +325,8 @@ class ProposalController extends MainController
             ],
             'sort' => [
                 'sortParam' => 'pendingSort',
-                'attributes' => ['has_review','date', 'title'],
+                'attributes' => ['date', 'title'],
                 'defaultOrder' => [
-                    'has_review' => SORT_ASC,
                     'date' => SORT_DESC
                 ]
             ]

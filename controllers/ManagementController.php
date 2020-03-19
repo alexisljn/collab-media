@@ -65,14 +65,25 @@ class ManagementController extends MainController
         $formModifyAccount = new ModifyAccountForm();
         $formSocialMediaPermission = new ModifySocialMediaPermissionForm();
         $canEditAllInputs = true;
+        $isAccountModified = false;
 
         if($user->role === \app\models\User::USER_ROLE_ADMIN && $user->id === MainController::getCurrentUser()->id) {
             $canEditAllInputs = false;
         }
 
-        if ($formModifyAccount->load($_POST) && $formModifyAccount->validate()) {
-            $this->checkIfAdminCanEditAllInputs($user, $canEditAllInputs);
-            $this->updateAccount($formModifyAccount, $user);
+        if ($formModifyAccount->load($_POST)) {
+            if(!$canEditAllInputs) {
+                if (is_null($formModifyAccount->role)) {
+                    $formModifyAccount->role = $user->role;
+                    $formModifyAccount->is_active = $user->is_active;
+                } else if ($formModifyAccount->role !== $user->role || (bool) $formModifyAccount->is_active !== $user->is_active) {
+                    $formModifyAccount->addError('is_active', 'you can\'t edit as an admin your role or active status');
+                }
+            }
+            if($formModifyAccount->validate(null, false)) {
+                $this->updateAccount($formModifyAccount, $user);
+                $isAccountModified = true;
+            }
         }
 
         if ($formSocialMediaPermission->load($_POST) && $formSocialMediaPermission->validate()) {
@@ -98,11 +109,15 @@ class ManagementController extends MainController
             'formModifyAccountModel' => $formModifyAccount,
             'formSocialMediaPermissionModel' => $formSocialMediaPermission,
             'user' => $user,
-            'canEditAllInputs' => $canEditAllInputs
+            'canEditAllInputs' => $canEditAllInputs,
+            'isAccountModified' => $isAccountModified
         ]);
     }
 
-    private function checkIfAdminCanEditAllInputs(User $userModified, $canEditAllInputs)
+    private function checkIfAdminCanEditAllInputs(
+        User $userModified,
+        ModifyAccountForm $modifyAccountForm,
+        $canEditAllInputs)
     {
         $unauthorizedException = NotFoundHttpException::class;
 
@@ -111,7 +126,8 @@ class ManagementController extends MainController
         }
 
         if ($userModified->id === MainController::getCurrentUser()->id) {
-            throw new $unauthorizedException();
+           //dd($modifyAccountForm);
+            //throw new $unauthorizedException();
         }
 
     }

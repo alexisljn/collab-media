@@ -5,6 +5,7 @@
 /** @var $formSocialMediaPermissionModel app\models\forms\ModifySocialMediaPermissionForm */
 /** @var $user app\models\databaseModels\User */
 /** @var bool $canEditAllInputs */
+/** @var bool $isAccountModified */
 
 use app\models\User;
 use yii\helpers\Html;
@@ -113,3 +114,10 @@ if (in_array($formModifyAccountModel->role, [User::USER_ROLE_PUBLISHER, User::US
         }
     });
 </script>
+<?php if ($isAccountModified) { ?>
+    <script type="text/javascript" id="toaster-modify">
+        $(() => {
+            toastr.success('Success', 'Your change have been saved');
+        })
+    </script>
+<?php } ?>

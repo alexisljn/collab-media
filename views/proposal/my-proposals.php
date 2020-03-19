@@ -59,7 +59,7 @@
                     ],
                     [
                         'attribute' => 'date',
-                        'label' => 'date'
+                        'label' => 'Date'
                     ],
                     [
                         'label' => 'Rating',
@@ -137,7 +137,7 @@
                     ],
                     [
                         'attribute' => 'date',
-                        'label' => 'date'
+                        'label' => 'Date'
                     ],
                     [
                         'label' => 'Rating',
